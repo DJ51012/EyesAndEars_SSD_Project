@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include "Ssd.h"
 
 using namespace std;
 
@@ -40,10 +39,21 @@ public:
 		return true;
 	}
 
+	void executeSSDCommand(SsdDriver* ssd)
+	{
+		switch (m_cmd)
+		{
+		case 'W': ssd->write(m_nLba, m_strData); break;
+		case 'R': ssd->read(m_nLba); break;
+		default: break;
+		}
+		m_cmd = '-';
+		return;
+	}
 
 private:
 
-	char m_cmd;
+	char m_cmd = '-';
 	int m_nLba;
 	string m_strData;
 
