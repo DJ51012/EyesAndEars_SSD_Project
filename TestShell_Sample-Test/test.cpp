@@ -35,7 +35,13 @@ TEST(TestShell, WrongUserArguments) {
 }
 
 TEST(TestShell, WriteCmd) {
-	// TODO: Test for write
+	MockSsdDriver msd;
+
+	EXPECT_CALL(msd, write(_, _)).Times(1);
+
+	TestShell ts{ "write", { "0", "0x12345678" }, &msd };
+
+	ts.run_cmd();
 }
 
 TEST(TestShell, ReadCmd) {

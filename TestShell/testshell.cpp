@@ -56,6 +56,7 @@ private:
 	}
 
 	TestCmd* get_test_cmd_runner() {
+		if (cmd == "write") return new WriteTestCmd();
 		return nullptr;
 	}
 
