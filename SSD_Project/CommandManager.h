@@ -73,6 +73,7 @@ private:
 	{
 		if (argc != 4) return false;
 		if (!IsValidAddr(argv[2])) return false;
+		if (!IsValidData(argv[3])) return false;
 
 		return true;
 	}
@@ -88,6 +89,22 @@ private:
 			return false;
 
 		m_nLba = nLba;
+		return true;
+	}
+
+	bool IsValidData(string strData)
+	{
+		// Format 0xXXXXXXXX
+		if (strData.size() != 10) return false;
+		if (strData[0] != '0' || strData[1] != 'x') return false;
+
+		for (int idx = 2; idx < 10; idx++) {
+			if (!((strData[idx] >= '0' && strData[idx] <= '9')
+				|| (strData[idx] >= 'A' && strData[idx] <= 'Z')))
+				return false;
+		}
+
+		m_strData = strData;
 		return true;
 	}
 };

@@ -113,3 +113,25 @@ TEST_F(CommandManagerFixture, Invalid_Address001)
 
 	EXPECT_EQ(expected, actual);
 }
+
+TEST_F(CommandManagerFixture, Invalid_Data000)
+{
+	int argc = 4;
+	char* argv[] = { "ssd", "W", "50", "0xqw0-1231zlomas8=" };
+
+	bool actual = cm.IsValidCommand(argc, argv);
+	bool expected = false;
+
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(CommandManagerFixture, Invalid_Data001)
+{
+	int argc = 4;
+	char* argv[] = { "ssd", "W", "40", "0x!231+asd" };
+
+	bool actual = cm.IsValidCommand(argc, argv);
+	bool expected = false;
+
+	EXPECT_EQ(expected, actual);
+}
