@@ -5,7 +5,7 @@
 TEST(TestShell, WrongCmd) {
 	TestShell ts{ "undefined_cmd" };
 
-	EXPECT_FALSE(ts.run_cmd());
+	EXPECT_THROW(ts.run_cmd(), invalid_argument);
 }
 
 TEST(TestShell, WrongUserArguments) {
