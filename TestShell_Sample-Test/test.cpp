@@ -75,11 +75,29 @@ TEST_F(SSDFixture, BasicReadCmdSuccess) {
 }
 
 TEST(TestShell, ExitCmd) {
-	// TODO: Test for exit
+	TestShell ts_exit{ "exit" , {}, nullptr };
+
+	EXPECT_EXIT(ts_exit.run_cmd(), ExitedWithCode(0), "");
 }
 
 TEST(TestShell, HelpCmd) {
-	// TODO: Test for help
+	stringstream captured_buf;
+	streambuf* backup_cout_buf = std::cout.rdbuf();
+	std::cout.rdbuf(captured_buf.rdbuf());
+
+	TestShell ts_help{ "help" , {}, nullptr };
+	EXPECT_TRUE(ts_help.run_cmd());
+
+	string PRINT_OUT_HELP = 
+		"write <idx> <value>    Write value to idx'th LBA.\n"\
+		"read <idx>             Print out the value of idx'th LBA.\n";
+		"exit                   Terminate the shell.\n";
+		"help                   Print out the help message.\n";
+		"fullwrite <value>      Write value to all LBAs indexed from 0 to 99.\n";
+		"fullread <idx>         Print out all values of LBAs indexed from 0 to 99.\n";
+	EXPECT_THAT(captured_buf.str(), Eq(PRINT_OUT_HELP));
+
+	std::cout.rdbuf(backup_cout_buf);
 }
 
 TEST(TestShell, FullWriteCmd) {
