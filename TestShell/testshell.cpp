@@ -2,6 +2,8 @@
 #include <vector>
 #include <stdexcept>
 #include "testcmd.h"
+#include "../SSD_Project/SsdDriver.h"
+#include "../TestShell/FileIOInterface.h"
 
 using namespace std;
 
@@ -10,6 +12,12 @@ public:
 	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver) 
 		: cmd(cmd), args(args), ssd_driver(ssd_driver){
 
+	}
+	void setDriver(SsdDriver* driver)  {
+		this->driver = driver;
+	}
+	void setFileIo(FileIoInterface* fio) {
+		this->fio = fio;
 	}
 
 	bool run_cmd() {
@@ -61,6 +69,8 @@ private:
 	}
 
 	string cmd;
+	SsdDriver* driver;
+	FileIoInterface* fio;
 	vector<string> args;
 	SsdDriver* ssd_driver = nullptr;
 };
