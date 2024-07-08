@@ -31,25 +31,52 @@ public:
 		if (!IsArgumentExist(argc)) { return false; };
 		if (!IsValidCommandCode(argv[1])) { return false; };
 
+		switch(m_cmd)
+		{
+		case 'W':
+			if (!IsValidWriteCommand(argc, argv)) { return false; }
+			break;
+		case 'R':
+			if (!IsValidReadCommand(argc, argv)) { return false; }
+			break;
+		default:
+			break;
+		}
+
 		return true;
 	}
 
 private:
 
-	char cmd;
-	int nLba;
-	unsigned nData;
+	char m_cmd;
+	int m_nLba;
+	unsigned m_nData;
 
 	bool IsArgumentExist(int argc)
 	{
-		return argc >= 3;
+		return argc >= 2;
 	}
 
 	bool IsValidCommandCode(char* cmd)
 	{
-		if (strcmp(cmd, "W") == 0
-			|| strcmp(cmd, "R") == 0)
+		if (strcmp(cmd, "W") == 0 || strcmp(cmd, "R") == 0) {
+			m_cmd = cmd[0];
 			return true;
+		}
 		return false;
+	}
+
+	bool IsValidReadCommand(int argc, char* argv[])
+	{
+		if (argc != 3)
+			return false;
+		return true;
+	}
+
+	bool IsValidWriteCommand(int argc, char* argv[])
+	{
+		if (argc != 4)
+			return false;
+		return true;
 	}
 };
