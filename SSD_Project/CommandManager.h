@@ -47,6 +47,10 @@ private:
 	int m_nLba;
 	string m_strData;
 
+	const int DATA_WIDTH = 10;
+	const int ADDR_MAX = 99;
+	const int ADDR_MIN = 0;
+
 	bool IsArgumentExist(int argc)
 	{
 		return argc >= 2;
@@ -81,11 +85,11 @@ private:
 	bool IsValidAddr(string strLba)
 	{
 		for (auto ch : strLba)
-			if (ch < '0' || ch > '9')
+			if (!IsNumber(ch))
 				return false;
 
 		int nLba = stoi(strLba);
-		if (!(nLba >= 0 && nLba <= 99))
+		if (!(nLba >= ADDR_MIN && nLba <= ADDR_MAX))
 			return false;
 
 		m_nLba = nLba;
@@ -95,16 +99,25 @@ private:
 	bool IsValidData(string strData)
 	{
 		// Format 0xXXXXXXXX
-		if (strData.size() != 10) return false;
+		if (strData.size() != DATA_WIDTH) return false;
 		if (strData[0] != '0' || strData[1] != 'x') return false;
 
-		for (int idx = 2; idx < 10; idx++) {
-			if (!((strData[idx] >= '0' && strData[idx] <= '9')
-				|| (strData[idx] >= 'A' && strData[idx] <= 'Z')))
+		for (int idx = 2; idx < DATA_WIDTH; idx++) {
+			if (!(IsNumber(strData[idx]) || IsCapital(strData[idx])))
 				return false;
 		}
 
 		m_strData = strData;
 		return true;
+	}
+
+	bool IsNumber(char ch)
+	{
+		return ch >= '0' && ch <= '9';
+	}
+
+	bool IsCapital(char ch)
+	{
+		return ch >= 'A' && ch <= 'Z';
 	}
 };
