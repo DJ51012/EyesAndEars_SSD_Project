@@ -32,11 +32,19 @@ private:
 
 	void AssertWrongArguments()
 	{
-		if (cmd == "write" && args.size() >= 2 && stoi(args[0]) < 100 && args[1].length() == 10 && args[1].substr(0, 2) == "0x") return;
-		if (cmd == "read" && args.size() >= 1 && stoi(args[0]) < 100) return;
-		if (cmd == "fullwrite" && args.size() >= 1 && args[0].length() == 10 && args[0].substr(0, 2) == "0x") return;
+		if (cmd == "write" && args.size() >= 2 && isValidLbaIndex(args[0]) && isValidWriteValue(args[1])) return;
+		if (cmd == "read" && args.size() >= 1 && isValidLbaIndex(args[0])) return;
+		if (cmd == "fullwrite" && args.size() >= 1 && isValidWriteValue(args[0])) return;
 			
 		throw invalid_argument("wrong argument for fullwrite!");
+	}
+
+	bool isValidLbaIndex(string& lba_index) {
+		return stoi(lba_index) < 100;
+	}
+
+	bool isValidWriteValue(string& write_value) {
+		return write_value.length() == 10 && write_value.substr(0, 2) == "0x";
 	}
 
 	string cmd;
