@@ -1,6 +1,13 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+
+#include "../SSD_Project/SsdDriver.h"
+
+#include "../TestShell_Sample-Test/MockSsdDriver.h"
 #include "../TestShell/testshell.cpp"
+
+using namespace std;
+using namespace testing;
 
 TEST(TestShell, WrongCmd) {
 	TestShell ts{ "undefined_cmd" };
