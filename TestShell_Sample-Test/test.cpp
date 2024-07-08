@@ -75,7 +75,9 @@ TEST_F(SSDFixture, BasicReadCmdSuccess) {
 }
 
 TEST(TestShell, ExitCmd) {
-	// TODO: Test for exit
+	TestShell ts_exit{ "exit" , {}, nullptr };
+
+	EXPECT_EXIT(ts_exit.run_cmd(), ExitedWithCode(0), "");
 }
 
 TEST(TestShell, HelpCmd) {

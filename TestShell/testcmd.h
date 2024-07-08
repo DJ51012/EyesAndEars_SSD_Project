@@ -15,3 +15,10 @@ public:
 		ssd_driver->write(stoi(args[0]), stoi(args[1]));
 	}
 };
+
+class ExitTestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, vector<string>& args) override {
+		exit(0);
+	}
+};
