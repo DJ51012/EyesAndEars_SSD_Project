@@ -52,6 +52,7 @@ private:
 		if (cmd == "read" && args.size() >= 1 && isValidLbaIndex(args[0])) return;
 		if (cmd == "fullwrite" && args.size() >= 1 && isValidWriteValue(args[0])) return;
 		if (cmd == "exit") return;
+		if (cmd == "help") return;
 			
 		throw invalid_argument("wrong argument for fullwrite!");
 	}
@@ -67,6 +68,7 @@ private:
 	TestCmd* get_test_cmd_runner() {
 		if (cmd == "write") return new WriteTestCmd();
 		if (cmd == "exit") return new ExitTestCmd();
+		if (cmd == "help") return new HelpTestCmd();
 		return nullptr;
 	}
 
