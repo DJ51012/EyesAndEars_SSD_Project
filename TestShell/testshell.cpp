@@ -8,8 +8,8 @@ public:
 
 	}
 
-	int run_cmd() {
-		return 0;
+	bool run_cmd() {
+		return false;
 	}
 
 private:
