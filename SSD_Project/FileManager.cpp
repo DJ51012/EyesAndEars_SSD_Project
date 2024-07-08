@@ -1,9 +1,9 @@
 #include "FileManager.h"
 
-unsigned int FileManager::readNand(int lba) {
+string FileManager::readNand(int lba) {
 	return nand[lba];
 }
 
-void FileManager::writeNand(int lba, unsigned int data) {
+void FileManager::writeNand(int lba, string data) {
 	nand[lba] = data;
 }

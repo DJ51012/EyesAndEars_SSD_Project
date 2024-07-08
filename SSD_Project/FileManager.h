@@ -1,13 +1,20 @@
 #pragma once
 
 #include <fstream>
+#include <string>
 
+using namespace std;
 
 class FileManager {
 public:
-	FileManager() : nand{} {}
-	unsigned int readNand(int lba);
-	void writeNand(int lba, unsigned int data);
+	const string CLEAN_DATA = "0x00000000";
+
+	FileManager(){
+		for (int i = 0; i < 100; i++)
+			nand[i] = CLEAN_DATA;
+	}
+	string readNand(int lba);
+	void writeNand(int lba, string data);
 private:
-	unsigned int nand[100];
+	string nand[100];
 };
