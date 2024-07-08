@@ -101,7 +101,13 @@ TEST(TestShell, HelpCmd) {
 }
 
 TEST(TestShell, FullWriteCmd) {
-	// TODO: Test for fullwrite
+	MockSsdDriver msd;
+	
+	EXPECT_CALL(msd, write(_, _)).Times(100);
+
+	TestShell ts{ "fullwrite", { "0x12345678" }, &msd };
+
+	ts.run_cmd();
 }
 
 TEST(TestShell, FullReadCmd) {
