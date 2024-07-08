@@ -3,7 +3,9 @@
 #include "../TestShell/testshell.cpp"
 
 TEST(TestShell, WrongCmd) {
-	// TODO: Check undefined test cmd
+	TestShell ts{ "undefined_cmd" };
+
+	EXPECT_FALSE(ts.run_cmd());
 }
 
 TEST(TestShell, WrongUserArguments) {
