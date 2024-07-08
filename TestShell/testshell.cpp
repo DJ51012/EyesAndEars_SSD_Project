@@ -54,7 +54,7 @@ private:
 		if (cmd == "exit") return;
 		if (cmd == "help") return;
 			
-		throw invalid_argument("wrong argument for fullwrite!");
+		throw invalid_argument("Wrong argument!");
 	}
 
 	bool isValidLbaIndex(string& lba_index) {
