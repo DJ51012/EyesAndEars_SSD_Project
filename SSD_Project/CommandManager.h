@@ -7,12 +7,6 @@ using namespace std;
 class CommandManager
 {
 public:
-	int getAddrData(int& addr, unsigned &data, int argc, char* argv[])
-	{
-		return 0;
-	}
-
-
 	void printCommandGuide()
 	{
 		cout << "[Usage] <cmd> <addr> <data>" << endl;
@@ -31,7 +25,7 @@ public:
 		if (!IsArgumentExist(argc)) { return false; };
 		if (!IsValidCommandCode(argv[1])) { return false; };
 
-		switch(m_cmd)
+		switch (m_cmd)
 		{
 		case 'W':
 			if (!IsValidWriteCommand(argc, argv)) { return false; }
@@ -46,11 +40,12 @@ public:
 		return true;
 	}
 
+
 private:
 
 	char m_cmd;
 	int m_nLba;
-	unsigned m_nData;
+	string m_strData;
 
 	bool IsArgumentExist(int argc)
 	{
@@ -68,15 +63,31 @@ private:
 
 	bool IsValidReadCommand(int argc, char* argv[])
 	{
-		if (argc != 3)
-			return false;
+		if (argc != 3) return false;
+		if (!IsValidAddr(argv[2])) return false;
+
 		return true;
 	}
 
 	bool IsValidWriteCommand(int argc, char* argv[])
 	{
-		if (argc != 4)
+		if (argc != 4) return false;
+		if (!IsValidAddr(argv[2])) return false;
+
+		return true;
+	}
+
+	bool IsValidAddr(string strLba)
+	{
+		for (auto ch : strLba)
+			if (ch < '0' || ch > '9')
+				return false;
+
+		int nLba = stoi(strLba);
+		if (!(nLba >= 0 && nLba <= 99))
 			return false;
+
+		m_nLba = nLba;
 		return true;
 	}
 };
