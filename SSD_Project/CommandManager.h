@@ -28,7 +28,8 @@ public:
 	bool IsValidCommand(int argc, char* argv[])
 	{
 
-		if (!IsArgumentExist(argc)) { return false;  };
+		if (!IsArgumentExist(argc)) { return false; };
+		if (!IsValidCommandCode(argv[1])) { return false; };
 
 		return true;
 	}
@@ -42,5 +43,13 @@ private:
 	bool IsArgumentExist(int argc)
 	{
 		return argc >= 3;
+	}
+
+	bool IsValidCommandCode(char* cmd)
+	{
+		if (strcmp(cmd, "W") == 0
+			|| strcmp(cmd, "R") == 0)
+			return true;
+		return false;
 	}
 };
