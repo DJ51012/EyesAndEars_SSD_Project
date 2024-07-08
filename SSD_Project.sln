@@ -7,6 +7,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SSD", "SSD_Project\SSD_Proj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestShell", "TestShell\TestShell.vcxproj", "{D0086A67-6ABE-43B8-99FE-9715A1B5AC75}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sample-Test1", "Sample-Test1\Sample-Test1.vcxproj", "{F6AEC23B-782C-467F-B58D-179DD7E8F72F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "솔루션 항목", "솔루션 항목", "{6907895C-9949-4B7A-A93F-F6A5D1631A3A}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestShell_Sample-Test", "TestShell_Sample-Test\TestShell_Sample-Test.vcxproj", "{2C0CF05B-4CA6-42EE-95DA-D68C77BF96D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +41,22 @@ Global
 		{D0086A67-6ABE-43B8-99FE-9715A1B5AC75}.Release|x64.Build.0 = Release|x64
 		{D0086A67-6ABE-43B8-99FE-9715A1B5AC75}.Release|x86.ActiveCfg = Release|Win32
 		{D0086A67-6ABE-43B8-99FE-9715A1B5AC75}.Release|x86.Build.0 = Release|Win32
+		{F6AEC23B-782C-467F-B58D-179DD7E8F72F}.Debug|x64.ActiveCfg = Debug|x64
+		{F6AEC23B-782C-467F-B58D-179DD7E8F72F}.Debug|x64.Build.0 = Debug|x64
+		{F6AEC23B-782C-467F-B58D-179DD7E8F72F}.Debug|x86.ActiveCfg = Debug|Win32
+		{F6AEC23B-782C-467F-B58D-179DD7E8F72F}.Debug|x86.Build.0 = Debug|Win32
+		{F6AEC23B-782C-467F-B58D-179DD7E8F72F}.Release|x64.ActiveCfg = Release|x64
+		{F6AEC23B-782C-467F-B58D-179DD7E8F72F}.Release|x64.Build.0 = Release|x64
+		{F6AEC23B-782C-467F-B58D-179DD7E8F72F}.Release|x86.ActiveCfg = Release|Win32
+		{F6AEC23B-782C-467F-B58D-179DD7E8F72F}.Release|x86.Build.0 = Release|Win32
+		{2C0CF05B-4CA6-42EE-95DA-D68C77BF96D5}.Debug|x64.ActiveCfg = Debug|x64
+		{2C0CF05B-4CA6-42EE-95DA-D68C77BF96D5}.Debug|x64.Build.0 = Debug|x64
+		{2C0CF05B-4CA6-42EE-95DA-D68C77BF96D5}.Debug|x86.ActiveCfg = Debug|Win32
+		{2C0CF05B-4CA6-42EE-95DA-D68C77BF96D5}.Debug|x86.Build.0 = Debug|Win32
+		{2C0CF05B-4CA6-42EE-95DA-D68C77BF96D5}.Release|x64.ActiveCfg = Release|x64
+		{2C0CF05B-4CA6-42EE-95DA-D68C77BF96D5}.Release|x64.Build.0 = Release|x64
+		{2C0CF05B-4CA6-42EE-95DA-D68C77BF96D5}.Release|x86.ActiveCfg = Release|Win32
+		{2C0CF05B-4CA6-42EE-95DA-D68C77BF96D5}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
