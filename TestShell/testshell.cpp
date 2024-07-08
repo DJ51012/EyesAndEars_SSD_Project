@@ -1,18 +1,26 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include "testcmd.h"
 
 using namespace std;
 
 class TestShell {
 public:
-	TestShell(string cmd, vector<string> args) : cmd(cmd), args(args) {
+	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver) 
+		: cmd(cmd), args(args), ssd_driver(ssd_driver){
 
 	}
 
 	bool run_cmd() {
 		AssertWrongCmd();
 		AssertWrongArguments();
+
+		auto cmd_runner = get_test_cmd_runner();
+		if (cmd_runner != nullptr) {
+			cmd_runner->run_cmd(ssd_driver, args);
+			return true;
+		}
 
 		return false;
 	}
@@ -47,6 +55,11 @@ private:
 		return write_value.length() == 10 && write_value.substr(0, 2) == "0x";
 	}
 
+	TestCmd* get_test_cmd_runner() {
+		return nullptr;
+	}
+
 	string cmd;
 	vector<string> args;
+	SsdDriver* ssd_driver = nullptr;
 };

@@ -130,6 +130,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="testshell.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="testcmd.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
