@@ -1,7 +1,7 @@
 #include "FileManager.h"
 
 FileManager::FileManager() {
-    createFile();
+
 }
 
 void FileManager::writeNand(unsigned int line, string value) {
