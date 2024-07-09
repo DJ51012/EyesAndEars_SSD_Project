@@ -8,6 +8,7 @@
 #include "MockFileIo.h"
 #include "../TestShell/SsdDriver.h"
 #include "../TestShell/testshell.cpp"
+#include "../TestShell/RealSsdDriver.cpp"
 
 using namespace std;
 using namespace testing;
@@ -226,4 +227,11 @@ TEST_F(TestShellFixture, InteractiveShell) {
 	EXPECT_EXIT(ts.start_shell(), ExitedWithCode(0), "");
 
 	restore_std_inout();
+}
+
+TEST(RealSsdDriver, ExceptionByExecutionFailure) {
+	RealSsdDriver rsd;
+
+	EXPECT_THROW(rsd.read(0), runtime_error);
+	EXPECT_THROW(rsd.write(0, ""), runtime_error);
 }

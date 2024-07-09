@@ -80,6 +80,9 @@ public:
 			catch (std::invalid_argument& e) {
 				cout << e.what() << endl;
 			}
+			catch (std::runtime_error& e) {
+				cout << e.what() << endl;
+			}
 		}
 	}
 
