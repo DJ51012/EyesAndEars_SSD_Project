@@ -65,6 +65,22 @@ public:
 		}
 	}
 
+	void start_shell() {
+		while (1) {
+			string user_input;
+
+			getline(std::cin, user_input);
+			this->set_user_input(user_input);
+
+			try {
+				this->run_cmd();
+			}
+			catch (std::invalid_argument& e) {
+				cout << e.what() << endl;
+			}
+		}
+	}
+
 private:
 	void AssertWrongCmd()
 	{

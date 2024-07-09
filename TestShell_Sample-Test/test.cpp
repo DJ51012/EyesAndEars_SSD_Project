@@ -114,3 +114,21 @@ TEST_F(TestShellFixture, SetUserInputString) {
 
 	EXPECT_TRUE(ts.run_cmd());
 }
+
+TEST_F(TestShellFixture, InteractiveShell) {
+	TestShell ts{ "", {}, &mock_ssd};
+
+	std::streambuf* originalCinBuffer = std::cin.rdbuf();
+	std::streambuf* originalCoutBuffer = std::cout.rdbuf();
+
+	std::istringstream simulatedInput("write\nwrite 0 0x12345678\nexit\n");
+	std::cin.rdbuf(simulatedInput.rdbuf());
+
+	std::ostringstream capturedOutput;
+	std::cout.rdbuf(capturedOutput.rdbuf());
+
+	EXPECT_EXIT(ts.start_shell(), ExitedWithCode(0), "");
+
+	std::cin.rdbuf(originalCinBuffer);
+	std::cout.rdbuf(originalCoutBuffer);
+}
