@@ -7,52 +7,54 @@
 
 using namespace std;
 
-class MySsdDriver : public SsdDriver {
+class Ssd : public SsdDriver {
 public:
     ofstream createFile() {
-        std::ofstream nandfile("nand.txt");
-        for (int idx = 0; idx < 99; idx++) {
-            nandfile << "0" << std::endl;
+        std::ofstream nandfile(NAND_FILE_NAME);
+        for (int idx = 0; idx < 100; idx++) {
+            nandfile << DEFAULT_WRITE_VALUE << std::endl;
         }
         nandfile.close();
         return nandfile;
     }
 
     fstream getNandFile() {
-        std::ifstream nandfileCheck("nand.txt");
+        std::ifstream nandfileCheck(NAND_FILE_NAME);
         if (!nandfileCheck.is_open()) {
             createFile();
         }
-        std::fstream nandfile("nand.txt");
+        std::fstream nandfile(NAND_FILE_NAME);
         return nandfile;
     }
 
     ofstream getResultFile() {
-        std::ofstream resultFile("result.txt");
+        std::ofstream resultFile(RESULT_FILE_NAME);
         return resultFile;
     }
+    
+    void validLineNumCheck(int line) {
+        if (line < MIN_LINE_NUM || line > MAX_LINE_NUM) {
+            cerr << "Invalid line number" << endl;
+        }
+    }
 
-    void write(unsigned int n, string value) override {
-        std::vector<std::string> lines;
-        std::string line;
+    void write(unsigned int line, string value) override {
+        std::vector<std::string> readLines;
+        std::string readLine;
 
         fstream nandFile = getNandFile();
         if (nandFile.is_open()) {
-            while (std::getline(nandFile, line)) {
-                lines.push_back(line);
+            while (getline(nandFile, readLine)) {
+                readLines.push_back(readLine);
             }
         }
-
-        if (n <= 0 || n >= 100) {
-            std::cerr << "Invalid line number" << std::endl;
-            return;
-        }
-
-        lines[n-1] = value;
+        validLineNumCheck(line);
+        
+        readLines[line] = value;
 
         nandFile.clear();
-        nandFile.seekp(0, std::ios::beg);
-        for (const auto& ln : lines) {
+        nandFile.seekp(0, ios::beg);
+        for (const auto& ln : readLines) {
             nandFile  << ln << std::endl;
         }
         nandFile.close();
@@ -67,7 +69,6 @@ public:
         string value;
 
         while (std::getline(nandFile, readLine)) {
-            lineNumber++;
             if (lineNumber == line) {
                 istringstream iss(readLine);
                 if (iss >> value) {
@@ -78,10 +79,17 @@ public:
                 }
                 break;
             }
+            lineNumber++;
         }
 
         nandFile.close();
         resultFile.close();
         return value;
     }
+
+    const int MAX_LINE_NUM = 99;
+    const int MIN_LINE_NUM = 0;
+    const string NAND_FILE_NAME = "nand.txt";
+    const string RESULT_FILE_NAME = "result.txt";
+    const string DEFAULT_WRITE_VALUE = "0x00000000";
 };

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "../SSD_Project/MySsdDriver.cpp"
+#include "../SSD_Project/Ssd.cpp"
 #include "../SSD_Project/CommandManager.h"
 #include <string>
 #include <iostream>
@@ -94,23 +94,19 @@ TEST_F(CommandManagerFixture, Invalid_CommandCode001)
 //DriverFixture
 class ssdDriverFixture : public testing::Test {
 public:
-	MySsdDriver mySsdDriver;
+	Ssd Ssd;
+	const int RESULT_READ_LINE = 0;
 
 	string readFileWithLine(ifstream& file, int line) {
 		string result;
 		if (!file.is_open()) {
 			std::cerr << "Error: Could not open file " << std::endl;
-			return 0;
+			return "";
 		}
 		int line_idx = 0;
-		while (file >> result) {
-			line_idx++;
-			if (line_idx == line) break;
-		}
-
+		
 		string currentLine;
 		while (getline(file, currentLine)) {
-			line_idx++;
 			if (line_idx == line) {
 				try {
 					return currentLine; // 현재 줄의 문자열을 정수로 변환하여 반환
@@ -124,18 +120,21 @@ public:
 					return 0;
 				}
 			}
+			line_idx++;
 		}
 
 		return result;
 	}
+
 };
 
 // invalid input 은 필터됐다고 가정
 TEST_F(ssdDriverFixture, write_zero_and_check_nand_file_OK) {
-	unsigned int line = 98;
-	string value ="0";
+	unsigned int line = 0;
+	string value =Ssd.DEFAULT_WRITE_VALUE;
 
-	mySsdDriver.write(line, value);
+	Ssd.write(line, value);
+	
 	ifstream nandFile("nand.txt");
 	string actual = readFileWithLine(nandFile, line);
 	string expected = value;
@@ -147,7 +146,7 @@ TEST_F(ssdDriverFixture, write_non_zero_and_check_nand_file_OK) {
 	unsigned int line = 99;
 	string value = "10";
 
-	mySsdDriver.write(line, value);
+	Ssd.write(line, value);
 	ifstream nandFile("nand.txt");
 	string actual = readFileWithLine(nandFile, line);
 	string expected = value;
@@ -155,24 +154,23 @@ TEST_F(ssdDriverFixture, write_non_zero_and_check_nand_file_OK) {
 	EXPECT_EQ(expected, actual);
 }
 
-
 TEST_F(ssdDriverFixture, read_zero_and_check_result_file_OK) {
 	unsigned int line = 97;
-	mySsdDriver.read(line);
+	Ssd.read(line);
 
 	ifstream resultFile("result.txt");
-	string actual = readFileWithLine(resultFile, line);
-	string expected = "0";
+	string actual = readFileWithLine(resultFile, RESULT_READ_LINE);
+	string expected = Ssd.DEFAULT_WRITE_VALUE;
 	EXPECT_EQ(expected, actual);
 }
 
 
 TEST_F(ssdDriverFixture, read_non_zero_and_check_result_file_OK) {
 	unsigned int line = 99;
-	mySsdDriver.read(line);
+	Ssd.read(line);
 
 	ifstream resultFile("result.txt");
-	string actual = readFileWithLine(resultFile, line);
+	string actual = readFileWithLine(resultFile, RESULT_READ_LINE);
 	string expected = "10";
 	EXPECT_EQ(expected, actual);
 }
