@@ -35,7 +35,7 @@ public:
 		}
 	}
 	static const int ONE_LINE_SIZE = 10;
-	static const int MAX_LINE = 40;
+	static const int MAX_LINE = 100;
 	static const int MAX_BUF_SIZE = ONE_LINE_SIZE * MAX_LINE;
 };
 
@@ -70,10 +70,9 @@ public:
 class FullreadTestCmd : public TestCmd {
 public:
 	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
-		int index = 0;
-		while (1) {
+		for(int index =0; index < MAX_LINE; index++){
 			ssd_driver->read(index);
-			FILE* fd = fio->Open(FILE_NAME_NAND, "r");
+			FILE* fd = fio->Open(FILE_NAME_RESULT, "r");
 			if (fd == nullptr) {
 				throw std::runtime_error("File Open Error");
 			}
@@ -84,11 +83,10 @@ public:
 				if (result == 0) return;
 				std::cout << buf;
 			}
-			index++;
 		}
 
 	}
 	static const int ONE_LINE_SIZE = 10;
-	static const int MAX_LINE = 40;
+	static const int MAX_LINE = 100;
 	static const int MAX_BUF_SIZE = ONE_LINE_SIZE * MAX_LINE;
 };
