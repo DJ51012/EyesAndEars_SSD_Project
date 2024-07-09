@@ -10,25 +10,25 @@ using namespace std;
 class Ssd : public SsdDriver {
 public:
     ofstream createFile() {
-        std::ofstream nandfile(NAND_FILE_NAME);
+        ofstream nandfile(NAND_FILE_NAME);
         for (int idx = 0; idx < 100; idx++) {
-            nandfile << DEFAULT_WRITE_VALUE << std::endl;
+            nandfile << DEFAULT_WRITE_VALUE << endl;
         }
         nandfile.close();
         return nandfile;
     }
 
     fstream getNandFile() {
-        std::ifstream nandfileCheck(NAND_FILE_NAME);
+        ifstream nandfileCheck(NAND_FILE_NAME);
         if (!nandfileCheck.is_open()) {
             createFile();
         }
-        std::fstream nandfile(NAND_FILE_NAME);
+        fstream nandfile(NAND_FILE_NAME);
         return nandfile;
     }
 
     ofstream getResultFile() {
-        std::ofstream resultFile(RESULT_FILE_NAME);
+        ofstream resultFile(RESULT_FILE_NAME);
         return resultFile;
     }
     
@@ -39,8 +39,8 @@ public:
     }
 
     void write(unsigned int line, string value) override {
-        std::vector<std::string> readLines;
-        std::string readLine;
+        vector<string> readLines;
+        string readLine;
 
         fstream nandFile = getNandFile();
         if (nandFile.is_open()) {
@@ -55,7 +55,7 @@ public:
         nandFile.clear();
         nandFile.seekp(0, ios::beg);
         for (const auto& ln : readLines) {
-            nandFile  << ln << std::endl;
+            nandFile  << ln << endl;
         }
         nandFile.close();
     }
@@ -68,14 +68,14 @@ public:
         int lineNumber = 0;
         string value;
 
-        while (std::getline(nandFile, readLine)) {
+        while (getline(nandFile, readLine)) {
             if (lineNumber == line) {
                 istringstream iss(readLine);
                 if (iss >> value) {
-                    resultFile << value << std::endl;
+                    resultFile << value << endl;
                 }
                 else {
-                    std::cerr << "The value in line " << line << " is not a valid string" << std::endl;
+                    cerr << "The value in line " << line << " is not a valid string" << endl;
                 }
                 break;
             }
