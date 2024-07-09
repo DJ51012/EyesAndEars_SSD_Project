@@ -32,7 +32,7 @@ public:
         return resultFile;
     }
 
-    void write(unsigned int n, unsigned int value) override {
+    void write(unsigned int n, string value) override {
         std::vector<std::string> lines;
         std::string line;
 
@@ -48,7 +48,7 @@ public:
             return;
         }
 
-        lines[n-1] = std::to_string(value);
+        lines[n-1] = value;
 
         nandFile.clear();
         nandFile.seekp(0, std::ios::beg);
