@@ -67,6 +67,8 @@ public:
 
 	void start_shell() {
 		while (1) {
+			cout << "TestShell> ";
+
 			string user_input;
 
 			getline(std::cin, user_input);
