@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <sstream>
+#include <iostream>
 #include "testcmd.h"
 #include "../SSD_Project/SsdDriver.h"
 #include "../TestShell/FileIOInterface.h"
@@ -43,6 +45,42 @@ public:
 		return false;
 	}
 
+	void set_user_input(const string& user_input) {
+		istringstream user_input_stream{ user_input };
+		string arg;
+		bool isFirstArg = true;
+
+		clearUserData();
+
+		while (getline(user_input_stream, arg, ' ')) {
+			if (arg.empty()) continue;
+
+			if (isFirstArg) {
+				this->cmd = arg;
+				isFirstArg = false;
+			}
+			else {
+				this->args.push_back(arg);
+			}
+		}
+	}
+
+	void start_shell() {
+		while (1) {
+			string user_input;
+
+			getline(std::cin, user_input);
+			this->set_user_input(user_input);
+
+			try {
+				this->run_cmd();
+			}
+			catch (std::invalid_argument& e) {
+				cout << e.what() << endl;
+			}
+		}
+	}
+
 private:
 	void AssertWrongCmd()
 	{
@@ -83,6 +121,12 @@ private:
 		if (cmd == TEST_CMD::HELP) return new HelpTestCmd();
 		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
 		return nullptr;
+	}
+
+	void clearUserData()
+	{
+		this->cmd = "";
+		this->args.clear();
 	}
 
 	string cmd;
