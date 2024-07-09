@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "../SSD_Project/SsdDriver.h"
+#include "../TestShell/SsdDriver.h"
 
 class MockSsdDriver : public SsdDriver {
 public:
-	MOCK_METHOD(void, write, (unsigned int lba_index, unsigned int value), (override));
-	MOCK_METHOD(unsigned int, read, (unsigned int lba_index), (override));
+	MOCK_METHOD(void, write, (unsigned int lba_index, string value), (override));
+	MOCK_METHOD(void, read, (unsigned int lba_index), (override));
 };

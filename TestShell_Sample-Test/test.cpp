@@ -4,10 +4,9 @@
 #include <stdio.h>
 #include <stdexcept>
 
-#include "../SSD_Project/SsdDriver.h"
-
 #include "MockSsdDriver.h"
 #include "MockFileIo.h"
+#include "../TestShell/SsdDriver.h"
 #include "../TestShell/testshell.cpp"
 
 using namespace std;
@@ -88,8 +87,7 @@ TEST_F(FileIOFixture, ReadCmdSuccess) {
 		.WillRepeatedly(Return(test_file));
 
 	EXPECT_CALL(mock_ssd, read(_))
-		.Times(1)
-		.WillRepeatedly(Return(READ_SUCCESS));
+		.Times(1);
 
 	mock_ssd.read(0x00);
 	FILE* result_file = mfio.Open(FILE_NAME_RESULT, "w");
@@ -105,8 +103,7 @@ TEST_F(FileIOFixture, ReadCmdFail) {
 		.WillRepeatedly(Return(test_file));
 
 	EXPECT_CALL(mock_ssd, read(_))
-		.Times(1)
-		.WillRepeatedly(Return(READ_SUCCESS));
+		.Times(1);
 
 	mock_ssd.read(0x00);
 	FILE* result_file = mfio.Open("fail.txt", "r");
@@ -129,8 +126,7 @@ TEST_F(FileIOFixture, ReadCmdTestShellSuccess) {
 			}));
 
 	EXPECT_CALL(mock_ssd, read(_))
-		.Times(1)
-		.WillRepeatedly(Return(READ_SUCCESS));
+		.Times(1);
 
 	TestShell ts{ "read", { "0",}, &mock_ssd, &mfio };
 
@@ -146,8 +142,7 @@ TEST_F(FileIOFixture, ReadCmdTestShellOpenReturnFail) {
 		.WillRepeatedly(Return(nullptr));
 
 	EXPECT_CALL(mock_ssd, read(_))
-		.Times(1)
-		.WillRepeatedly(Return(READ_SUCCESS));
+		.Times(1);
 
 	TestShell ts{ "read", { "0",}, &mock_ssd, &mfio };
 	EXPECT_THROW(ts.run_cmd(), std::runtime_error);

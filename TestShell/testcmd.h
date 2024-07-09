@@ -3,7 +3,7 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
-#include "../SSD_Project/SsdDriver.h"
+#include "SsdDriver.h"
 #include "FileIoInterface.h"
 
 using namespace std;
@@ -15,7 +15,7 @@ interface TestCmd {
 class WriteTestCmd : public TestCmd {
 public:
 	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
-		ssd_driver->write(stoi(args[0]), stoi(args[1]));
+		ssd_driver->write(stoi(args[0]), args[1]);
 	}
 };
 
@@ -62,7 +62,7 @@ class FullwriteTestCmd : public TestCmd {
 public:
 	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
 		for (auto idx = 0; idx < 100; idx++)
-			ssd_driver->write(idx, stoi(args[0]));
+			ssd_driver->write(idx, args[0]);
 	}
 };
 

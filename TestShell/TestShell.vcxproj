@@ -131,6 +131,7 @@
     <ClCompile Include="testshell.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SsdDriver.h" />
     <ClInclude Include="testcmd.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
