@@ -9,12 +9,12 @@ using namespace std;
 
 class TestShell {
 public:
-	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver) 
-		: cmd(cmd), args(args), ssd_driver(ssd_driver){
+	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver, FileIoInterface*  fio_interface)
+		: cmd(cmd), args(args), ssd_driver(ssd_driver), fio(fio_interface){
 
 	}
 	void setDriver(SsdDriver* driver)  {
-		this->driver = driver;
+		this->ssd_driver = driver;
 	}
 	void setFileIo(FileIoInterface* fio) {
 		this->fio = fio;
@@ -26,7 +26,7 @@ public:
 
 		auto cmd_runner = get_test_cmd_runner();
 		if (cmd_runner != nullptr) {
-			cmd_runner->run_cmd(ssd_driver, args);
+			cmd_runner->run_cmd(ssd_driver, fio, args);
 			return true;
 		}
 
@@ -65,11 +65,11 @@ private:
 
 	TestCmd* get_test_cmd_runner() {
 		if (cmd == "write") return new WriteTestCmd();
+		else if (cmd == "read") return new ReadTestCmd();
 		return nullptr;
 	}
 
 	string cmd;
-	SsdDriver* driver;
 	FileIoInterface* fio;
 	vector<string> args;
 	SsdDriver* ssd_driver = nullptr;
