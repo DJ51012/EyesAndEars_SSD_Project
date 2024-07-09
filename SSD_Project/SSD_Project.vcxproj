@@ -130,6 +130,11 @@
   <ItemGroup>
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Ssd.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CommandManager.h" />
+    <ClInclude Include="SsdDriver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileManager.h" />
