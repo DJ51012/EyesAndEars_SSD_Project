@@ -26,6 +26,7 @@ public:
 		if (fio->Open(FILE_NAME_RESULT, "r") == nullptr) {
 			throw std::runtime_error("File Open Error");
 		}
+	}
 };
 
 class ExitTestCmd : public TestCmd {

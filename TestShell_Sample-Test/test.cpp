@@ -27,7 +27,7 @@ public:
 class TestShellFixture : public testing::Test {
 public:
 	bool test_cmd(const string& cmd, vector<string> args) {
-		TestShell ts{ cmd, args, &mock_ssd };
+		TestShell ts{ cmd, args, &mock_ssd, nullptr };
 
 		return ts.run_cmd();
 	}
