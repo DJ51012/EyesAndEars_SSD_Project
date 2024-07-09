@@ -26,39 +26,39 @@ public:
 	const char* FILE_NAME_BAD_RESULT = "result_wrong_name.txt";
 };
 
-TEST(TestShell, WrongCmd) {
-	TestShell ts{ "undefined_cmd", {}, nullptr };
+class TestShellFixture : public testing::Test {
+public:
+	bool test_cmd(const string& cmd, vector<string> args) {
+		TestShell ts{ cmd, args, &mock_ssd };
 
-	EXPECT_THROW(ts.run_cmd(), invalid_argument);
+		return ts.run_cmd();
+	}
+
+	void set_expected_write_times(int times) {
+		EXPECT_CALL(mock_ssd, write(_, _)).Times(times);
+	}
+
+	MockSsdDriver mock_ssd;
+};
+
+TEST_F(TestShellFixture, WrongCmd) {
+	EXPECT_THROW(test_cmd("undefined_cmd", {}), invalid_argument);
 }
 
-TEST(TestShell, WrongUserArguments) {
-	TestShell ts_write_1{ "write" , {}, nullptr };
-	TestShell ts_write_2{ "write" , { "" }, nullptr };
-	TestShell ts_write_3{ "write" , { "100", "0x12345678"}, nullptr };
-	TestShell ts_read_1{ "read" , {}, nullptr };
-	TestShell ts_read_2{ "read" , { "100" }, nullptr };
-	TestShell ts_fullwrite_1{ "fullwrite" , {}, nullptr };
-	TestShell ts_fullwrite_2{ "fullwrite" , { "0x1234" }, nullptr };
-	TestShell ts_fullwrite_3{ "fullwrite" , { "1234567890" }, nullptr };
-
-	EXPECT_THROW(ts_write_1.run_cmd(), invalid_argument);
-	EXPECT_THROW(ts_write_2.run_cmd(), invalid_argument);
-	EXPECT_THROW(ts_write_3.run_cmd(), invalid_argument);
-	EXPECT_THROW(ts_read_1.run_cmd(), invalid_argument);
-	EXPECT_THROW(ts_read_2.run_cmd(), invalid_argument);
-	EXPECT_THROW(ts_fullwrite_1.run_cmd(), invalid_argument);
-	EXPECT_THROW(ts_fullwrite_2.run_cmd(), invalid_argument);
+TEST_F(TestShellFixture, WrongUserArguments) {
+	EXPECT_THROW(test_cmd("write", {}), invalid_argument);
+	EXPECT_THROW(test_cmd("write", { "" }), invalid_argument);
+	EXPECT_THROW(test_cmd("write", { "100", "0x12345678" }), invalid_argument);
+	EXPECT_THROW(test_cmd("read", {}), invalid_argument);
+	EXPECT_THROW(test_cmd("read", { "100" }), invalid_argument);
+	EXPECT_THROW(test_cmd("fullwrite", {}), invalid_argument);
+	EXPECT_THROW(test_cmd("fullwrite", { "0x1234" }), invalid_argument);
+	EXPECT_THROW(test_cmd("fullwrite", { "1234567890" }), invalid_argument);
 }
 
-TEST(TestShell, WriteCmd) {
-	MockSsdDriver msd;
-
-	EXPECT_CALL(msd, write(_, _)).Times(1);
-
-	TestShell ts{ "write", { "0", "0x12345678" }, &msd };
-
-	ts.run_cmd();
+TEST_F(TestShellFixture, WriteCmd) {
+	set_expected_write_times(1);
+	EXPECT_TRUE(test_cmd("write", { "0", "0x12345678" }));
 }
 
 TEST_F(SSDFixture, BasicReadCmdSuccess) {
@@ -74,19 +74,16 @@ TEST_F(SSDFixture, BasicReadCmdSuccess) {
 	mfio.Open(FILE_NAME_RESULT, "w");
 }
 
-TEST(TestShell, ExitCmd) {
-	TestShell ts_exit{ "exit" , {}, nullptr };
-
-	EXPECT_EXIT(ts_exit.run_cmd(), ExitedWithCode(0), "");
+TEST_F(TestShellFixture, ExitCmd) {
+	EXPECT_EXIT(test_cmd("exit", {}), ExitedWithCode(0), "");
 }
 
-TEST(TestShell, HelpCmd) {
+TEST_F(TestShellFixture, HelpCmd) {
 	stringstream captured_buf;
 	streambuf* backup_cout_buf = std::cout.rdbuf();
 	std::cout.rdbuf(captured_buf.rdbuf());
 
-	TestShell ts_help{ "help" , {}, nullptr };
-	EXPECT_TRUE(ts_help.run_cmd());
+	EXPECT_TRUE(test_cmd("help", {}));
 
 	string PRINT_OUT_HELP = 
 		"write <idx> <value>    Write value to idx'th LBA.\n"\
@@ -100,14 +97,9 @@ TEST(TestShell, HelpCmd) {
 	std::cout.rdbuf(backup_cout_buf);
 }
 
-TEST(TestShell, FullWriteCmd) {
-	MockSsdDriver msd;
-	
-	EXPECT_CALL(msd, write(_, _)).Times(100);
-
-	TestShell ts{ "fullwrite", { "0x12345678" }, &msd };
-
-	ts.run_cmd();
+TEST_F(TestShellFixture, FullWriteCmd) {
+	set_expected_write_times(100);
+	EXPECT_TRUE(test_cmd("fullwrite", { "0x12345678" }));
 }
 
 TEST(TestShell, FullReadCmd) {
