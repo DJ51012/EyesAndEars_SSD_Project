@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <sstream>
+#include <iostream>
 #include "testcmd.h"
 #include "../SSD_Project/SsdDriver.h"
 #include "../TestShell/FileIOInterface.h"
@@ -41,6 +43,25 @@ public:
 		}
 
 		return false;
+	}
+
+	void set_user_input(const string& user_input) {
+		istringstream user_input_stream{ user_input };
+		string word;
+		int count = 0;
+
+		this->args.clear();
+		while (getline(user_input_stream, word, ' ')) {
+			if (!word.empty()) {
+				if (count == 0) {
+					this->cmd = word;
+				}
+				else {
+					this->args.push_back(word);
+				}
+			}
+			count++;
+		}
 	}
 
 private:

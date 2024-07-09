@@ -105,3 +105,12 @@ TEST_F(TestShellFixture, FullWriteCmd) {
 TEST(TestShell, FullReadCmd) {
 	// TODO: Test for fullread
 }
+
+TEST_F(TestShellFixture, SetUserInputString) {
+	TestShell ts{ "", {}, &mock_ssd};
+	set_expected_write_times(1);
+
+	ts.set_user_input("write 0 0x12345678");
+
+	EXPECT_TRUE(ts.run_cmd());
+}
