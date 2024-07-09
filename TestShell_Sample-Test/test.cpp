@@ -38,7 +38,26 @@ public:
 		EXPECT_CALL(mock_ssd, write(_, _)).Times(times);
 	}
 
+	void backup_std_inout() {
+		original_cin_buf = std::cin.rdbuf();
+		original_cout_buf = std::cout.rdbuf();
+	}
+
+	void restore_std_inout() {
+		std::cin.rdbuf(original_cin_buf);
+		std::cout.rdbuf(original_cout_buf);
+	}
+
+	void set_std_inout(std::istringstream& in, std::ostringstream& out) {
+		std::cin.rdbuf(in.rdbuf());
+		std::cout.rdbuf(out.rdbuf());
+	}
+
 	MockSsdDriver mock_ssd;
+
+private:
+	std::streambuf* original_cin_buf;
+	std::streambuf* original_cout_buf;
 };
 
 TEST_F(TestShellFixture, WrongCmd) {
@@ -79,9 +98,11 @@ TEST_F(TestShellFixture, ExitCmd) {
 }
 
 TEST_F(TestShellFixture, HelpCmd) {
-	stringstream captured_buf;
-	streambuf* backup_cout_buf = std::cout.rdbuf();
-	std::cout.rdbuf(captured_buf.rdbuf());
+	backup_std_inout();
+
+	std::istringstream std_input;
+	std::ostringstream std_output;
+	set_std_inout(std_input, std_output);
 
 	EXPECT_TRUE(test_cmd("help", {}));
 
@@ -92,9 +113,9 @@ TEST_F(TestShellFixture, HelpCmd) {
 		"help                   Print out the help message.\n"\
 		"fullwrite <value>      Write value to all LBAs indexed from 0 to 99.\n"\
 		"fullread <idx>         Print out all values of LBAs indexed from 0 to 99.\n";
-	EXPECT_THAT(captured_buf.str(), Eq(PRINT_OUT_HELP));
+	EXPECT_THAT(std_output.str(), Eq(PRINT_OUT_HELP));
 
-	std::cout.rdbuf(backup_cout_buf);
+	restore_std_inout();
 }
 
 TEST_F(TestShellFixture, FullWriteCmd) {
@@ -117,18 +138,18 @@ TEST_F(TestShellFixture, SetUserInputString) {
 
 TEST_F(TestShellFixture, InteractiveShell) {
 	TestShell ts{ "", {}, &mock_ssd};
+	string test_user_inputs = 
+		"write\n"
+		"write 0 0x12345678\n"
+		"exit\n";
 
-	std::streambuf* originalCinBuffer = std::cin.rdbuf();
-	std::streambuf* originalCoutBuffer = std::cout.rdbuf();
+	backup_std_inout();
 
-	std::istringstream simulatedInput("write\nwrite 0 0x12345678\nexit\n");
-	std::cin.rdbuf(simulatedInput.rdbuf());
-
-	std::ostringstream capturedOutput;
-	std::cout.rdbuf(capturedOutput.rdbuf());
+	std::istringstream std_input(test_user_inputs);
+	std::ostringstream std_output;
+	set_std_inout(std_input, std_output);
 
 	EXPECT_EXIT(ts.start_shell(), ExitedWithCode(0), "");
 
-	std::cin.rdbuf(originalCinBuffer);
-	std::cout.rdbuf(originalCoutBuffer);
+	restore_std_inout();
 }
