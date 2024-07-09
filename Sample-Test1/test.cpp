@@ -1,12 +1,15 @@
-//#include "pch.h"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "../SSD_Project/Ssd.cpp"
 #include "../SSD_Project/CommandManager.h"
+#include <string>
+#include <iostream>
 
+using namespace std;
 using namespace testing;
 
-
 // Command Manager
+
 class SsdDriverMock : public SsdDriver
 {
 public:
@@ -87,7 +90,6 @@ TEST_F(CommandManagerFixture, Invalid_CommandCode000)
 	EXPECT_EQ(expected, actual);
 }
 
-
 TEST_F(CommandManagerFixture, Invalid_CommandCode001)
 {
 	int argc = 3;
@@ -98,7 +100,6 @@ TEST_F(CommandManagerFixture, Invalid_CommandCode001)
 
 	EXPECT_EQ(expected, actual);
 }
-
 
 TEST_F(CommandManagerFixture, Invalid_Address000)
 {
@@ -121,7 +122,6 @@ TEST_F(CommandManagerFixture, Invalid_Address001)
 
 	EXPECT_EQ(expected, actual);
 }
-
 TEST_F(CommandManagerFixture, Invalid_Data000)
 {
 	int argc = 4;
@@ -143,7 +143,6 @@ TEST_F(CommandManagerFixture, Invalid_Data001)
 
 	EXPECT_EQ(expected, actual);
 }
-
 
 TEST_F(CommandManagerFixture, Execute_Write)
 {
@@ -187,4 +186,90 @@ TEST_F(CommandManagerFixture, Execute_Nothing)
 
 	// Act
 	cm.executeSSDCommand(&mock);
+}
+
+//DriverFixture
+class ssdDriverFixture : public testing::Test {
+public:
+	Ssd Ssd;
+	const int RESULT_READ_LINE = 0;
+
+	string readFileWithLine(ifstream& file, int line) {
+		string result;
+		if (!file.is_open()) {
+			std::cerr << "Error: Could not open file " << std::endl;
+			return "";
+		}
+		int line_idx = 0;
+		
+		string currentLine;
+		while (getline(file, currentLine)) {
+			if (line_idx == line) {
+				try {
+					return currentLine; // 현재 줄의 문자열을 정수로 변환하여 반환
+				}
+				catch (const invalid_argument& e) {
+					cerr << "Error: The line does not contain a valid integer" << std::endl;
+					return 0;
+				}
+				catch (const out_of_range& e) {
+					cerr << "Error: The integer is out of range" << std::endl;
+					return 0;
+				}
+			}
+			line_idx++;
+		}
+
+		return result;
+	}
+
+};
+
+// invalid input 은 필터됐다고 가정
+TEST_F(ssdDriverFixture, write_zero_and_check_nand_file_OK) {
+	unsigned int line = 0;
+	string value =Ssd.DEFAULT_WRITE_VALUE;
+
+	Ssd.write(line, value);
+	
+	ifstream nandFile("nand.txt");
+	string actual = readFileWithLine(nandFile, line);
+	string expected = value;
+
+	EXPECT_EQ(expected, actual);
+}
+
+
+TEST_F(ssdDriverFixture, write_non_zero_and_check_nand_file_OK) {
+	unsigned int line = 99;
+	string value = "10";
+
+	Ssd.write(line, value);
+	ifstream nandFile("nand.txt");
+	string actual = readFileWithLine(nandFile, line);
+	string expected = value;
+
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(ssdDriverFixture, read_zero_and_check_result_file_OK) {
+	unsigned int line = 97;
+	Ssd.read(line);
+
+	ifstream resultFile("result.txt");
+	string actual = readFileWithLine(resultFile, RESULT_READ_LINE);
+	string expected = Ssd.DEFAULT_WRITE_VALUE;
+
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(ssdDriverFixture, read_non_zero_and_check_result_file_OK) {
+	unsigned int line = 99;
+	Ssd.read(line);
+
+	ifstream resultFile("result.txt");
+	string actual = readFileWithLine(resultFile, RESULT_READ_LINE);
+
+	string expected = "10";
+	EXPECT_EQ(expected, actual);
 }
