@@ -22,14 +22,12 @@ public:
 	MockFileIO mfio;
 	static const int READ_FAIL = 0x00;
 	static const int READ_SUCCESS = 0x01;
-	const char* FILE_NAME_RESULT = "result.txt";
-	const char* FILE_NAME_BAD_RESULT = "result_wrong_name.txt";
 };
 
 class TestShellFixture : public testing::Test {
 public:
 	bool test_cmd(const string& cmd, vector<string> args) {
-		TestShell ts{ cmd, args, &mock_ssd };
+		TestShell ts{ cmd, args, &mock_ssd, nullptr };
 
 		return ts.run_cmd();
 	}
@@ -61,17 +59,72 @@ TEST_F(TestShellFixture, WriteCmd) {
 	EXPECT_TRUE(test_cmd("write", { "0", "0x12345678" }));
 }
 
-TEST_F(SSDFixture, BasicReadCmdSuccess) {
-	FILE test_file;
-	EXPECT_CALL(mfio, Open(FILE_NAME_RESULT, _))
-		.WillRepeatedly(Return(&test_file));
+TEST_F(SSDFixture, ReadCmdSuccess) {
+	FILE* test_file = tmpfile();
+
+
+	EXPECT_CALL(mfio, Open(_, _))
+		.WillRepeatedly(Return(nullptr));
+	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
+		.WillRepeatedly(Return(test_file));
 
 	EXPECT_CALL(mock_ssd, read(_))
 		.Times(1)
 		.WillRepeatedly(Return(READ_SUCCESS));
 
 	mock_ssd.read(0x00);
-	mfio.Open(FILE_NAME_RESULT, "w");
+	FILE* result_file = mfio.Open(FILE_NAME_RESULT, "w");
+	ASSERT_EQ(result_file, test_file);
+}
+
+TEST_F(SSDFixture, ReadCmdFail) {
+	FILE* test_file = tmpfile();
+
+	EXPECT_CALL(mfio, Open(_, _))
+		.WillRepeatedly(Return(nullptr));
+	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
+		.WillRepeatedly(Return(test_file));
+
+	EXPECT_CALL(mock_ssd, read(_))
+		.Times(1)
+		.WillRepeatedly(Return(READ_SUCCESS));
+
+	mock_ssd.read(0x00);
+	FILE* result_file = mfio.Open("fail.txt", "r");
+	ASSERT_NE(result_file, test_file);
+}
+
+TEST_F(SSDFixture, ReadCmdTestShellSuccess) {
+	FILE* test_file = tmpfile();
+
+	EXPECT_CALL(mfio, Open(_, _))
+		.WillRepeatedly(Return(nullptr));
+	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
+		.WillRepeatedly(Return(test_file));
+
+	EXPECT_CALL(mock_ssd, read(_))
+		.Times(1)
+		.WillRepeatedly(Return(READ_SUCCESS));
+
+	TestShell ts{ "read", { "0",}, &mock_ssd, &mfio };
+
+	ts.run_cmd();
+}
+
+TEST_F(SSDFixture, ReadCmdTestShellFail) {
+	FILE* test_file = tmpfile();
+
+	EXPECT_CALL(mfio, Open(_, _))
+		.WillRepeatedly(Return(nullptr));
+	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
+		.WillRepeatedly(Return(nullptr));
+
+	EXPECT_CALL(mock_ssd, read(_))
+		.Times(1)
+		.WillRepeatedly(Return(READ_SUCCESS));
+
+	TestShell ts{ "read", { "0",}, &mock_ssd, &mfio };
+	EXPECT_THROW(ts.run_cmd(), std::runtime_error);
 }
 
 TEST_F(TestShellFixture, ExitCmd) {

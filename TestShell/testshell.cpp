@@ -18,12 +18,12 @@ namespace TEST_CMD {
 
 class TestShell {
 public:
-	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver) 
-		: cmd(cmd), args(args), ssd_driver(ssd_driver){
+	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver, FileIoInterface*  fio_interface)
+		: cmd(cmd), args(args), ssd_driver(ssd_driver), fio(fio_interface){
 
 	}
 	void setDriver(SsdDriver* driver)  {
-		this->driver = driver;
+		this->ssd_driver = driver;
 	}
 	void setFileIo(FileIoInterface* fio) {
 		this->fio = fio;
@@ -35,7 +35,7 @@ public:
 
 		auto cmd_runner = get_test_cmd_runner();
 		if (cmd_runner != nullptr) {
-			cmd_runner->run_cmd(ssd_driver, args);
+			cmd_runner->run_cmd(ssd_driver, fio, args);
 			delete cmd_runner;
 			return true;
 		}
@@ -78,6 +78,7 @@ private:
 
 	TestCmd* get_test_cmd_runner() {
 		if (cmd == TEST_CMD::WRITE) return new WriteTestCmd();
+		if (cmd == TEST_CMD::READ) return new ReadTestCmd();
 		if (cmd == TEST_CMD::EXIT) return new ExitTestCmd();
 		if (cmd == TEST_CMD::HELP) return new HelpTestCmd();
 		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
@@ -85,7 +86,6 @@ private:
 	}
 
 	string cmd;
-	SsdDriver* driver;
 	FileIoInterface* fio;
 	vector<string> args;
 	SsdDriver* ssd_driver = nullptr;
