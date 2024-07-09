@@ -7,6 +7,15 @@
 
 using namespace std;
 
+namespace TEST_CMD {
+	const string WRITE = "write";
+	const string READ = "read";
+	const string EXIT = "exit";
+	const string HELP = "help";
+	const string FULLWRITE = "fullwrite";
+	const string FULLREAD = "fullread";
+}
+
 class TestShell {
 public:
 	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver, FileIoInterface*  fio_interface)
@@ -27,6 +36,7 @@ public:
 		auto cmd_runner = get_test_cmd_runner();
 		if (cmd_runner != nullptr) {
 			cmd_runner->run_cmd(ssd_driver, fio, args);
+			delete cmd_runner;
 			return true;
 		}
 
@@ -36,23 +46,26 @@ public:
 private:
 	void AssertWrongCmd()
 	{
-		if (cmd == "read") return;
-		if (cmd == "write") return;
-		if (cmd == "exit") return;
-		if (cmd == "help") return;
-		if (cmd == "fullread") return;
-		if (cmd == "fullwrite") return;
+		auto allowed_cmds = {
+			TEST_CMD::WRITE, TEST_CMD::READ, TEST_CMD::EXIT, TEST_CMD::HELP,
+			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD
+		};
+		for (auto& cmd : allowed_cmds) {
+			if (this->cmd == cmd) return;
+		}
 
 		throw invalid_argument("Undefined test command!");
 	}
 
 	void AssertWrongArguments()
 	{
-		if (cmd == "write" && args.size() >= 2 && isValidLbaIndex(args[0]) && isValidWriteValue(args[1])) return;
-		if (cmd == "read" && args.size() >= 1 && isValidLbaIndex(args[0])) return;
-		if (cmd == "fullwrite" && args.size() >= 1 && isValidWriteValue(args[0])) return;
+		if (cmd == TEST_CMD::WRITE && args.size() >= 2 && isValidLbaIndex(args[0]) && isValidWriteValue(args[1])) return;
+		if (cmd == TEST_CMD::READ && args.size() >= 1 && isValidLbaIndex(args[0])) return;
+		if (cmd == TEST_CMD::FULLWRITE && args.size() >= 1 && isValidWriteValue(args[0])) return;
+		if (cmd == TEST_CMD::EXIT) return;
+		if (cmd == TEST_CMD::HELP) return;
 			
-		throw invalid_argument("wrong argument for fullwrite!");
+		throw invalid_argument("Wrong argument!");
 	}
 
 	bool isValidLbaIndex(string& lba_index) {
@@ -64,8 +77,11 @@ private:
 	}
 
 	TestCmd* get_test_cmd_runner() {
-		if (cmd == "write") return new WriteTestCmd();
-		else if (cmd == "read") return new ReadTestCmd();
+		if (cmd == TEST_CMD::WRITE) return new WriteTestCmd();
+		if (cmd == TEST_CMD::READ) return new ReadTestCmd();
+		if (cmd == TEST_CMD::EXIT) return new ExitTestCmd();
+		if (cmd == TEST_CMD::HELP) return new HelpTestCmd();
+		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
 		return nullptr;
 	}
 
