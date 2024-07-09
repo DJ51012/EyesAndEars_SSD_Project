@@ -30,14 +30,14 @@ public:
 
 class ExitTestCmd : public TestCmd {
 public:
-	void run_cmd(SsdDriver* ssd_driver, vector<string>& args) override {
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
 		exit(0);
 	}
 };
 
 class HelpTestCmd : public TestCmd {
 public:
-	void run_cmd(SsdDriver* ssd_driver, vector<string>& args) override {
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
 		cout <<
 			"write <idx> <value>    Write value to idx'th LBA.\n"\
 			"read <idx>             Print out the value of idx'th LBA.\n"\
@@ -50,7 +50,7 @@ public:
 
 class FullwriteTestCmd : public TestCmd {
 public:
-	void run_cmd(SsdDriver* ssd_driver, vector<string>& args) override {
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
 		for (auto idx = 0; idx < 100; idx++)
 			ssd_driver->write(idx, stoi(args[0]));
 	}
