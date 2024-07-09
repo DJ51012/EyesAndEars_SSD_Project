@@ -2,7 +2,7 @@
 #include <vector>
 #include <stdexcept>
 #include "testcmd.h"
-#include "../SSD_Project/SsdDriver.h"
+#include "SsdDriver.h"
 #include "../TestShell/FileIOInterface.h"
 
 using namespace std;
