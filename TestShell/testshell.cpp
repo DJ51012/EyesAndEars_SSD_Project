@@ -47,20 +47,21 @@ public:
 
 	void set_user_input(const string& user_input) {
 		istringstream user_input_stream{ user_input };
-		string word;
-		int count = 0;
+		string arg;
+		bool isFirstArg = true;
 
-		this->args.clear();
-		while (getline(user_input_stream, word, ' ')) {
-			if (!word.empty()) {
-				if (count == 0) {
-					this->cmd = word;
-				}
-				else {
-					this->args.push_back(word);
-				}
+		clearUserData();
+
+		while (getline(user_input_stream, arg, ' ')) {
+			if (arg.empty()) continue;
+
+			if (isFirstArg) {
+				this->cmd = arg;
+				isFirstArg = false;
 			}
-			count++;
+			else {
+				this->args.push_back(arg);
+			}
 		}
 	}
 
@@ -103,6 +104,12 @@ private:
 		if (cmd == TEST_CMD::HELP) return new HelpTestCmd();
 		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
 		return nullptr;
+	}
+
+	void clearUserData()
+	{
+		this->cmd = "";
+		this->args.clear();
 	}
 
 	string cmd;
