@@ -194,8 +194,7 @@ TEST_F(FileIOFixture, FullReadCmd) {
 			}));
 
 	EXPECT_CALL(mock_ssd, read(_))
-		.Times(1)
-		.WillRepeatedly(Return(READ_SUCCESS));
+		.Times(1);
 
 	TestShell ts{ TEST_CMD::FULLREAD, { }, &mock_ssd, &mfio };
 
@@ -203,7 +202,7 @@ TEST_F(FileIOFixture, FullReadCmd) {
 }
 
 TEST_F(TestShellFixture, SetUserInputString) {
-	TestShell ts{ "", {}, &mock_ssd};
+	TestShell ts{ "", {}, &mock_ssd, nullptr };
 	set_expected_write_times(1);
 
 	ts.set_user_input("write 0 0x12345678");
@@ -212,7 +211,7 @@ TEST_F(TestShellFixture, SetUserInputString) {
 }
 
 TEST_F(TestShellFixture, InteractiveShell) {
-	TestShell ts{ "", {}, &mock_ssd};
+	TestShell ts{ "", {}, &mock_ssd, nullptr };
 	string test_user_inputs = 
 		"write\n"
 		"write 0 0x12345678\n"

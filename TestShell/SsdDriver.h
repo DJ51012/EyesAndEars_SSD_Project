@@ -4,6 +4,7 @@
 #define interface struct 
 
 #define FILE_NAME_RESULT "result.txt"
+#define FILE_NAME_NAND "nand.txt"
 
 using namespace std;
 
