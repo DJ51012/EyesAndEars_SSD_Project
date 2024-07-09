@@ -79,6 +79,7 @@ private:
 		if (cmd == TEST_CMD::WRITE) return new WriteTestCmd();
 		if (cmd == TEST_CMD::EXIT) return new ExitTestCmd();
 		if (cmd == TEST_CMD::HELP) return new HelpTestCmd();
+		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
 		return nullptr;
 	}
 
