@@ -23,10 +23,19 @@ class ReadTestCmd : public TestCmd {
 public:
 	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
 		ssd_driver->read(stoi(args[0]));
-		if (fio->Open(FILE_NAME_RESULT, "r") == nullptr) {
+		FILE* fd = fio->Open(FILE_NAME_RESULT, "r");
+		if (fd == nullptr) {
 			throw std::runtime_error("File Open Error");
 		}
+		else {
+			char buf[MAX_BUF_SIZE];
+			memset(buf, 0, MAX_BUF_SIZE);
+			fio->Read((int)fd, buf, ONE_LINE_SIZE);
+		}
 	}
+	static const int ONE_LINE_SIZE = 10;
+	static const int MAX_LINE = 40;
+	static const int MAX_BUF_SIZE = ONE_LINE_SIZE * MAX_LINE;
 };
 
 class ExitTestCmd : public TestCmd {

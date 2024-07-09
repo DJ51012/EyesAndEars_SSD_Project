@@ -13,7 +13,7 @@
 using namespace std;
 using namespace testing;
 
-class SSDFixture : public testing::Test {
+class FileIOFixture : public testing::Test {
 protected:
 	void SetUp() override {
 	}
@@ -59,7 +59,7 @@ TEST_F(TestShellFixture, WriteCmd) {
 	EXPECT_TRUE(test_cmd("write", { "0", "0x12345678" }));
 }
 
-TEST_F(SSDFixture, ReadCmdSuccess) {
+TEST_F(FileIOFixture, ReadCmdSuccess) {
 	FILE* test_file = tmpfile();
 
 
@@ -77,7 +77,7 @@ TEST_F(SSDFixture, ReadCmdSuccess) {
 	ASSERT_EQ(result_file, test_file);
 }
 
-TEST_F(SSDFixture, ReadCmdFail) {
+TEST_F(FileIOFixture, ReadCmdFail) {
 	FILE* test_file = tmpfile();
 
 	EXPECT_CALL(mfio, Open(_, _))
@@ -94,13 +94,20 @@ TEST_F(SSDFixture, ReadCmdFail) {
 	ASSERT_NE(result_file, test_file);
 }
 
-TEST_F(SSDFixture, ReadCmdTestShellSuccess) {
+TEST_F(FileIOFixture, ReadCmdTestShellSuccess) {
 	FILE* test_file = tmpfile();
+	const std::string fileContent = "0x00001004";
 
 	EXPECT_CALL(mfio, Open(_, _))
 		.WillRepeatedly(Return(nullptr));
 	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
 		.WillRepeatedly(Return(test_file));
+
+	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+		.WillOnce(::testing::Invoke([&](int fd, void* buf, size_t count) {
+		memcpy(buf, fileContent.data(), count);
+		return count;
+			}));
 
 	EXPECT_CALL(mock_ssd, read(_))
 		.Times(1)
@@ -111,7 +118,7 @@ TEST_F(SSDFixture, ReadCmdTestShellSuccess) {
 	ts.run_cmd();
 }
 
-TEST_F(SSDFixture, ReadCmdTestShellFail) {
+TEST_F(FileIOFixture, ReadCmdTestShellOpenReturnFail) {
 	FILE* test_file = tmpfile();
 
 	EXPECT_CALL(mfio, Open(_, _))
