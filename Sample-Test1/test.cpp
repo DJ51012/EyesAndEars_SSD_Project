@@ -316,3 +316,4 @@ TEST_F(FileMangerFixture, WriteReadTestCleanLba) {
 	fileManager.writeNand(10, DATA1);
 	string data = fileManager.readNand(20);
 	EXPECT_THAT(data, StrEq(fileManager.CLEAN_DATA));
+}
