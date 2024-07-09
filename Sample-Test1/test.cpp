@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "../SSD_Project/Ssd.cpp"
-#include "../SSD_Project/CommandManager.h"
+#include "../SSD_Project/CommandManager.cpp"
 #include "../SSD_Project/FileManager.cpp"
 #include <string>
 #include <iostream>
@@ -31,32 +31,41 @@ TEST_F(CommandManagerFixture, No_Command_Code)
 	int argc = 1;
 	char* argv[] = { "ssd" };
 
-	bool actual = cm.IsValidCommand(argc, argv);
-	bool expected = false;
-
-	EXPECT_EQ(expected, actual);
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("No Command"));
+	}
 }
 
 TEST_F(CommandManagerFixture, No_Address_Read)
 {
-	int argc = 1;
+	int argc = 2;
 	char* argv[] = { "ssd", "R" };
 
-	bool actual = cm.IsValidCommand(argc, argv);
-	bool expected = false;
-
-	EXPECT_EQ(expected, actual);
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid number of arguments for this command"));
+	}
 }
 
 TEST_F(CommandManagerFixture, No_Address_Write)
 {
-	int argc = 1;
+	int argc = 2;
 	char* argv[] = { "ssd", "W" };
 
-	bool actual = cm.IsValidCommand(argc, argv);
-	bool expected = false;
-
-	EXPECT_EQ(expected, actual);
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid number of arguments for this command"));
+	}
 }
 
 TEST_F(CommandManagerFixture, Valid_Write)
@@ -86,10 +95,13 @@ TEST_F(CommandManagerFixture, Invalid_CommandCode000)
 	int argc = 4;
 	char* argv[] = { "ssd", "4", "0", "ABCD1234" };
 
-	bool actual = cm.IsValidCommand(argc, argv);
-	bool expected = false;
-
-	EXPECT_EQ(expected, actual);
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid command code"));
+	}
 }
 
 TEST_F(CommandManagerFixture, Invalid_CommandCode001)
@@ -97,10 +109,13 @@ TEST_F(CommandManagerFixture, Invalid_CommandCode001)
 	int argc = 3;
 	char* argv[] = { "ssd", "q", "0" };
 
-	bool actual = cm.IsValidCommand(argc, argv);
-	bool expected = false;
-
-	EXPECT_EQ(expected, actual);
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid command code"));
+	}
 }
 
 TEST_F(CommandManagerFixture, Invalid_Address000)
@@ -108,31 +123,40 @@ TEST_F(CommandManagerFixture, Invalid_Address000)
 	int argc = 4;
 	char* argv[] = { "ssd", "W", "a", "ABCD1234" };
 
-	bool actual = cm.IsValidCommand(argc, argv);
-	bool expected = false;
-
-	EXPECT_EQ(expected, actual);
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid address"));
+	}
 }
 
 TEST_F(CommandManagerFixture, Invalid_Address001)
 {
-	int argc = 4;
-	char* argv[] = { "ssd", "R", "100", "ABCD1234" };
+	int argc = 3;
+	char* argv[] = { "ssd", "R", "100"};
 
-	bool actual = cm.IsValidCommand(argc, argv);
-	bool expected = false;
-
-	EXPECT_EQ(expected, actual);
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid address"));
+	}
 }
 TEST_F(CommandManagerFixture, Invalid_Data000)
 {
 	int argc = 4;
 	char* argv[] = { "ssd", "W", "50", "0xqw0-1231zlomas8=" };
 
-	bool actual = cm.IsValidCommand(argc, argv);
-	bool expected = false;
-
-	EXPECT_EQ(expected, actual);
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid data"));
+	}
 }
 
 TEST_F(CommandManagerFixture, Invalid_Data001)
@@ -140,10 +164,13 @@ TEST_F(CommandManagerFixture, Invalid_Data001)
 	int argc = 4;
 	char* argv[] = { "ssd", "W", "40", "0x!231+asd" };
 
-	bool actual = cm.IsValidCommand(argc, argv);
-	bool expected = false;
-
-	EXPECT_EQ(expected, actual);
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid data"));
+	}
 }
 
 TEST_F(CommandManagerFixture, Execute_Write)
@@ -151,15 +178,11 @@ TEST_F(CommandManagerFixture, Execute_Write)
 	// Arrange
 	int argc = 4;
 	char* argv[] = { "ssd", "W", "0", "0xABCD1234" };
-	bool expected = true;
 	EXPECT_CALL(mock, write(0, "0xABCD1234"));
 
-	// Act
-	bool actual = cm.IsValidCommand(argc, argv);
-	cm.executeSSDCommand(&mock);
-
-	// Assert
-	EXPECT_EQ(expected, actual);
+	//// Act
+	if (cm.IsValidCommand(argc, argv))
+		cm.executeSSDCommand(&mock);
 }
 
 TEST_F(CommandManagerFixture, Execute_Read)
@@ -171,11 +194,8 @@ TEST_F(CommandManagerFixture, Execute_Read)
 	EXPECT_CALL(mock, read(99));
 
 	// Act
-	bool actual = cm.IsValidCommand(argc, argv);
-	cm.executeSSDCommand(&mock);
-
-	// Assert
-	EXPECT_EQ(expected, actual);
+	if (cm.IsValidCommand(argc, argv))
+		cm.executeSSDCommand(&mock);
 }
 
 TEST_F(CommandManagerFixture, Execute_Nothing)
