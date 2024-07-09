@@ -100,6 +100,7 @@ private:
 		if (cmd == TEST_CMD::WRITE && args.size() >= 2 && isValidLbaIndex(args[0]) && isValidWriteValue(args[1])) return;
 		if (cmd == TEST_CMD::READ && args.size() >= 1 && isValidLbaIndex(args[0])) return;
 		if (cmd == TEST_CMD::FULLWRITE && args.size() >= 1 && isValidWriteValue(args[0])) return;
+		if (cmd == TEST_CMD::FULLREAD && args.size() == 0 ) return;
 		if (cmd == TEST_CMD::EXIT) return;
 		if (cmd == TEST_CMD::HELP) return;
 			
@@ -120,6 +121,7 @@ private:
 		if (cmd == TEST_CMD::EXIT) return new ExitTestCmd();
 		if (cmd == TEST_CMD::HELP) return new HelpTestCmd();
 		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
+		if (cmd == TEST_CMD::FULLREAD) return new FullreadTestCmd();
 		return nullptr;
 	}
 
