@@ -9,6 +9,7 @@
 #include "../TestShell/SsdDriver.h"
 #include "../TestShell/testshell.cpp"
 #include "../TestShell/RealSsdDriver.cpp"
+#include "../TestShell/RealFileIo.cpp"
 
 using namespace std;
 using namespace testing;
@@ -234,4 +235,10 @@ TEST(RealSsdDriver, ExceptionByExecutionFailure) {
 
 	EXPECT_THROW(rsd.read(0), runtime_error);
 	EXPECT_THROW(rsd.write(0, ""), runtime_error);
+}
+
+TEST(RealFileIo, ExceptionByExecutionFailure) {
+	RealFileIo rfi;
+
+	EXPECT_THROW(rfi.Open(FILE_NAME_NAND, "r"), runtime_error);
 }

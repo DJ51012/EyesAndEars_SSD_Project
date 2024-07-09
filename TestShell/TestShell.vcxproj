@@ -128,11 +128,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="RealFileIo.cpp" />
     <ClCompile Include="RealSsdDriver.cpp" />
     <ClCompile Include="RealSsdDriver.h" />
     <ClCompile Include="testshell.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RealFileIo.h" />
     <ClInclude Include="SsdDriver.h" />
     <ClInclude Include="testcmd.h" />
   </ItemGroup>
