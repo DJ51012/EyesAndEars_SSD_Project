@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include "SsdDriver.h"
 
 using namespace std;
 
@@ -113,7 +114,7 @@ private:
 		if (strData[0] != '0' || strData[1] != 'x') return false;
 
 		for (int idx = 2; idx < DATA_WIDTH; idx++) {
-			if (!(IsNumber(strData[idx]) || IsCapital(strData[idx])))
+			if (!(IsNumber(strData[idx]) || IsHexCapital(strData[idx])))
 				return false;
 		}
 
@@ -126,8 +127,8 @@ private:
 		return ch >= '0' && ch <= '9';
 	}
 
-	bool IsCapital(char ch)
+	bool IsHexCapital(char ch)
 	{
-		return ch >= 'A' && ch <= 'Z';
+		return ch >= 'A' && ch <= 'F';
 	}
 };
