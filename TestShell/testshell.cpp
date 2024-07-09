@@ -92,7 +92,7 @@ private:
 			if (this->cmd == cmd) return;
 		}
 
-		throw invalid_argument("Undefined test command!");
+		throw invalid_argument("INVALID COMMAND");
 	}
 
 	void AssertWrongArguments()
@@ -104,7 +104,7 @@ private:
 		if (cmd == TEST_CMD::EXIT) return;
 		if (cmd == TEST_CMD::HELP) return;
 			
-		throw invalid_argument("Wrong argument!");
+		throw invalid_argument("WRONG ARGUMENT");
 	}
 
 	bool isValidLbaIndex(string& lba_index) {
