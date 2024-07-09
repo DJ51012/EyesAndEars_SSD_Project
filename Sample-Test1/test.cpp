@@ -300,72 +300,154 @@ TEST_F(ssdDriverFixture, read_non_zero_and_check_result_file_OK) {
 
 
 // File Manager
+class FileNotExistException : public exception {
+
+};
 
 class FileMangerFixture : public testing::Test {
+protected:
+	void SetUp() override {
+		remove(NAND_FILE.c_str());	// delete "nand.txt"
+	}
 public:
 	FileManager& fileManager = FileManager::getInstance();
 	const string DATA1 = "0x00001004";
 	const string DATA2 = "0x00C0FFEE";
 	const string DEFAULT_WRITE_VALUE = "0x00000000";
-	
+	const string RESULT_FILE = "result.txt";
+	const string NAND_FILE = "nand.txt";
+
+	string getResultValue() {
+		ifstream resultFile = getResultFile();
+		string result = "";
+		getline(resultFile, result);
+		resultFile.close();
+		return result;
+	}
+
+	string getWriteNandValue(int lba) {
+		fstream resultFile = getNandFile();
+		string result = "";
+		for (int lbaIdx = 0; lbaIdx <= lba; lbaIdx++) {
+			getline(resultFile, result);
+		}
+		resultFile.close();
+		return result;
+	}
+
 	ifstream getResultFile() {
-		ifstream resultFile("result.txt");
+		ifstream resultFile(RESULT_FILE);
 		if (resultFile.is_open() == false) {
-			// FAIL
+			throw FileNotExistException();
 		}
 		return resultFile;
 	}
 
-	string getResultValue(ifstream& resultFile, int lba) {
-		string result = "";
-		getline(resultFile, result);
-		return result;
+	fstream getNandFile() {
+		ifstream nandFileForCheck(NAND_FILE);
+		if (nandFileForCheck.is_open() == false) {
+			throw FileNotExistException();
+		}
+		nandFileForCheck.close();
+		fstream nandfile(NAND_FILE);
+		return nandfile;
 	}
 };
 
+TEST_F(FileMangerFixture, ResultFileNotExist) {
+	remove(RESULT_FILE.c_str());	// delete "result.txt"
+	EXPECT_THROW(getResultValue(), FileNotExistException);
+}
+
+TEST_F(FileMangerFixture, NandFileNotExist) {
+	EXPECT_THROW(getWriteNandValue(0), FileNotExistException);
+}
+
 TEST_F(FileMangerFixture, ReadTestInitLba0) {
-	fileManager.readNand(0);
-	ifstream resultFile = getResultFile();
-	string result = getResultValue(resultFile, 0);
-	EXPECT_THAT(result, StrEq(DEFAULT_WRITE_VALUE));
+	const int LBA = 0;
+	fileManager.readNand(LBA);
+	EXPECT_THAT(getResultValue(), StrEq(DEFAULT_WRITE_VALUE));
 }
 
 TEST_F(FileMangerFixture, ReadTestInitLba99) {
-	fileManager.readNand(99);
-	ifstream resultFile = getResultFile();
-	string result = getResultValue(resultFile, 99);
-	EXPECT_THAT(result, StrEq(DEFAULT_WRITE_VALUE));
+	const int LBA = 99;
+	fileManager.readNand(LBA);
+	EXPECT_THAT(getResultValue(), StrEq(DEFAULT_WRITE_VALUE));
+}
+
+TEST_F(FileMangerFixture, WriteTestInitLba1) {
+	const int LBA = 1;
+	fileManager.writeNand(LBA, DATA1);
+	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
+}
+
+TEST_F(FileMangerFixture, WriteTestInitLba98) {
+	const int LBA = 98;
+	fileManager.writeNand(LBA, DATA1);
+	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
 }
 
 TEST_F(FileMangerFixture, WriteReadTestLba0) {
-	fileManager.writeNand(0, DATA1);
-	fileManager.readNand(0);
-	ifstream resultFile = getResultFile();
-	string result = getResultValue(resultFile, 0);
-	EXPECT_THAT(result, StrEq(DATA1));
+	const int LBA = 0;
+	fileManager.writeNand(LBA, DATA1);
+	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
+
+	fileManager.readNand(LBA);
+	EXPECT_THAT(getResultValue(), StrEq(DATA1));
 }
 
 TEST_F(FileMangerFixture, WriteReadTestLba99) {
-	fileManager.writeNand(99, DATA1);
-	fileManager.readNand(99);
-	ifstream resultFile = getResultFile();
-	string result = getResultValue(resultFile, 99);
-	EXPECT_THAT(result, StrEq(DATA1));
+	const int LBA = 99;
+	fileManager.writeNand(LBA, DATA1);
+	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
+
+	fileManager.readNand(LBA);
+	EXPECT_THAT(getResultValue(), StrEq(DATA1));
 }
 
 TEST_F(FileMangerFixture, WriteReadTestOverWrite) {
-	fileManager.writeNand(10, DATA1);
-	fileManager.writeNand(10, DATA2);
-	fileManager.readNand(10);
-	ifstream resultFile = getResultFile();
-	string result = getResultValue(resultFile, 10);
-	EXPECT_THAT(result, StrEq(DATA2));
+	const int LBA = 10;
+	fileManager.writeNand(LBA, DATA1);
+	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
+
+	fileManager.writeNand(LBA, DATA2);
+	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA2));
+
+	fileManager.readNand(LBA);
+	EXPECT_THAT(getResultValue(), StrEq(DATA2));
 }
 
 TEST_F(FileMangerFixture, WriteReadTestCleanLba) {
-	fileManager.writeNand(15, DATA1);
-	fileManager.readNand(20);
-	ifstream resultFile = getResultFile();
-	string result = getResultValue(resultFile, 20);
-	EXPECT_THAT(result, StrEq(DEFAULT_WRITE_VALUE));
+	const int WRITE_LBA = 15;
+	const int READ_LBA = 20;
+	fileManager.writeNand(WRITE_LBA, DATA1);
+	EXPECT_THAT(getWriteNandValue(WRITE_LBA), StrEq(DATA1));
+
+	fileManager.readNand(READ_LBA);
+	EXPECT_THAT(getResultValue(), StrEq(DEFAULT_WRITE_VALUE));
 }
+
+TEST_F(FileMangerFixture, WriteReadTestConsecutiveWrite) {
+	const int LBA1 = 40;
+	const int LBA2 = 30;
+	const int LBA3 = 99;
+
+	fileManager.writeNand(LBA1, DATA1);
+	EXPECT_THAT(getWriteNandValue(LBA1), StrEq(DATA1));
+
+	fileManager.writeNand(LBA2, DATA2);
+	EXPECT_THAT(getWriteNandValue(LBA2), StrEq(DATA2));
+
+	fileManager.writeNand(LBA3, DATA2);
+	EXPECT_THAT(getWriteNandValue(LBA3), StrEq(DATA2));
+
+	fileManager.readNand(LBA1);
+	EXPECT_THAT(getResultValue(), StrEq(DATA1));
+
+	fileManager.readNand(LBA2);
+	EXPECT_THAT(getResultValue(), StrEq(DATA2));
+
+	fileManager.readNand(LBA3);
+	EXPECT_THAT(getResultValue(), StrEq(DATA2));
+}
+
