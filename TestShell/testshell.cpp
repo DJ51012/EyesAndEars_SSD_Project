@@ -36,6 +36,7 @@ public:
 		auto cmd_runner = get_test_cmd_runner();
 		if (cmd_runner != nullptr) {
 			cmd_runner->run_cmd(ssd_driver, args);
+			delete cmd_runner;
 			return true;
 		}
 
