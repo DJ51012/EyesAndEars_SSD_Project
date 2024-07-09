@@ -96,7 +96,7 @@ TEST_F(FileIOFixture, ReadCmdFail) {
 
 TEST_F(FileIOFixture, ReadCmdTestShellSuccess) {
 	FILE* test_file = tmpfile();
-	const std::string fileContent = "0x00001004";
+	const std::string fileResultContent = "0x00001004";
 
 	EXPECT_CALL(mfio, Open(_, _))
 		.WillRepeatedly(Return(nullptr));
@@ -105,7 +105,7 @@ TEST_F(FileIOFixture, ReadCmdTestShellSuccess) {
 
 	EXPECT_CALL(mfio, Read((int)test_file, _, _))
 		.WillOnce(::testing::Invoke([&](int fd, void* buf, size_t count) {
-		memcpy(buf, fileContent.data(), count);
+		memcpy(buf, fileResultContent.data(), count);
 		return count;
 			}));
 
@@ -162,6 +162,26 @@ TEST_F(TestShellFixture, FullWriteCmd) {
 	EXPECT_TRUE(test_cmd("fullwrite", { "0x12345678" }));
 }
 
-TEST(TestShell, FullReadCmd) {
-	// TODO: Test for fullread
+TEST_F(FileIOFixture, FullReadCmd) {
+	FILE* test_file = tmpfile();
+	const std::string fileNandContent = "0x000000010x000000020x00000003";
+
+	EXPECT_CALL(mfio, Open(_, _))
+		.WillRepeatedly(Return(nullptr));
+	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_NAND), _))
+		.WillRepeatedly(Return(test_file));
+
+	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+		.WillOnce(::testing::Invoke([&](int fd, void* buf, size_t count) {
+		memcpy(buf, fileNandContent.data(), count);
+		return count;
+			}));
+
+	EXPECT_CALL(mock_ssd, read(_))
+		.Times(1)
+		.WillRepeatedly(Return(READ_SUCCESS));
+
+	TestShell ts{ TEST_CMD::FULLREAD, { }, &mock_ssd, &mfio };
+
+	ts.run_cmd();
 }
