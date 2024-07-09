@@ -132,6 +132,7 @@
     <ClCompile Include="Ssd.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommandManager.h" />
     <ClInclude Include="SsdDriver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

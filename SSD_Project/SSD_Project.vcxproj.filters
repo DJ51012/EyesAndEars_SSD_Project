@@ -26,5 +26,8 @@
     <ClInclude Include="SsdDriver.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CommandManager.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,18 +1,12 @@
 #include <iostream>
 #include <string>
-//#include "Ssd.h"
+#include "SsdDriver.h"
 
 using namespace std;
 
 class CommandManager
 {
 public:
-	int getAddrData(int& addr, unsigned &data, int argc, char* argv[])
-	{
-		return 0;
-	}
-
-
 	void printCommandGuide()
 	{
 		cout << "[Usage] <cmd> <addr> <data>" << endl;
@@ -31,7 +25,7 @@ public:
 		if (!IsArgumentExist(argc)) { return false; };
 		if (!IsValidCommandCode(argv[1])) { return false; };
 
-		switch(m_cmd)
+		switch (m_cmd)
 		{
 		case 'W':
 			if (!IsValidWriteCommand(argc, argv)) { return false; }
@@ -46,11 +40,27 @@ public:
 		return true;
 	}
 
+	void executeSSDCommand(SsdDriver* ssd)
+	{
+		switch (m_cmd)
+		{
+		case 'W': ssd->write(m_nLba, m_strData); break;
+		case 'R': ssd->read(m_nLba); break;
+		default: break;
+		}
+		m_cmd = '-';
+		return;
+	}
+
 private:
 
-	char m_cmd;
+	char m_cmd = '-';
 	int m_nLba;
-	unsigned m_nData;
+	string m_strData;
+
+	const int DATA_WIDTH = 10;
+	const int ADDR_MAX = 99;
+	const int ADDR_MIN = 0;
 
 	bool IsArgumentExist(int argc)
 	{
@@ -68,15 +78,57 @@ private:
 
 	bool IsValidReadCommand(int argc, char* argv[])
 	{
-		if (argc != 3)
-			return false;
+		if (argc != 3) return false;
+		if (!IsValidAddr(argv[2])) return false;
+
 		return true;
 	}
 
 	bool IsValidWriteCommand(int argc, char* argv[])
 	{
-		if (argc != 4)
-			return false;
+		if (argc != 4) return false;
+		if (!IsValidAddr(argv[2])) return false;
+		if (!IsValidData(argv[3])) return false;
+
 		return true;
+	}
+
+	bool IsValidAddr(string strLba)
+	{
+		for (auto ch : strLba)
+			if (!IsNumber(ch))
+				return false;
+
+		int nLba = stoi(strLba);
+		if (!(nLba >= ADDR_MIN && nLba <= ADDR_MAX))
+			return false;
+
+		m_nLba = nLba;
+		return true;
+	}
+
+	bool IsValidData(string strData)
+	{
+		// Format 0xXXXXXXXX
+		if (strData.size() != DATA_WIDTH) return false;
+		if (strData[0] != '0' || strData[1] != 'x') return false;
+
+		for (int idx = 2; idx < DATA_WIDTH; idx++) {
+			if (!(IsNumber(strData[idx]) || IsHexCapital(strData[idx])))
+				return false;
+		}
+
+		m_strData = strData;
+		return true;
+	}
+
+	bool IsNumber(char ch)
+	{
+		return ch >= '0' && ch <= '9';
+	}
+
+	bool IsHexCapital(char ch)
+	{
+		return ch >= 'A' && ch <= 'F';
 	}
 };
