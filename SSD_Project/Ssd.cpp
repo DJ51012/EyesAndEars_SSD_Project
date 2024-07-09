@@ -9,13 +9,12 @@ using namespace std;
 
 class Ssd : public SsdDriver {
 public:
-    ofstream createFile() {
+    void createFile() {
         ofstream nandfile(NAND_FILE_NAME);
         for (int idx = 0; idx < 100; idx++) {
             nandfile << DEFAULT_WRITE_VALUE << endl;
         }
         nandfile.close();
-        return nandfile;
     }
 
     fstream getNandFile() {
@@ -51,13 +50,15 @@ public:
         validLineNumCheck(line);
         
         readLines[line] = value;
-
-        nandFile.clear();
-        nandFile.seekp(0, ios::beg);
-        for (const auto& ln : readLines) {
-            nandFile  << ln << endl;
-        }
         nandFile.close();
+
+        ofstream nandFileWrite(NAND_FILE_NAME);
+
+        for (const auto& ln : readLines) {
+            nandFileWrite << ln << endl;
+        }
+
+        nandFileWrite.close();
     }
 
     string read(unsigned int line) {
@@ -70,13 +71,7 @@ public:
 
         while (getline(nandFile, readLine)) {
             if (lineNumber == line) {
-                istringstream iss(readLine);
-                if (iss >> value) {
-                    resultFile << value << endl;
-                }
-                else {
-                    cerr << "The value in line " << line << " is not a valid string" << endl;
-                }
+                resultFile << readLine << endl;
                 break;
             }
             lineNumber++;

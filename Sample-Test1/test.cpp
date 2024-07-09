@@ -199,80 +199,82 @@ public:
 	string readFileWithLine(ifstream& file, int line) {
 		string result;
 		if (!file.is_open()) {
-			std::cerr << "Error: Could not open file " << std::endl;
+			cerr << "Error: Could not open file " << endl;
 			return "";
 		}
+
 		int line_idx = 0;
-		
 		string currentLine;
 		while (getline(file, currentLine)) {
 			if (line_idx == line) {
-				try {
-					return currentLine; // 현재 줄의 문자열을 정수로 변환하여 반환
-				}
-				catch (const invalid_argument& e) {
-					cerr << "Error: The line does not contain a valid integer" << std::endl;
-					return 0;
-				}
-				catch (const out_of_range& e) {
-					cerr << "Error: The integer is out of range" << std::endl;
-					return 0;
-				}
+				return currentLine; // 현재 줄의 문자열을 정수로 변환하여 반환
 			}
 			line_idx++;
 		}
-
 		return result;
 	}
 
+	ifstream resultFile;
+	ifstream nandFile;
 };
 
 // invalid input 은 필터됐다고 가정
 TEST_F(ssdDriverFixture, write_zero_and_check_nand_file_OK) {
+	// Arrange
 	unsigned int line = 0;
-	string value =Ssd.DEFAULT_WRITE_VALUE;
+	string writeValue = Ssd.DEFAULT_WRITE_VALUE;
 
-	Ssd.write(line, value);
-	
-	ifstream nandFile("nand.txt");
+	// Act
+	Ssd.write(line, writeValue);
+	nandFile.open(Ssd.NAND_FILE_NAME);
 	string actual = readFileWithLine(nandFile, line);
-	string expected = value;
+	string expected = writeValue;
 
+	// Assert
 	EXPECT_EQ(expected, actual);
 }
 
 
 TEST_F(ssdDriverFixture, write_non_zero_and_check_nand_file_OK) {
-	unsigned int line = 99;
-	string value = "10";
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
 
-	Ssd.write(line, value);
-	ifstream nandFile("nand.txt");
+	// Act
+	Ssd.write(line, writeValue);
+	nandFile.open(Ssd.NAND_FILE_NAME);
 	string actual = readFileWithLine(nandFile, line);
-	string expected = value;
+	string expected = writeValue;
 
+	// Assert
 	EXPECT_EQ(expected, actual);
 }
 
 TEST_F(ssdDriverFixture, read_zero_and_check_result_file_OK) {
+	// Arrange
 	unsigned int line = 97;
-	Ssd.read(line);
-
-	ifstream resultFile("result.txt");
-	string actual = readFileWithLine(resultFile, RESULT_READ_LINE);
 	string expected = Ssd.DEFAULT_WRITE_VALUE;
 
+	// Act
+	Ssd.read(line);
+	resultFile.open(Ssd.RESULT_FILE_NAME);
+	string actual = readFileWithLine(resultFile, RESULT_READ_LINE);
+
+	// Assert
 	EXPECT_EQ(expected, actual);
 }
 
 TEST_F(ssdDriverFixture, read_non_zero_and_check_result_file_OK) {
-	unsigned int line = 99;
+	// Arrange
+	unsigned int line = 98;
+	string expected = "0x12345678";
+
+	// Act
 	Ssd.read(line);
-
-	ifstream resultFile("result.txt");
+	resultFile.open(Ssd.RESULT_FILE_NAME);
 	string actual = readFileWithLine(resultFile, RESULT_READ_LINE);
-
-	string expected = "10";
+	
+	// Assert
 	EXPECT_EQ(expected, actual);
 }
 
