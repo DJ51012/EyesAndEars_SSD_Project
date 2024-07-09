@@ -11,10 +11,10 @@ using namespace std;
 
 class Ssd : public SsdDriver {
 public:
-    //Ssd(FileManager* fileManager) : fileManager(fileManager) {}
+    Ssd() {
+        FileManager& fileManager = FileManager::getInstance();
+    }
 
-    //FileManager& fileManager = FileManager::getInstance();
-    FileManager* fileManager;
     void setFileManager(FileManager* newFileManager) {
         fileManager = newFileManager;
     }
@@ -27,4 +27,5 @@ public:
         fileManager->readNand(line);
     }
 
+    FileManager* fileManager;
 };
