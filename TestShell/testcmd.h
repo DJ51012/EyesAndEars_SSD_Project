@@ -5,6 +5,7 @@
 #include <iostream>
 #include "SsdDriver.h"
 #include "FileIoInterface.h"
+#include "util.h"
 
 using namespace std;
 
@@ -102,15 +103,14 @@ public:
 		args.push_back("0x00000000");
 		full_write.run_cmd(ssd_driver, fio, args);
 
-		std::streambuf* original_cout_buf;
 		std::ostringstream test_out_stream;
-		original_cout_buf = std::cout.rdbuf();
-		std::cout.rdbuf(test_out_stream.rdbuf());
+		StdBufUtil std_buf_util;
+		std_buf_util.change_stdout(&test_out_stream);
 
 		args.clear();
 		full_read.run_cmd(ssd_driver, fio, args);
 
-		std::cout.rdbuf(original_cout_buf);
+		std_buf_util.restore_stdout();
 
 		auto test_output = test_out_stream.str();
 		for (size_t i = 0; i < 100; ++i) {
@@ -144,18 +144,17 @@ public:
 			write.run_cmd(ssd_driver, fio, args);
 		}
 
-		std::streambuf* original_cout_buf;
 		std::ostringstream test_out_stream;
-		original_cout_buf = std::cout.rdbuf();
-		std::cout.rdbuf(test_out_stream.rdbuf());
+		StdBufUtil std_buf_util;
+		std_buf_util.change_stdout(&test_out_stream);
 
 		for (int lba_index = 0; lba_index < 6; lba_index++) {
 			args.clear();
 			args.push_back(to_string(lba_index));
 			read.run_cmd(ssd_driver, fio, args);
 		}
-
-		std::cout.rdbuf(original_cout_buf);
+		
+		std_buf_util.restore_stdout();
 
 		auto test_output = test_out_stream.str();
 		for (size_t i = 0; i < 6; ++i) {
