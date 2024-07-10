@@ -91,3 +91,33 @@ public:
 	static const int MAX_LINE = 100;
 	static const int MAX_BUF_SIZE = ONE_LINE_SIZE * MAX_LINE;
 };
+
+class TestApp1TestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		FullreadTestCmd full_read{};
+		FullwriteTestCmd full_write{};
+
+		args.clear();
+		args.push_back("0x00000000");
+		full_write.run_cmd(ssd_driver, fio, args);
+
+		std::streambuf* original_cout_buf;
+		std::ostringstream test_out_stream;
+		original_cout_buf = std::cout.rdbuf();
+		std::cout.rdbuf(test_out_stream.rdbuf());
+
+		args.clear();
+		full_read.run_cmd(ssd_driver, fio, args);
+
+		std::cout.rdbuf(original_cout_buf);
+
+		auto test_output = test_out_stream.str();
+		for (size_t i = 0; i < 100; ++i) {
+			if (test_output.substr(i * 10, 10) != "0x00000000") {
+				cout << test_output << endl;
+				throw std::runtime_error("TestApp1 failed.");
+			}
+		}
+	}
+};
