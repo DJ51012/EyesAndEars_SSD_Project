@@ -17,12 +17,15 @@ public:
     virtual void writeNand(unsigned int line, string value);
     virtual void readNand(unsigned int line);
 
+    virtual void writeBuffer(string command);
+    virtual vector<string> readBuffer();
 private:
     FileManager& operator=(const FileManager& otherInstance) = delete;
     FileManager(const FileManager& otherInstance) = delete;
     void createFile(string fileName);
     ifstream getNandFile();
     ofstream getResultFile();
+    ifstream getCommandBuffer();
     bool checkValidLineNum(int line);
     bool getAllData(ifstream& readFile, vector<string>& readLines);
     void setAllData(ofstream& writeFile, vector<string>& readLines);

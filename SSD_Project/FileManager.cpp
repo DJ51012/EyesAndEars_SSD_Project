@@ -32,6 +32,19 @@ void FileManager::readNand(unsigned int line) {
     resultFile.close();
 }
 
+vector<string> FileManager::readBuffer() {
+    vector<string> readLines;
+    ifstream cmdBuffreRead(COMMAND_BUFFER_NAME);
+    if (cmdBuffreRead.is_open())
+        getAllData(cmdBuffreRead, readLines);
+    return readLines;
+}
+
+void FileManager::writeBuffer(string command) {
+    ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
+    cmdBufferWrite << command << endl;
+}
+
 void FileManager::createFile(string fileName) {
     ofstream writeFile(fileName);
     if (fileName == NAND_FILE_NAME) {
@@ -54,6 +67,15 @@ ifstream FileManager::getNandFile() {
 ofstream FileManager::getResultFile() {
     ofstream resultFile(RESULT_FILE_NAME);
     return resultFile;
+}
+
+ifstream FileManager::getCommandBuffer() {
+    ifstream cmdBufferForCheck(COMMAND_BUFFER_NAME);
+    if (cmdBufferForCheck.is_open() == false) {
+        createFile(COMMAND_BUFFER_NAME);
+    }
+    ifstream commandBuffer(COMMAND_BUFFER_NAME);
+    return commandBuffer;
 }
 
 bool FileManager::checkValidLineNum(int line) {

@@ -290,6 +290,7 @@ public:
 	const string DEFAULT_WRITE_VALUE = "0x00000000";
 	const string RESULT_FILE = "result.txt";
 	const string NAND_FILE = "nand.txt";
+	const string COMMAND_BUFFER = "buffer.txt";
 
 	string getResultValue() {
 		ifstream resultFile = getResultFile();
@@ -309,6 +310,19 @@ public:
 		return result;
 	}
 
+	string getWriteCommandBuffer(string cmd) {
+		ifstream commandBuffer = getCommandBuffer();
+		string readCmd = "";
+		while (getline(commandBuffer, readCmd)) {
+			if (cmd == readCmd) {
+				commandBuffer.close();
+				return cmd;
+			}
+		}
+		commandBuffer.close();
+		return "";
+	}
+
 	ifstream getResultFile() {
 		ifstream resultFile(RESULT_FILE);
 		if (resultFile.is_open() == false) {
@@ -325,6 +339,15 @@ public:
 		nandFileForCheck.close();
 		ifstream nandFile(NAND_FILE);
 		return nandFile;
+	}
+
+	ifstream getCommandBuffer() {
+		ifstream cmdBufferForCheck(COMMAND_BUFFER);
+		if (cmdBufferForCheck.is_open() == false) {
+			throw FileNotExistException();
+		}
+		ifstream commandBuffer(COMMAND_BUFFER);
+		return commandBuffer;
 	}
 };
 
@@ -424,3 +447,21 @@ TEST_F(FileMangerFixture, WriteReadTestConsecutiveWrite) {
 	fileManager.readNand(LBA3);
 	EXPECT_THAT(getResultValue(), StrEq(DATA2));
 }
+
+TEST_F(FileMangerFixture, CommandBufferNotExist) {
+	const string cmd = "W 20 0x1234ABCD";
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	EXPECT_THROW(getWriteCommandBuffer(cmd), FileNotExistException);
+}
+
+TEST_F(FileMangerFixture, WriteCommandBuffer) {
+	const string cmd = "W 20 0x1234ABCD";
+	fileManager.writeBuffer(cmd);
+	EXPECT_THAT(getWriteCommandBuffer(cmd), StrEq(cmd));
+}
+
+TEST_F(FileMangerFixture, ReadCommandBuffer) {
+	const string cmd = "W 20 0x1234ABCD";
+	EXPECT_THAT(fileManager.readBuffer(), Contains(cmd));
+}
+
