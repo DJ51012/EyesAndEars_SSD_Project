@@ -1,3 +1,4 @@
+#include "../Logger/Logger.cpp"
 #include "RealSsdDriver.h"
 #include "RealFileIo.h"
 #include "testshell.cpp"

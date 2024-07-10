@@ -1,6 +1,7 @@
 #pragma once
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#include "../Logger/Logger.cpp"
 #include "../SSD_Project/Ssd.cpp"
 #include "../SSD_Project/CommandManager.cpp"
 #include "../SSD_Project/FileManager.cpp"
