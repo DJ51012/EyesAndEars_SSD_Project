@@ -7,7 +7,6 @@ using namespace std;
 class Runner {
 public:
     void start_runner(TestShell* ts, char* filename) {
-        printf("read : %s\n", filename);
         FILE* file;
         errno_t err = fopen_s(&file, filename, "r");
         if (err != 0) {
