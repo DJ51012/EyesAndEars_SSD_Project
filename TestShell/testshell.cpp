@@ -8,6 +8,7 @@
 #include <cctype>
 #include "testcmd.h"
 #include "SsdDriver.h"
+#include "util.h"
 #include "../TestShell/FileIOInterface.h"
 
 using namespace std;
@@ -131,11 +132,13 @@ private:
 	}
 
 	bool isValidLbaIndex(string& lba_index) {
-		return stoi(lba_index) < 100;
+		auto lba_num = stoi(lba_index);
+		return (lba_num < CONSTANTS::LBA_INDEX_MAX && lba_num >= CONSTANTS::LBA_INDEX_MIN);
 	}
 
 	bool isValidWriteValue(string& write_value) {
-		return write_value.length() == 10 && write_value.substr(0, 2) == "0x";
+		return (write_value.length() == CONSTANTS::VALID_VALUE_SIZE && 
+				write_value.substr(0, 2) == CONSTANTS::VALID_VALUE_PREFIX);
 	}
 
 	TestCmd* get_test_cmd_runner() {
