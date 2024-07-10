@@ -210,7 +210,7 @@ TEST_F(CommandManagerFixture, Execute_Nothing)
 	cm.executeSSDCommand(&mock);
 }
 
-//DriverFixture
+// DriverFixture
 class FileManagerMock : public FileManager {
 public:
 	MOCK_METHOD(void, writeNand, (unsigned int, string), ());
@@ -272,7 +272,6 @@ TEST_F(ssdDriverFixture, read_non_zero_and_check_result_file_OK) {
 	// Act
 	ssd.read(line);
 }
-
 
 // File Manager
 class FileNotExistException : public exception {
@@ -425,4 +424,3 @@ TEST_F(FileMangerFixture, WriteReadTestConsecutiveWrite) {
 	fileManager.readNand(LBA3);
 	EXPECT_THAT(getResultValue(), StrEq(DATA2));
 }
-

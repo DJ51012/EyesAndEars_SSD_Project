@@ -27,5 +27,8 @@ public:
         fileManager->readNand(line);
     }
 
+    void flush() {}
+
+
     FileManager* fileManager;
 };
