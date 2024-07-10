@@ -109,20 +109,25 @@ bool CommandManager::IsValidEraseCommand(int argc, char* argv[])
 {
 	if (!IsValidNumberOfArguments(argc, NR_ERASE_ARGC)) return false;
 	if (!IsValidAddr(argv[2])) return false;
+	if (!isValidRangeSize(argv[3])) return false;
 
-	auto argv_ptr = argv[3];
-	while (*argv_ptr) {
-		if (!std::isdigit(*argv_ptr)) {
+	return true;
+}
+
+bool CommandManager::isValidRangeSize(string strRangeSize)
+{
+	auto size_str_ptr = strRangeSize.c_str();
+	while (*size_str_ptr) {
+		if (!std::isdigit(*size_str_ptr)) {
 			throw::exception(ERROR_RANGE_SIZE);
 		}
-		++argv_ptr;
+		++size_str_ptr;
 	}
 
-	auto value = std::strtol(argv[3], nullptr, 10);
-	if (value > 10) throw::exception(ERROR_RANGE_SIZE);
+	auto value = stoi(strRangeSize);
+	if (value > RANGE_SIZE_MAX) throw::exception(ERROR_RANGE_SIZE);
 
 	m_rangeSize = value;
-
 	return true;
 }
 
