@@ -4,6 +4,13 @@
 
 using namespace std;
 
+namespace CONSTANTS {
+	const int LBA_INDEX_MAX = 100;
+	const int LBA_INDEX_MIN = 0;
+	const int VALID_VALUE_SIZE = 10;
+	const string VALID_VALUE_PREFIX = "0x";
+}
+
 class StdBufUtil {
 public:
 	void change_stdout(ostringstream* target_cout_buf) {

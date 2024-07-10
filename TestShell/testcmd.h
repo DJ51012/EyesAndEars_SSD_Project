@@ -173,21 +173,39 @@ public:
 class EraseTestCmd : public TestCmd {
 public:
 	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
-		auto total_range_size = stoi(args[1]);
 		auto lba_index = stoi(args[0]);
+		auto remained_range_size = stoi(args[1]);
 
-		while (lba_index < 100 && total_range_size > 0) {
-			auto range_size = min(10, total_range_size);
-			range_size = max(0, range_size);
-
-			if (range_size + lba_index >= 100) {
-				range_size = 100 - lba_index;
-			}
+		while (isErasableCondition(lba_index, remained_range_size))
+		{
+			auto range_size = adjust_range_size(remained_range_size, lba_index);
 
 			ssd_driver->erase(lba_index, range_size);
 
-			total_range_size -= range_size;
+			remained_range_size -= range_size;
 			lba_index += range_size;
 		}
 	}
+
+private:
+	bool isErasableCondition(int lba_index, int remained_range_size)
+	{
+		return lba_index < CONSTANTS::LBA_INDEX_MAX
+			&& remained_range_size > RANGE_SIZE_MIN;
+	}
+
+	int adjust_range_size(int remained_range_size, int lba_index)
+	{
+		int range_size = min(RANGE_SIZE_MAX, remained_range_size);
+		range_size = max(RANGE_SIZE_MIN, range_size);
+
+		if (range_size + lba_index >= CONSTANTS::LBA_INDEX_MAX) {
+			range_size = CONSTANTS::LBA_INDEX_MAX - lba_index;
+		}
+
+		return range_size;
+	}
+
+	const int RANGE_SIZE_MAX = 10;
+	const int RANGE_SIZE_MIN = 0;
 };
