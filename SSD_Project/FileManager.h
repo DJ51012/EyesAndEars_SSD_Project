@@ -19,6 +19,7 @@ public:
 
     virtual void writeBuffer(string command);
     virtual vector<string> readBuffer();
+    virtual void flush(vector<string> &commands);
 private:
     FileManager& operator=(const FileManager& otherInstance) = delete;
     FileManager(const FileManager& otherInstance) = delete;

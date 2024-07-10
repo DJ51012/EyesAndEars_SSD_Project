@@ -41,8 +41,22 @@ vector<string> FileManager::readBuffer() {
 }
 
 void FileManager::writeBuffer(string command) {
+    vector<string> commands = readBuffer();
+    if (commands.size() >= 10) {
+        flush(commands);
+        //commands.clear();
+    }
+    commands.push_back(command);
+    
     ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
-    cmdBufferWrite << command << endl;
+    setAllData(cmdBufferWrite, commands);
+    cmdBufferWrite.close();
+}
+
+void FileManager::flush(vector<string>& commands) {
+    // Execute All commands
+    // And clear commands
+    commands.clear();
 }
 
 void FileManager::createFile(string fileName) {

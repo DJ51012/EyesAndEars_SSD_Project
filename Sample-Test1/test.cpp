@@ -456,12 +456,41 @@ TEST_F(FileMangerFixture, CommandBufferNotExist) {
 
 TEST_F(FileMangerFixture, WriteCommandBuffer) {
 	const string cmd = "W 20 0x1234ABCD";
+
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
 	fileManager.writeBuffer(cmd);
 	EXPECT_THAT(getWriteCommandBuffer(cmd), StrEq(cmd));
 }
 
-TEST_F(FileMangerFixture, ReadCommandBuffer) {
-	const string cmd = "W 20 0x1234ABCD";
-	EXPECT_THAT(fileManager.readBuffer(), Contains(cmd));
+TEST_F(FileMangerFixture, WriteCommandBufferMoreThanOneCommand) {
+	const string cmd1 = "W 20 0x1234ABCD";
+	const string cmd2 = "W 21 0x1234ABCD";
+
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	fileManager.writeBuffer(cmd1);
+	fileManager.writeBuffer(cmd2);
+	EXPECT_THAT(getWriteCommandBuffer(cmd1), StrEq(cmd1));
+	EXPECT_THAT(getWriteCommandBuffer(cmd2), StrEq(cmd2));
 }
 
+TEST_F(FileMangerFixture, WriteCommandBufferMoreThanTenCommands) {
+	const string cmd1 = "W 10 0x1234AB01";
+	const string cmd2 = "W 10 0x1234AB02";
+
+
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	for(int i = 0 ; i<10 ; i++)
+		fileManager.writeBuffer(cmd1);
+	fileManager.writeBuffer(cmd2);
+	
+	EXPECT_THAT(getWriteCommandBuffer(cmd1), StrEq(""));
+	EXPECT_THAT(getWriteCommandBuffer(cmd2), StrEq(cmd2));
+}
+
+
+TEST_F(FileMangerFixture, WriteAndReadCommandBuffer) {
+	const string cmd = "W 20 0x1234ABCD";
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	fileManager.writeBuffer(cmd);
+	EXPECT_THAT(fileManager.readBuffer(), Contains(cmd));
+}
