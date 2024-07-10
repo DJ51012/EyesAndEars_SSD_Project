@@ -67,6 +67,10 @@ public:
 	void set_expected_read_times(int times) {
 		EXPECT_CALL(mock_ssd, read(_)).Times(times);
 	}
+	
+	void set_expected_erase_times(int times) {
+		EXPECT_CALL(mock_ssd, erase(_, _)).Times(times);
+	}
 
 	void backup_std_inout() {
 		original_cin_buf = std::cin.rdbuf();
@@ -366,6 +370,21 @@ TEST_F(TestShellFixture, InteractiveShell) {
 	EXPECT_EXIT(ts.start_shell(), ExitedWithCode(0), "");
 
 	restore_std_inout();
+}
+
+TEST_F(TestShellFixture, EraseCmdFailure) {
+	set_expected_erase_times(0);
+	EXPECT_THROW(test_cmd("erase", { "0" }), invalid_argument);
+	EXPECT_THROW(test_cmd("erase", { "100", "10"}), invalid_argument);
+	EXPECT_THROW(test_cmd("erase", { "50", "ASDF"}), invalid_argument);
+}
+
+TEST_F(TestShellFixture, EraseCmdSuccess) {
+	set_expected_erase_times(4);
+	EXPECT_TRUE(test_cmd("erase", { "0", "10" })); // Call a driver 1 time
+	EXPECT_TRUE(test_cmd("erase", { "0", "20" })); // Call a driver 2 times
+	EXPECT_TRUE(test_cmd("erase", { "99", "1" })); // Call a driver 1 time
+	EXPECT_TRUE(test_cmd("erase", { "0", "0" }));  // Call a driver 0 time
 }
 
 TEST(RealSsdDriver, ExceptionByExecutionFailure) {

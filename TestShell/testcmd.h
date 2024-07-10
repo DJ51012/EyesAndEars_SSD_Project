@@ -3,6 +3,7 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 #include "SsdDriver.h"
 #include "FileIoInterface.h"
 #include "util.h"
@@ -165,6 +166,28 @@ public:
 				cout << test_output << endl;
 				throw std::runtime_error("TestApp2 failed.");
 			}
+		}
+	}
+};
+
+class EraseTestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		auto total_range_size = stoi(args[1]);
+		auto lba_index = stoi(args[0]);
+
+		while (lba_index < 100 && total_range_size > 0) {
+			auto range_size = min(10, total_range_size);
+			range_size = max(0, range_size);
+
+			if (range_size + lba_index >= 100) {
+				range_size = 100 - lba_index;
+			}
+
+			ssd_driver->erase(lba_index, range_size);
+
+			total_range_size -= range_size;
+			lba_index += range_size;
 		}
 	}
 };

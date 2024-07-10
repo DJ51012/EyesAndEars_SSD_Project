@@ -18,7 +18,8 @@ void RealSsdDriver::read(unsigned int lba_index)
 
 void RealSsdDriver::erase(unsigned int lba_index, unsigned int size)
 {
-
+	string erase_cmd = string(SSD_EXECUTABLE) + " E " + to_string(lba_index) + " " + to_string(size);
+	this->execute_cmd(erase_cmd, "Failed to invoke ssd erase command");
 }
 
 void RealSsdDriver::execute_cmd(string& execute_cmd, string error_msg)
