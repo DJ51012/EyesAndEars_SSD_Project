@@ -33,6 +33,7 @@ public:
 			fio->Read((int)fd, buf, ONE_LINE_SIZE);
 			std::cout << buf;
 		}
+		if (fd) fclose(fd);
 	}
 	static const int ONE_LINE_SIZE = 10;
 	static const int MAX_LINE = 100;
@@ -82,10 +83,9 @@ public:
 				int result = fio->Read((int)fd, buf, ONE_LINE_SIZE);
 				if (result == 0) return;
 				std::cout << buf;
-				if (fd) fclose(fd);
 			}
+			if (fd) fclose(fd);
 		}
-
 	}
 	static const int ONE_LINE_SIZE = 10;
 	static const int MAX_LINE = 100;
