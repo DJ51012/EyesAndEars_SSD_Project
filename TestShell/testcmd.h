@@ -82,7 +82,7 @@ public:
 			else {
 				char buf[MAX_BUF_SIZE];
 				memset(buf, 0, MAX_BUF_SIZE);
-				int result = fio->Read(_fileno(fd), buf, ONE_LINE_SIZE);
+				auto result = fio->Read(_fileno(fd), buf, ONE_LINE_SIZE);
 				buf[ONE_LINE_SIZE] = 0;
 				fclose(fd);
 				if (result == 0) return;
@@ -91,7 +91,7 @@ public:
 		}
 
 	}
-	static const int ONE_LINE_SIZE = 10;
+	static const size_t ONE_LINE_SIZE = 10;
 	static const int MAX_LINE = 100;
 	static const int MAX_BUF_SIZE = ONE_LINE_SIZE * MAX_LINE;
 };

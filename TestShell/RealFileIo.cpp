@@ -16,7 +16,7 @@ FILE* RealFileIo::Open(const char* filename, const char* mode)
 
 size_t RealFileIo::Read(int fd, void* buf, size_t count)
 {
-    if (_read(fd, buf, count) == -1) {
+    if (_read(fd, buf, (unsigned int)count) == -1) {
         return 0;
     }
 
