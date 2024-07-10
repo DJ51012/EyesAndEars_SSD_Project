@@ -80,7 +80,7 @@ public:
 			else {
 				char buf[MAX_BUF_SIZE];
 				memset(buf, 0, MAX_BUF_SIZE);
-				int result = fio->Read((int)fd, buf, ONE_LINE_SIZE);
+				size_t result = fio->Read((int)fd, buf, ONE_LINE_SIZE);
 				if (result == 0) return;
 				std::cout << buf;
 				if (fd) fclose(fd);

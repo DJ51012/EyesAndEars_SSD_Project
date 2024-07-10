@@ -28,7 +28,8 @@ public:
 	}
 
 	void setup_fio() {
-		FILE* nand_txt_fd = tmpfile();
+		FILE* nand_txt_fd;
+		tmpfile_s(&nand_txt_fd);
 		EXPECT_CALL(mfio, Open(_, _))
 			.WillRepeatedly(Return(nullptr));
 		EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
@@ -116,7 +117,8 @@ TEST_F(TestShellFixture, WriteCmd) {
 }
 
 TEST_F(TestShellFixture, ReadCmdSuccess) {
-	FILE* test_file = tmpfile();
+	FILE* test_file;
+	tmpfile_s(&test_file);
 
 
 	EXPECT_CALL(mfio, Open(_, _))
@@ -133,7 +135,8 @@ TEST_F(TestShellFixture, ReadCmdSuccess) {
 }
 
 TEST_F(TestShellFixture, ReadCmdFail) {
-	FILE* test_file = tmpfile();
+	FILE* test_file;
+	tmpfile_s(&test_file);
 
 	EXPECT_CALL(mfio, Open(_, _))
 		.WillRepeatedly(Return(nullptr));
@@ -171,7 +174,8 @@ TEST_F(TestShellFixture, ReadCmdTestShellSuccess) {
 }
 
 TEST_F(TestShellFixture, ReadCmdTestShellOpenReturnFail) {
-	FILE* test_file = tmpfile();
+	FILE* test_file;
+	tmpfile_s(&test_file);
 
 	EXPECT_CALL(mfio, Open(_, _))
 		.WillRepeatedly(Return(nullptr));
@@ -236,7 +240,8 @@ TEST_F(TestShellFixture, FullReadCmd) {
 }
 
 TEST_F(TestShellFixture, TestApp1Cmd) {
-	FILE* test_file = tmpfile();
+	FILE* test_file;
+	tmpfile_s(&test_file);
 	std::string fileNandContent = "";
 	for (int index = 0; index < MAX_LBA_SIZE; index++) {
 		std::string content = "0x00000000";
@@ -272,17 +277,18 @@ TEST_F(TestShellFixture, TestApp1Cmd) {
 }
 
 TEST_F(TestShellFixture, TestApp2Cmd) {
-	FILE* test_file = tmpfile();
+	FILE* test_file;
+	tmpfile_s(&test_file);
 	std::string fileNandContent = "";
 	for (int index = 0; index < 6; index++) {
 		std::string content = "0x12345678";
 		fileNandContent.append(content);
 	}
 	std::string expected_str = fileNandContent;
-	int expected_call = fileNandContent.size() / ONE_LINE_SIZE;
+	size_t expected_call = fileNandContent.size() / ONE_LINE_SIZE;
 	std::string result;
 	EXPECT_CALL(mock_ssd, read(_))
-		.Times(expected_call)
+		.Times((int)expected_call)
 		.WillRepeatedly(::testing::Invoke([&](unsigned int lba_index) {
 		int position = lba_index * ONE_LINE_SIZE;
 		result = fileNandContent.substr(position, 10);

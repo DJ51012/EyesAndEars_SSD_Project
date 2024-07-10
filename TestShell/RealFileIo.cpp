@@ -20,7 +20,7 @@ size_t RealFileIo::Read(int fd, void* buf, size_t count)
         throw runtime_error("failed to load file");
     }
 
-    fgets((char*)buf, count, file);
+    fgets((char*)buf, (int)count, file);
     fclose(file);
 
     return count;
