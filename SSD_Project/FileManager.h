@@ -9,9 +9,7 @@ using namespace std;
 
 class FileManager {
 public:
-//#ifdef __TEST__ 
     FileManager();
-//#endif
     static FileManager& getInstance() {
         static FileManager instance;
         return instance;
@@ -20,10 +18,6 @@ public:
     virtual void readNand(unsigned int line);
 
 private:
-//#ifndef __TEST__
-    //FileManager();
-//#endif 
-
     FileManager& operator=(const FileManager& otherInstance) = delete;
     FileManager(const FileManager& otherInstance) = delete;
     void createFile();

@@ -6,7 +6,6 @@
 #include "../SSD_Project/FileManager.cpp"
 #include <string>
 #include <iostream>
-#define __TEST__
 
 using namespace std;
 using namespace testing;
@@ -214,7 +213,6 @@ TEST_F(CommandManagerFixture, Execute_Nothing)
 //DriverFixture
 class FileManagerMock : public FileManager {
 public:
-	//FileManagerMock() : FileManager() {}
 	MOCK_METHOD(void, writeNand, (unsigned int, string), ());
 	MOCK_METHOD(void, readNand, (unsigned int), ());
 };
