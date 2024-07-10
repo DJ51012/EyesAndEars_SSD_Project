@@ -26,6 +26,10 @@ public:
 		EXPECT_CALL(mock_ssd, write(_, _)).Times(times);
 	}
 
+	void set_expected_read_times(int times) {
+		EXPECT_CALL(mock_ssd, read(_)).Times(times);
+	}
+
 	void backup_std_inout() {
 		original_cin_buf = std::cin.rdbuf();
 		original_cout_buf = std::cout.rdbuf();
@@ -235,6 +239,79 @@ TEST_F(TestShellFixture, FullReadCmd) {
 
 	restore_std_inout();
 }
+
+TEST_F(TestShellFixture, TestApp1Cmd) {
+	FILE* test_file = tmpfile();
+	std::string fileNandContent = "";
+	for (int index = 0; index < MAX_LBA_SIZE; index++) {
+		std::string content = "0x00000000";
+		fileNandContent.append(content);
+	}
+	std::string expected_str = fileNandContent;
+	int expected_call = fileNandContent.size() / ONE_LINE_SIZE;
+	std::string result;
+	EXPECT_CALL(mock_ssd, read(_))
+		.Times(expected_call)
+		.WillRepeatedly(::testing::Invoke([&](unsigned int lba_index) {
+		int position = lba_index * ONE_LINE_SIZE;
+		result = fileNandContent.substr(position, 10);
+			}));
+
+	EXPECT_CALL(mfio, Open(_, _))
+		.WillRepeatedly(Return(nullptr));
+	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
+		.WillRepeatedly(Return(test_file));
+
+
+	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
+		memset(buf, 0, count);
+		memcpy(buf, result.c_str(), count);
+		return count;
+			}));
+
+	TestShell ts{ TEST_CMD::TESTAPP1, { }, &mock_ssd, &mfio };
+	set_expected_write_times(100);
+
+	ts.run_cmd();
+}
+
+TEST_F(TestShellFixture, TestApp2Cmd) {
+	FILE* test_file = tmpfile();
+	std::string fileNandContent = "";
+	for (int index = 0; index < 6; index++) {
+		std::string content = "0x12345678";
+		fileNandContent.append(content);
+	}
+	std::string expected_str = fileNandContent;
+	int expected_call = fileNandContent.size() / ONE_LINE_SIZE;
+	std::string result;
+	EXPECT_CALL(mock_ssd, read(_))
+		.Times(expected_call)
+		.WillRepeatedly(::testing::Invoke([&](unsigned int lba_index) {
+		int position = lba_index * ONE_LINE_SIZE;
+		result = fileNandContent.substr(position, 10);
+			}));
+
+	EXPECT_CALL(mfio, Open(_, _))
+		.WillRepeatedly(Return(nullptr));
+	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
+		.WillRepeatedly(Return(test_file));
+
+
+	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
+		memset(buf, 0, count);
+		memcpy(buf, result.c_str(), count);
+		return count;
+			}));
+
+	TestShell ts{ TEST_CMD::TESTAPP2, { }, &mock_ssd, &mfio };
+	set_expected_write_times(186);
+
+	ts.run_cmd();
+}
+
 
 TEST_F(TestShellFixture, SetUserInputString) {
 	TestShell ts{ "", {}, &mock_ssd, nullptr };

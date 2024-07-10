@@ -5,6 +5,7 @@
 #include <iostream>
 #include "SsdDriver.h"
 #include "FileIoInterface.h"
+#include "util.h"
 
 using namespace std;
 
@@ -90,4 +91,77 @@ public:
 	static const int ONE_LINE_SIZE = 10;
 	static const int MAX_LINE = 100;
 	static const int MAX_BUF_SIZE = ONE_LINE_SIZE * MAX_LINE;
+};
+
+class TestApp1TestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		FullreadTestCmd full_read{};
+		FullwriteTestCmd full_write{};
+
+		args.clear();
+		args.push_back("0x00000000");
+		full_write.run_cmd(ssd_driver, fio, args);
+
+		std::ostringstream test_out_stream;
+		StdBufUtil std_buf_util;
+		std_buf_util.change_stdout(&test_out_stream);
+
+		args.clear();
+		full_read.run_cmd(ssd_driver, fio, args);
+
+		std_buf_util.restore_stdout();
+
+		auto test_output = test_out_stream.str();
+		for (size_t i = 0; i < 100; ++i) {
+			if (test_output.substr(i * 10, 10) != "0x00000000") {
+				cout << test_output << endl;
+				throw std::runtime_error("TestApp1 failed.");
+			}
+		}
+	}
+};
+
+class TestApp2TestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		ReadTestCmd read{};
+		WriteTestCmd write{};
+
+		for (int lba_index = 0; lba_index < 6; lba_index++) {
+			args.clear();
+			args.push_back(to_string(lba_index));
+			args.push_back("0xAAAABBBB");
+			for (int write_iter = 0; write_iter < 30; write_iter++) {
+				write.run_cmd(ssd_driver, fio, args);
+			}
+		}
+		
+		for (int lba_index = 0; lba_index < 6; lba_index++) {
+			args.clear();
+			args.push_back(to_string(lba_index));
+			args.push_back("0x12345678");
+			write.run_cmd(ssd_driver, fio, args);
+		}
+
+		std::ostringstream test_out_stream;
+		StdBufUtil std_buf_util;
+		std_buf_util.change_stdout(&test_out_stream);
+
+		for (int lba_index = 0; lba_index < 6; lba_index++) {
+			args.clear();
+			args.push_back(to_string(lba_index));
+			read.run_cmd(ssd_driver, fio, args);
+		}
+		
+		std_buf_util.restore_stdout();
+
+		auto test_output = test_out_stream.str();
+		for (size_t i = 0; i < 6; ++i) {
+			if (test_output.substr(i * 10, 10) != "0x12345678") {
+				cout << test_output << endl;
+				throw std::runtime_error("TestApp2 failed.");
+			}
+		}
+	}
 };

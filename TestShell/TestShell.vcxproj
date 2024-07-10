@@ -137,6 +137,7 @@
     <ClInclude Include="RealFileIo.h" />
     <ClInclude Include="SsdDriver.h" />
     <ClInclude Include="testcmd.h" />
+    <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
