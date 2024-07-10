@@ -21,15 +21,14 @@ public:
                 command[len - 1] = '\0';
             }
 
-            if (SCENARIO_1 == command) {
-            }
-            else if (SCENARIO_2 == command) {
+            if (SCENARIO_1 == command || SCENARIO_2 == command) {
+                ts->run_shell(command);
             }
         }
         fclose(file);
 	}
 private:
-    const string SCENARIO_1 = "TestApp1";
-    const string SCENARIO_2 = "TestApp2";
+    const string SCENARIO_1 = "testapp1";
+    const string SCENARIO_2 = "testapp2";
     char command[1000];
 };
