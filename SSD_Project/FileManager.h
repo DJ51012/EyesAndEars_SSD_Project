@@ -9,15 +9,15 @@ using namespace std;
 
 class FileManager {
 public:
+    FileManager();
     static FileManager& getInstance() {
         static FileManager instance;
         return instance;
     }
-    void writeNand(unsigned int line, string value);
-    void readNand(unsigned int line);
+    virtual void writeNand(unsigned int line, string value);
+    virtual void readNand(unsigned int line);
 
 private:
-    FileManager();
     FileManager& operator=(const FileManager& otherInstance) = delete;
     FileManager(const FileManager& otherInstance) = delete;
     void createFile();

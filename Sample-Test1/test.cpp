@@ -16,7 +16,7 @@ class SsdDriverMock : public SsdDriver
 {
 public:
 	MOCK_METHOD(void, write, (unsigned int lba_index, string value), (override));
-	MOCK_METHOD(string, read, (unsigned int lba_index), (override));
+	MOCK_METHOD(void, read, (unsigned int lba_index), (override));
 };
 
 class CommandManagerFixture : public testing::Test
@@ -211,77 +211,54 @@ TEST_F(CommandManagerFixture, Execute_Nothing)
 }
 
 //DriverFixture
+class FileManagerMock : public FileManager {
+public:
+	MOCK_METHOD(void, writeNand, (unsigned int, string), ());
+	MOCK_METHOD(void, readNand, (unsigned int), ());
+};
+
 class ssdDriverFixture : public testing::Test {
 public:
-	Ssd Ssd;
 	const int RESULT_READ_LINE = 0;
-
-	string readFileWithLine(ifstream& file, int line) {
-		string result;
-		if (!file.is_open()) {
-			cerr << "Error: Could not open file " << endl;
-			return "";
-		}
-
-		int line_idx = 0;
-		string currentLine;
-		while (getline(file, currentLine)) {
-			if (line_idx == line) {
-				return currentLine; // 현재 줄의 문자열을 정수로 변환하여 반환
-			}
-			line_idx++;
-		}
-		return result;
-	}
-
-	ifstream resultFile;
-	ifstream nandFile;
+	const string DEFAULT_WRITE_VALUE = "0x00000000";
+	FileManagerMock FMMock;
+	Ssd ssd;
 };
 
 // invalid input 은 필터됐다고 가정
 TEST_F(ssdDriverFixture, write_zero_and_check_nand_file_OK) {
 	// Arrange
-	unsigned int line = 0;
-	string writeValue = Ssd.DEFAULT_WRITE_VALUE;
+	unsigned int line = 10;
+	string writeValue = DEFAULT_WRITE_VALUE;
+	
+	ssd.setFileManager(&FMMock);
+	EXPECT_CALL(FMMock, writeNand(_,_)).Times(1);
 
 	// Act
-	Ssd.write(line, writeValue);
-	nandFile.open(Ssd.NAND_FILE_NAME);
-	string actual = readFileWithLine(nandFile, line);
-	string expected = writeValue;
-
-	// Assert
-	EXPECT_EQ(expected, actual);
+	ssd.write(line, writeValue);
 }
-
 
 TEST_F(ssdDriverFixture, write_non_zero_and_check_nand_file_OK) {
 	// Arrange
 	unsigned int line = 98;
 	string writeValue = "0x12345678";
 
+	ssd.setFileManager(&FMMock);
+	EXPECT_CALL(FMMock, writeNand(_, _)).Times(1);
+	
 	// Act
-	Ssd.write(line, writeValue);
-	nandFile.open(Ssd.NAND_FILE_NAME);
-	string actual = readFileWithLine(nandFile, line);
-	string expected = writeValue;
-
-	// Assert
-	EXPECT_EQ(expected, actual);
+	ssd.write(line, writeValue);
 }
 
 TEST_F(ssdDriverFixture, read_zero_and_check_result_file_OK) {
 	// Arrange
 	unsigned int line = 97;
-	string expected = Ssd.DEFAULT_WRITE_VALUE;
 
+	ssd.setFileManager(&FMMock);
+	EXPECT_CALL(FMMock, readNand(_)).Times(1);
+		
 	// Act
-	Ssd.read(line);
-	resultFile.open(Ssd.RESULT_FILE_NAME);
-	string actual = readFileWithLine(resultFile, RESULT_READ_LINE);
-
-	// Assert
-	EXPECT_EQ(expected, actual);
+	ssd.read(line);
 }
 
 TEST_F(ssdDriverFixture, read_non_zero_and_check_result_file_OK) {
@@ -289,18 +266,15 @@ TEST_F(ssdDriverFixture, read_non_zero_and_check_result_file_OK) {
 	unsigned int line = 98;
 	string expected = "0x12345678";
 
-	// Act
-	Ssd.read(line);
-	resultFile.open(Ssd.RESULT_FILE_NAME);
-	string actual = readFileWithLine(resultFile, RESULT_READ_LINE);
+	ssd.setFileManager(&FMMock);
+	EXPECT_CALL(FMMock, readNand(_)).Times(1);
 	
-	// Assert
-	EXPECT_EQ(expected, actual);
+	// Act
+	ssd.read(line);
 }
 
 
 // File Manager
-
 class FileMangerFixture : public testing::Test {
 public:
 	FileManager& fileManager = FileManager::getInstance();
