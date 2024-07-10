@@ -82,6 +82,7 @@ public:
 				int result = fio->Read((int)fd, buf, ONE_LINE_SIZE);
 				if (result == 0) return;
 				std::cout << buf;
+				if (fd) fclose(fd);
 			}
 		}
 
