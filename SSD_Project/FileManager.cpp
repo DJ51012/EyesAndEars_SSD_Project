@@ -28,10 +28,6 @@ void FileManager::readNand(unsigned int line) {
     resultFile.close();
 }
 
-void FileManager::cleanNand() {
-    createFile();
-}
-
 void FileManager::createFile() {
     ofstream nandfile(NAND_FILE_NAME);
     for (int idx = 0; idx <= MAX_LINE_NUM; idx++) {

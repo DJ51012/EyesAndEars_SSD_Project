@@ -20,7 +20,6 @@ private:
     FileManager();
     FileManager& operator=(const FileManager& otherInstance) = delete;
     FileManager(const FileManager& otherInstance) = delete;
-    void cleanNand();
     void createFile();
     fstream getNandFile();
     ofstream getResultFile();
