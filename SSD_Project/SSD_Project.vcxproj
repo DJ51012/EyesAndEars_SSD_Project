@@ -105,6 +105,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,7 +130,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CommandManager.cpp" />
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Ssd.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CommandManager.h" />
+    <ClInclude Include="SsdDriver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FileManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
