@@ -27,5 +27,14 @@ public:
         fileManager->readNand(line);
     }
 
+    void erase(unsigned int line, unsigned int size) override {
+        for (unsigned int offset = 0; offset < size; offset++) {
+            fileManager->writeNand((line + offset), DEFAULT_VALUE);
+        }
+    }
+
     FileManager* fileManager;
+
+private:
+    const string DEFAULT_VALUE = "0x00000000";
 };
