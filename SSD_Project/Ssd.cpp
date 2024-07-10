@@ -1,4 +1,6 @@
+#pragma once
 #include "SsdDriver.h"
+#include "FileManager.h"
 
 #include <iostream>
 #include <fstream>
@@ -9,82 +11,21 @@ using namespace std;
 
 class Ssd : public SsdDriver {
 public:
-    void createFile() {
-        ofstream nandfile(NAND_FILE_NAME);
-        for (int idx = 0; idx < 100; idx++) {
-            nandfile << DEFAULT_WRITE_VALUE << endl;
-        }
-        nandfile.close();
+    Ssd() {
+        FileManager& fileManager = FileManager::getInstance();
     }
 
-    fstream getNandFile() {
-        ifstream nandfileCheck(NAND_FILE_NAME);
-        if (!nandfileCheck.is_open()) {
-            createFile();
-        }
-        fstream nandfile(NAND_FILE_NAME);
-        return nandfile;
-    }
-
-    ofstream getResultFile() {
-        ofstream resultFile(RESULT_FILE_NAME);
-        return resultFile;
-    }
-    
-    void validLineNumCheck(int line) {
-        if (line < MIN_LINE_NUM || line > MAX_LINE_NUM) {
-            cerr << "Invalid line number" << endl;
-        }
+    void setFileManager(FileManager* newFileManager) {
+        fileManager = newFileManager;
     }
 
     void write(unsigned int line, string value) override {
-        vector<string> readLines;
-        string readLine;
-
-        fstream nandFile = getNandFile();
-        if (nandFile.is_open()) {
-            while (getline(nandFile, readLine)) {
-                readLines.push_back(readLine);
-            }
-        }
-        validLineNumCheck(line);
-        
-        readLines[line] = value;
-        nandFile.close();
-
-        ofstream nandFileWrite(NAND_FILE_NAME);
-
-        for (const auto& ln : readLines) {
-            nandFileWrite << ln << endl;
-        }
-
-        nandFileWrite.close();
+        fileManager->writeNand(line, value);
     }
 
-    string read(unsigned int line) {
-        fstream nandFile = getNandFile();
-        ofstream resultFile = getResultFile();
-
-        string readLine;
-        int lineNumber = 0;
-        string value;
-
-        while (getline(nandFile, readLine)) {
-            if (lineNumber == line) {
-                resultFile << readLine << endl;
-                break;
-            }
-            lineNumber++;
-        }
-
-        nandFile.close();
-        resultFile.close();
-        return value;
+    void read(unsigned int line) override {
+        fileManager->readNand(line);
     }
 
-    const int MAX_LINE_NUM = 99;
-    const int MIN_LINE_NUM = 0;
-    const string NAND_FILE_NAME = "nand.txt";
-    const string RESULT_FILE_NAME = "result.txt";
-    const string DEFAULT_WRITE_VALUE = "0x00000000";
+    FileManager* fileManager;
 };
