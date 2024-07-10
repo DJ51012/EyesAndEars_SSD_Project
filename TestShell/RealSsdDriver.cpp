@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include "RealSsdDriver.h"
 
-#define SSD_EXECUTABLE "ssd.exe"
+#define SSD_EXECUTABLE "SSD.exe"
 
 void RealSsdDriver::write(unsigned int lba_index, string value)
 {

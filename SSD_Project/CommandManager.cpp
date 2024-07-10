@@ -39,6 +39,9 @@ bool CommandManager::IsValidCommandArguments(int argc, char* argv[])
 	case 'R':
 		if (!IsValidReadCommand(argc, argv)) { return false; }
 		break;
+	case 'E':
+		if (!IsValidEraseCommand(argc, argv)) { return false; }
+		break;
 	default:
 		break;
 	}
@@ -51,6 +54,7 @@ void CommandManager::executeSSDCommand(SsdDriver* ssd)
 	{
 	case 'W': ssd->write(m_nLba, m_strData); break;
 	case 'R': ssd->read(m_nLba); break;
+	case 'E': ssd->erase(m_nLba, m_rangeSize); break;
 	default: break;
 	}
 	m_cmd = '-';
@@ -76,7 +80,7 @@ bool CommandManager::IsArgumentExist(int argc)
 
 bool CommandManager::IsValidCommandCode(char* cmd)
 {
-	if (strcmp(cmd, "W") != 0 && strcmp(cmd, "R") != 0) {
+	if (strcmp(cmd, "W") != 0 && strcmp(cmd, "R") != 0 && strcmp(cmd, "E") != 0) {
 		throw::exception(ERROR_COMMAND_CODE);
 		return false;
 	}
@@ -98,6 +102,32 @@ bool CommandManager::IsValidWriteCommand(int argc, char* argv[])
 	if (!IsValidAddr(argv[2])) return false;
 	if (!IsValidData(argv[3])) return false;
 
+	return true;
+}
+
+bool CommandManager::IsValidEraseCommand(int argc, char* argv[])
+{
+	if (!IsValidNumberOfArguments(argc, NR_ERASE_ARGC)) return false;
+	if (!IsValidAddr(argv[2])) return false;
+	if (!isValidRangeSize(argv[3])) return false;
+
+	return true;
+}
+
+bool CommandManager::isValidRangeSize(string strRangeSize)
+{
+	auto size_str_ptr = strRangeSize.c_str();
+	while (*size_str_ptr) {
+		if (!std::isdigit(*size_str_ptr)) {
+			throw::exception(ERROR_RANGE_SIZE);
+		}
+		++size_str_ptr;
+	}
+
+	auto value = stoi(strRangeSize);
+	if (value > RANGE_SIZE_MAX) throw::exception(ERROR_RANGE_SIZE);
+
+	m_rangeSize = value;
 	return true;
 }
 
