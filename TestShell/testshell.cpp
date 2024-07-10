@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -65,24 +66,28 @@ public:
 		}
 	}
 
+	int run_shell(string cmd) {
+		this->set_user_input(cmd);
+
+		try {
+			this->run_cmd();
+		}
+		catch (std::invalid_argument& e) {
+			cout << e.what() << endl;
+		}
+		catch (std::runtime_error& e) {
+			cout << e.what() << endl;
+		}
+		return 0;
+	}
+
 	void start_shell() {
 		while (1) {
 			cout << "TestShell> ";
-
 			string user_input;
-
 			getline(std::cin, user_input);
-			this->set_user_input(user_input);
 
-			try {
-				this->run_cmd();
-			}
-			catch (std::invalid_argument& e) {
-				cout << e.what() << endl;
-			}
-			catch (std::runtime_error& e) {
-				cout << e.what() << endl;
-			}
+			run_shell(user_input);
 		}
 	}
 
