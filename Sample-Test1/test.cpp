@@ -300,7 +300,7 @@ public:
 	}
 
 	string getWriteNandValue(int lba) {
-		fstream resultFile = getNandFile();
+		ifstream resultFile = getNandFile();
 		string result = "";
 		for (int lbaIdx = 0; lbaIdx <= lba; lbaIdx++) {
 			getline(resultFile, result);
@@ -317,14 +317,14 @@ public:
 		return resultFile;
 	}
 
-	fstream getNandFile() {
+	ifstream getNandFile() {
 		ifstream nandFileForCheck(NAND_FILE);
 		if (nandFileForCheck.is_open() == false) {
 			throw FileNotExistException();
 		}
 		nandFileForCheck.close();
-		fstream nandfile(NAND_FILE);
-		return nandfile;
+		ifstream nandFile(NAND_FILE);
+		return nandFile;
 	}
 };
 

@@ -24,8 +24,8 @@ private:
     ifstream getNandFile();
     ofstream getResultFile();
     bool checkValidLineNum(int line);
-    bool getAllData(vector<string>& readLines);
-    void setAllData(vector<string>& readLines);
+    bool getAllData(ifstream& readFile, vector<string>& readLines);
+    void setAllData(ofstream& writeFile, vector<string>& readLines);
     string getData(ifstream& nandFile, unsigned int line);
 
     const int MAX_LINE_NUM = 99;

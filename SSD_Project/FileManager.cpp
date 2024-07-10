@@ -6,14 +6,17 @@ FileManager::FileManager() {
 
 void FileManager::writeNand(unsigned int line, string value) {
     vector<string> readLines;
-
+    ifstream nandFileRead = getNandFile();
     if (checkValidLineNum(line) == false 
-        || getAllData(readLines) == false)
+        || getAllData(nandFileRead, readLines) == false)
         return;
-
     readLines[line] = value;
 
-    setAllData(readLines);
+    ofstream nandFileWrite(NAND_FILE_NAME);
+    setAllData(nandFileWrite, readLines);
+    
+    nandFileRead.close();
+    nandFileWrite.close();
 }
 
 void FileManager::readNand(unsigned int line) {
@@ -44,8 +47,8 @@ ifstream FileManager::getNandFile() {
     if (nandFileForCheck.is_open() == false) {
         createFile(NAND_FILE_NAME);
     }
-    ifstream nandfile(NAND_FILE_NAME);
-    return nandfile;
+    ifstream nandFile(NAND_FILE_NAME);
+    return nandFile;
 }
 
 ofstream FileManager::getResultFile() {
@@ -61,28 +64,21 @@ bool FileManager::checkValidLineNum(int line) {
     return true;
 }
 
-bool FileManager::getAllData(vector<string>& readLines)
+bool FileManager::getAllData(ifstream& readFile, vector<string>& readLines)
 {
     string strLine = "";
-    ifstream nandFile = getNandFile();
-    if (nandFile.is_open() == false)
-        return false;
 
-    while (getline(nandFile, strLine)) {
+    while (getline(readFile, strLine)) {
         readLines.push_back(strLine);
     }
-    nandFile.close();
     return true;
 }
 
-void FileManager::setAllData(vector<string>& readLines)
+void FileManager::setAllData(ofstream& writeFile, vector<string>& readLines)
 {
-    ofstream nandFileWrite(NAND_FILE_NAME);
-
     for (const auto& lineData : readLines) {
-        nandFileWrite << lineData << endl;
+        writeFile << lineData << endl;
     }
-    nandFileWrite.close();
 }
 
 string FileManager::getData(ifstream& nandFile, unsigned int line) {
