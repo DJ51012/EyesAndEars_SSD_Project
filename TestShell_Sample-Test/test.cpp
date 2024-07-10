@@ -220,10 +220,37 @@ TEST_F(TestShellFixture, FullWriteCmd) {
 }
 
 TEST_F(TestShellFixture, FullReadCmd) {
-	std::string expected_str = makeFullContents(nand_txt);
-	int expected_read_call = nand_txt.size() / ONE_LINE_SIZE;
-	setup_ssd(expected_read_call);
-	setup_fio();
+	FILE* test_file = tmpfile();
+	std::string fileNandContent = "";
+	for (int index=0; index < MAX_LBA_SIZE; index++) {
+		std::stringstream ss;
+		ss << std::hex << std::setw(8) << std::setfill('0') << index;
+		std::string hexString = ss.str();
+		std::string content = "0x" + hexString;
+		fileNandContent.append(content);
+	}
+	std::string expected_str = fileNandContent;
+	int expected_call = fileNandContent.size() / ONE_LINE_SIZE;
+	std::string result;
+	EXPECT_CALL(mock_ssd, read(_))
+		.Times(expected_call)
+		.WillRepeatedly(::testing::Invoke([&](unsigned int lba_index) {
+			int position = lba_index * ONE_LINE_SIZE;
+			result = fileNandContent.substr(position, 10);
+		}));
+
+	EXPECT_CALL(mfio, Open(_, _))
+		.WillRepeatedly(Return(nullptr));
+	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
+		.WillRepeatedly(Return(test_file));
+
+
+	EXPECT_CALL(mfio, Read(_, _, _))
+		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
+			memset(buf, 0, count);
+			memcpy(buf, result.c_str(), count);
+			return count;
+		}));
 
 	TestShell ts{ TEST_CMD::FULLREAD, { }, &mock_ssd, &mfio };
 
@@ -263,7 +290,7 @@ TEST_F(TestShellFixture, TestApp1Cmd) {
 		.WillRepeatedly(Return(test_file));
 
 
-	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+	EXPECT_CALL(mfio, Read(_, _, _))
 		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
 		memset(buf, 0, count);
 		memcpy(buf, result.c_str(), count);
@@ -300,7 +327,7 @@ TEST_F(TestShellFixture, TestApp2Cmd) {
 		.WillRepeatedly(Return(test_file));
 
 
-	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+	EXPECT_CALL(mfio, Read(_, _, _))
 		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
 		memset(buf, 0, count);
 		memcpy(buf, result.c_str(), count);

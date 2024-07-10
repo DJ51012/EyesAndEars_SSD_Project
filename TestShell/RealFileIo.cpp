@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <io.h>
 #include "RealFileIo.h"
 
 using namespace std;
@@ -15,13 +16,9 @@ FILE* RealFileIo::Open(const char* filename, const char* mode)
 
 size_t RealFileIo::Read(int fd, void* buf, size_t count)
 {
-    FILE* file = _fdopen(fd, "r");
-    if (file == nullptr) {
-        throw runtime_error("failed to load file");
+    if (_read(fd, buf, (unsigned int)count) == -1) {
+        return 0;
     }
-
-    fgets((char*)buf, count, file);
-    fclose(file);
 
     return count;
 }
