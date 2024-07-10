@@ -126,7 +126,7 @@ TEST_F(TestShellFixture, ReadCmdTestShellSuccess) {
 	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
 		.WillRepeatedly(Return(test_file));
 
-	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+	EXPECT_CALL(mfio, Read(_, _, _))
 		.WillOnce(::testing::Invoke([&](int fd, void* buf, size_t count) {
 		memcpy(buf, result.c_str(), count);
 		return count;
@@ -218,7 +218,7 @@ TEST_F(TestShellFixture, FullReadCmd) {
 		.WillRepeatedly(Return(test_file));
 
 
-	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+	EXPECT_CALL(mfio, Read(_, _, _))
 		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
 			memset(buf, 0, count);
 			memcpy(buf, result.c_str(), count);
@@ -263,7 +263,7 @@ TEST_F(TestShellFixture, TestApp1Cmd) {
 		.WillRepeatedly(Return(test_file));
 
 
-	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+	EXPECT_CALL(mfio, Read(_, _, _))
 		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
 		memset(buf, 0, count);
 		memcpy(buf, result.c_str(), count);
@@ -299,7 +299,7 @@ TEST_F(TestShellFixture, TestApp2Cmd) {
 		.WillRepeatedly(Return(test_file));
 
 
-	EXPECT_CALL(mfio, Read((int)test_file, _, _))
+	EXPECT_CALL(mfio, Read(_, _, _))
 		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
 		memset(buf, 0, count);
 		memcpy(buf, result.c_str(), count);

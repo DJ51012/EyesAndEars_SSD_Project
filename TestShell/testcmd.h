@@ -31,7 +31,9 @@ public:
 		else {
 			char buf[MAX_BUF_SIZE];
 			memset(buf, 0, MAX_BUF_SIZE);
-			fio->Read((int)fd, buf, ONE_LINE_SIZE);
+			fio->Read(_fileno(fd), buf, ONE_LINE_SIZE);
+			buf[ONE_LINE_SIZE] = 0;
+			fclose(fd);
 			std::cout << buf;
 		}
 	}
@@ -80,15 +82,16 @@ public:
 			else {
 				char buf[MAX_BUF_SIZE];
 				memset(buf, 0, MAX_BUF_SIZE);
-				int result = fio->Read((int)fd, buf, ONE_LINE_SIZE);
+				auto result = fio->Read(_fileno(fd), buf, ONE_LINE_SIZE);
+				buf[ONE_LINE_SIZE] = 0;
+				fclose(fd);
 				if (result == 0) return;
 				std::cout << buf;
-				if (fd) fclose(fd);
 			}
 		}
 
 	}
-	static const int ONE_LINE_SIZE = 10;
+	static const size_t ONE_LINE_SIZE = 10;
 	static const int MAX_LINE = 100;
 	static const int MAX_BUF_SIZE = ONE_LINE_SIZE * MAX_LINE;
 };
