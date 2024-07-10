@@ -22,21 +22,75 @@ public:
             }
             ts->setDriverRedirection(true);
 
-            if (SCENARIO_1 == command || SCENARIO_2 == command) {
-                LOG(command);
-                LOG(" --- Run...");
-                if (ts->run_shell(command) == 0) {
-                    LOG("Pass\n");
-                }
-                else {
-                    LOG("FAIL!\n");
-                    set_oringin_std_inout();
-                    return;
-                }
+            if (SCENARIO_FULLREADWRITECOMPARE == command) {
+                fullReadWriteCompare(ts);
+            }
+            else if (SCENARIO_WRITE30ANDOVERWRITE == command) {
+                Write30AndOwerWrite(ts);
+            }
+            else if (SCENARIO_FULLREAD10ANDCOMPARE == command) {
+                fullRead10AndCompare(ts);
+            }
+            else if (SCENARIO_WRITE10ANDCOMPARE == command) {
+                write10AndCompare(ts);
+            }
+            else if (SCENARIO_LOOP_WRITEANDREADCOMPARE == command) {
+                loop_WriteAndReadCompare(ts);
             }
         }
         set_oringin_std_inout();
         fclose(file);
+    }
+
+
+    int fullReadWriteCompare(TestShell* ts) {
+        LOG(command);
+        LOG(" --- Run...");
+        if (ts->run_shell("testapp1") == 0) {
+            LOG("Pass\n");
+            return 0;
+        }
+        else {
+            LOG("FAIL!\n");
+            set_oringin_std_inout();
+            return -1;
+        }
+    }
+
+    int Write30AndOwerWrite(TestShell* ts) {
+        LOG(command);
+        LOG(" --- Run...");
+        if (ts->run_shell("testapp2") == 0) {
+            LOG("Pass\n");
+            return 0;
+        }
+        else {
+            LOG("FAIL!\n");
+            set_oringin_std_inout();
+            return -1;
+        }
+        return 0;
+    }
+
+    int fullRead10AndCompare(TestShell* ts) {
+        LOG(command);
+        LOG(" --- Run...");
+        LOG("Not Suppert!\n");
+        return 0;
+    }
+
+    int write10AndCompare(TestShell* ts) {
+        LOG(command);
+        LOG(" --- Run...");
+        LOG("Not Suppert!\n");
+        return 0;
+    }
+
+    int loop_WriteAndReadCompare(TestShell* ts) {
+        LOG(command);
+        LOG(" --- Run...");
+        LOG("Not Suppert!\n");
+        return 0;
     }
 private:
     void LOG(string str) {
@@ -61,7 +115,10 @@ private:
     std::streambuf* original_cout_buf;
     std::istringstream std_input;
     std::ostringstream std_output;
-    const string SCENARIO_1 = "testapp1";
-    const string SCENARIO_2 = "testapp2";
+    const string SCENARIO_FULLREADWRITECOMPARE = "FullReadWriteCompare";
+    const string SCENARIO_WRITE30ANDOVERWRITE = "Write30AndOwerWrite";
+    const string SCENARIO_FULLREAD10ANDCOMPARE = "FullRead10AndCompare";
+    const string SCENARIO_WRITE10ANDCOMPARE = "Write10AndCompare";
+    const string SCENARIO_LOOP_WRITEANDREADCOMPARE = "Loop_WriteAndReadCompare";
     char command[1000];
 };

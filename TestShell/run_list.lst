@@ -1,2 +1,5 @@
-testapp1
-testapp2
+FullReadWriteCompare
+Write30AndOwerWrite
+FullRead10AndCompare
+Write10AndCompare
+Loop_WriteAndReadCompare
