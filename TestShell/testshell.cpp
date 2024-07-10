@@ -7,6 +7,7 @@
 #include "testcmd.h"
 #include "SsdDriver.h"
 #include "../TestShell/FileIOInterface.h"
+#include "../Logger/Logger.h"
 
 using namespace std;
 

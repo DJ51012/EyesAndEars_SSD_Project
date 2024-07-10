@@ -10,6 +10,7 @@
 #include "../TestShell/testshell.cpp"
 #include "../TestShell/RealSsdDriver.cpp"
 #include "../TestShell/RealFileIo.cpp"
+#include "../Logger/Logger.cpp"
 
 using namespace std;
 using namespace testing;
