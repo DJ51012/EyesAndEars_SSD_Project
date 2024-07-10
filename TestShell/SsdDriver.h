@@ -1,11 +1,12 @@
-#pragma once 
+#pragma once
 #include <string>
 
-using namespace std;
-
-#define interface struct
+#define interface struct 
 
 #define FILE_NAME_RESULT "result.txt"
+#define FILE_NAME_NAND "nand.txt"
+
+using namespace std;
 
 interface SsdDriver {
 public:
