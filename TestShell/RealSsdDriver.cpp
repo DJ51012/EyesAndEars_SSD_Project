@@ -16,6 +16,11 @@ void RealSsdDriver::read(unsigned int lba_index)
 	this->execute_cmd(read_cmd, "Failed to invoke ssd read command");
 }
 
+void RealSsdDriver::erase(unsigned int lba_index, unsigned int size)
+{
+
+}
+
 void RealSsdDriver::execute_cmd(string& execute_cmd, string error_msg)
 {
 	if (system(execute_cmd.c_str()) != 0) {
