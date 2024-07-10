@@ -23,7 +23,10 @@ private:
     void createFile();
     fstream getNandFile();
     ofstream getResultFile();
-    void validLineNumCheck(int line);
+    bool checkValidLineNum(int line);
+    bool getAllData(vector<string>& readLines);
+    void setAllData(vector<string>& readLines);
+    string getData(fstream& nandFile, unsigned int line);
 
     const int MAX_LINE_NUM = 99;
     const int MIN_LINE_NUM = 0;
