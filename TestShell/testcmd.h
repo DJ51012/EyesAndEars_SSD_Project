@@ -121,3 +121,48 @@ public:
 		}
 	}
 };
+
+class TestApp2TestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		ReadTestCmd read{};
+		WriteTestCmd write{};
+
+		for (int lba_index = 0; lba_index < 6; lba_index++) {
+			args.clear();
+			args.push_back(to_string(lba_index));
+			args.push_back("0xAAAABBBB");
+			for (int write_iter = 0; write_iter < 30; write_iter++) {
+				write.run_cmd(ssd_driver, fio, args);
+			}
+		}
+		
+		for (int lba_index = 0; lba_index < 6; lba_index++) {
+			args.clear();
+			args.push_back(to_string(lba_index));
+			args.push_back("0x12345678");
+			write.run_cmd(ssd_driver, fio, args);
+		}
+
+		std::streambuf* original_cout_buf;
+		std::ostringstream test_out_stream;
+		original_cout_buf = std::cout.rdbuf();
+		std::cout.rdbuf(test_out_stream.rdbuf());
+
+		for (int lba_index = 0; lba_index < 6; lba_index++) {
+			args.clear();
+			args.push_back(to_string(lba_index));
+			read.run_cmd(ssd_driver, fio, args);
+		}
+
+		std::cout.rdbuf(original_cout_buf);
+
+		auto test_output = test_out_stream.str();
+		for (size_t i = 0; i < 6; ++i) {
+			if (test_output.substr(i * 10, 10) != "0x12345678") {
+				cout << test_output << endl;
+				throw std::runtime_error("TestApp2 failed.");
+			}
+		}
+	}
+};

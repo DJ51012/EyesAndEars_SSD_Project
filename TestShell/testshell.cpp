@@ -17,6 +17,7 @@ namespace TEST_CMD {
 	const string FULLWRITE = "fullwrite";
 	const string FULLREAD = "fullread";
 	const string TESTAPP1 = "testapp1";
+	const string TESTAPP2 = "testapp2";
 }
 
 class TestShell {
@@ -92,7 +93,7 @@ private:
 	{
 		auto allowed_cmds = {
 			TEST_CMD::WRITE, TEST_CMD::READ, TEST_CMD::EXIT, TEST_CMD::HELP,
-			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD, TEST_CMD::TESTAPP1
+			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD, TEST_CMD::TESTAPP1, TEST_CMD::TESTAPP2
 		};
 		for (auto& cmd : allowed_cmds) {
 			if (this->cmd == cmd) return;
@@ -110,6 +111,7 @@ private:
 		if (cmd == TEST_CMD::EXIT) return;
 		if (cmd == TEST_CMD::HELP) return;
 		if (cmd == TEST_CMD::TESTAPP1) return;
+		if (cmd == TEST_CMD::TESTAPP2) return;
 			
 		throw invalid_argument("WRONG ARGUMENT");
 	}
@@ -130,6 +132,7 @@ private:
 		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
 		if (cmd == TEST_CMD::FULLREAD) return new FullreadTestCmd();
 		if (cmd == TEST_CMD::TESTAPP1) return new TestApp1TestCmd();
+		if (cmd == TEST_CMD::TESTAPP2) return new TestApp2TestCmd();
 		return nullptr;
 	}
 
