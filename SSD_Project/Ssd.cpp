@@ -28,7 +28,9 @@ public:
     }
 
     void erase(unsigned int line, unsigned int size) override {
-        // TODO: Implement
+        for (unsigned int offset = 0; offset < size; offset++) {
+            fileManager->writeNand((line + offset), "0x00000000");
+        }
     }
 
     FileManager* fileManager;
