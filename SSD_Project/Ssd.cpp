@@ -12,7 +12,7 @@ using namespace std;
 class Ssd : public SsdDriver {
 public:
     Ssd() {
-        FileManager& fileManager = FileManager::getInstance();
+        fileManager = &FileManager::getInstance();
     }
 
     void setFileManager(FileManager* newFileManager) {
