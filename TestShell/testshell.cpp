@@ -67,6 +67,8 @@ public:
 
 	void start_shell() {
 		while (1) {
+			cout << "TestShell> ";
+
 			string user_input;
 
 			getline(std::cin, user_input);
@@ -76,6 +78,9 @@ public:
 				this->run_cmd();
 			}
 			catch (std::invalid_argument& e) {
+				cout << e.what() << endl;
+			}
+			catch (std::runtime_error& e) {
 				cout << e.what() << endl;
 			}
 		}
