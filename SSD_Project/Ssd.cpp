@@ -27,5 +27,9 @@ public:
         fileManager->readNand(line);
     }
 
+    void erase(unsigned int line, unsigned int size) override {
+        // TODO: Implement
+    }
+
     FileManager* fileManager;
 };
