@@ -3,7 +3,7 @@
 
 using namespace std;
 
-struct Comamnd {
+struct Command {
     char RW;
     int lba;
     string value;
@@ -11,11 +11,11 @@ struct Comamnd {
 
 class CommandFormat {
 public:
-    Comamnd parseCommand(string commandString) {
+    Command parseCommand(string commandString) {
         vector<string> splitCmd;
         std::string temp;
         
-        Comamnd command;
+        Command command;
 
         for (char ch : commandString) {
             if (ch == ' ') {

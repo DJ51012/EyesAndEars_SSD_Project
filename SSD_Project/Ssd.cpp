@@ -34,7 +34,7 @@ public:
     void read(unsigned int line) override {
         vector<string> cmdStrings = fileManager->readBuffer();
         for (auto cmdString : cmdStrings) {
-            Comamnd cmd =  cmdFormat.parseCommand(cmdString);
+            Command cmd =  cmdFormat.parseCommand(cmdString);
             
             if (cmd.RW == 'W' && cmd.lba == line) {
                 fileManager->writeResult(cmd.value);
@@ -47,7 +47,7 @@ public:
     void flush() {
         vector<string> cmdStrings = fileManager->readBuffer();
         for (auto cmdString : cmdStrings) {
-            Comamnd cmd = cmdFormat.parseCommand(cmdString);
+            Command cmd = cmdFormat.parseCommand(cmdString);
             if (cmd.RW == 'R') {
                 fileManager->readNand(cmd.lba);
             }
