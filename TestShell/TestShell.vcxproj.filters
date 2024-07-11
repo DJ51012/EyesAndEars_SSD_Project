@@ -36,9 +36,6 @@
     <ClCompile Include="ScenarioRunner.cpp">
       <Filter>ShellLibray</Filter>
     </ClCompile>
-    <ClCompile Include="CommandSetRunner.cpp">
-      <Filter>ShellLibray</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="testcmd.h">

@@ -79,3 +79,43 @@ void TestApp2::setData(vector<string> args)
 		}
 	}
 }
+
+
+vector<CommandSet> WriteReadCompareLoop50::getCommandSetList()
+{
+	vector<CommandSet> cmdSetList = {};
+
+	for (int i = 0; i < 50; i++) {
+		cmdSetList.push_back(
+			CommandSet::CommandSetBuilder()
+			.setCommand("write")
+			.setStartLba(0)
+			.setLastLba(5)
+			.setIteration(1)
+			.setData(m_Data[i % NR_DATA])
+			.returnCommandSet()
+		);
+
+		cmdSetList.push_back(
+			CommandSet::CommandSetBuilder()
+			.setCommand("read")
+			.setStartLba(0)
+			.setLastLba(5)
+			.setData(m_Data[i % NR_DATA])
+			.setExpectData(true)
+			.returnCommandSet()
+		);
+	}
+
+	return cmdSetList;
+}
+
+void WriteReadCompareLoop50::setData(vector<string> args)
+{
+	if (args.size() <= NR_DATA) {
+		for (int i = 0; i < args.size(); i++)
+		{
+			m_Data[i] = args[i];
+		}
+	}
+}

@@ -148,6 +148,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ScenarioBuilder.h" />
+    <ClInclude Include="ScenarioCaller.h" />
     <ClInclude Include="ScenarioLibrary.h" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ScenarioBuilder.cpp" />
+    <ClCompile Include="ScenarioCaller.cpp" />
     <ClCompile Include="ScenarioLibrary.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
