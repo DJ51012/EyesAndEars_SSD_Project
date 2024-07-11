@@ -31,6 +31,7 @@ public:
 
     void write(unsigned int line, string value) override {
         vector<string> cmdStrings = fileManager->readBuffer();
+        vector<Command> eraseCmds;
         for (auto cmdString : cmdStrings) {
             if (cmdString == writeCommand(line, value))
                 return;
@@ -38,10 +39,14 @@ public:
             if (cmd.type == 'W' && cmd.lba == line) {
                 fileManager->removeBuffer(writeCommand(cmd.lba, cmd.value));
             }
+            else if (cmd.type == 'E') {
+                eraseCmds.push_back(cmd);
+            }
         }
         if (cmdStrings.size() >= MAX_COMMAND_NUM_IN_BUFFER)
             flush();
         fileManager->writeBuffer(writeCommand(line, value));
+        updateErase(eraseCmds);
     }
 
     void read(unsigned int line) override {
@@ -82,6 +87,10 @@ public:
         fileManager->writeBuffer(eraseCommand(line, size));
 
         eraseCmds.push_back(cmdFormat.parseCommand(eraseCommand(line, size)));
+        mergeConsecutiveErases(eraseCmds);
+    }
+
+    void mergeConsecutiveErases(std::vector<Command>& eraseCmds) {
         std::sort(eraseCmds.begin(), eraseCmds.end(), compareByLba);
         int startLine = 0, endLine = 0, eraseSize = 0;
         bool consecutive = false;
@@ -106,8 +115,30 @@ public:
                 consecutive = false;
             }
         }
-        
     }
+
+    void updateErase(std::vector<Command>& eraseCmds) {
+        vector<string> cmdStrings = fileManager->readBuffer();
+        for (auto cmdString : cmdStrings) {
+            Command cmd = cmdFormat.parseCommand(cmdString);
+            if (cmd.type == 'W') {
+                for (auto eraseCmd : eraseCmds) {
+                    if (cmd.lba >= eraseCmd.lba
+                        && cmd.lba < eraseCmd.lba + eraseCmd.size) {
+                        fileManager->removeBuffer(eraseCommand(eraseCmd.lba, eraseCmd.size));
+                        int formerSize = cmd.lba - eraseCmd.lba;
+                        if(formerSize > 0) 
+                            fileManager->writeBuffer(eraseCommand(eraseCmd.lba, formerSize));
+                        int latterStart = cmd.lba + 1;
+                        int latterSize = eraseCmd.lba + eraseCmd.size - latterStart;
+                        if(latterSize > 0)
+                            fileManager->writeBuffer(eraseCommand(latterStart, latterSize));
+                    }
+                }
+            }
+        }
+    }
+
 
 
     void flush() {

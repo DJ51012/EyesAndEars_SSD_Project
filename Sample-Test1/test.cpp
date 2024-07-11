@@ -827,8 +827,9 @@ TEST_F(FileManagerFixture, eraseSizeBiggerThan10) {
 	// Arrange
 	unsigned int line = 8;
 	unsigned int size = 12;
+	
 	// Act
-	ssd.erase(line, size);			// E 8 12
+	ssd.erase(line, size);		
 
 	const string cmd = "E 8 10";
 
@@ -837,4 +838,61 @@ TEST_F(FileManagerFixture, eraseSizeBiggerThan10) {
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 1);
 	EXPECT_EQ(cmdStrings[0], cmd);
+}
+
+TEST_F(FileManagerFixture, optimizeCommandBufferPPT) {
+	// Arrange
+	unsigned int line =12;
+	string writeValue = "0xABCD1234";
+	unsigned int line2 =13;
+	string writeValue2 = "0x4BCD5351";
+
+	// Act
+	ssd.erase(10, 4);		
+	ssd.erase(40, 5);		
+	ssd.write(line, writeValue);
+	ssd.write(line2, writeValue2);
+	const string cmd = "E 10 2";
+
+	// Assert
+	EXPECT_THAT(fileManager.readBuffer(), Contains(cmd));
+}
+
+TEST_F(FileManagerFixture, optimizeCommandBufferPPT2) {
+	// Arrange
+
+	// Act
+	ssd.erase(50, 1);
+	ssd.erase(40, 5);
+	ssd.write(50, "0xABCD1234");
+	const string cmd = "E 40 5";
+	const string cmd2 = "W 50 0xABCD1234";
+	vector<string> cmdStrings = fileManager.readBuffer();
+
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 2);
+	EXPECT_EQ(cmdStrings[0], cmd);
+	EXPECT_EQ(cmdStrings[1], cmd2);
+}
+
+
+TEST_F(FileManagerFixture, optimizeCommandBufferPPT3) {
+	// Arrange
+	string writeValue = "0xABCDABCD";
+	// Act
+	ssd.erase(10, 2);
+	ssd.write(10, writeValue);
+	ssd.erase(12, 3);
+	const string cmd = "W 10 " + writeValue;
+	const string cmd2 = "E 11 4";
+	vector<string> cmdStrings = fileManager.readBuffer();
+	ssd.read(10);
+
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 2);
+	EXPECT_EQ(cmdStrings[0], cmd);
+	EXPECT_EQ(cmdStrings[1], cmd2);
+
+	EXPECT_THAT(getResultValue(), StrEq(writeValue));
+
 }
