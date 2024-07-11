@@ -1,6 +1,7 @@
 #pragma once
 #include "CommandSet.h"
 #include "testcmd.h"
+#include "RealSsdDriver.h"
 #include "RealFileIo.h"
 
 #define interface struct
@@ -17,7 +18,7 @@ public:
 protected:
 	CommandSet m_cs;
 
-	//SsdDriver* ssdDriver = nullptr;
+	SsdDriver* ssdDriver = new RealSsdDriver();
 	FileIoInterface* fio = new RealFileIo();
 };
 
@@ -46,7 +47,6 @@ public:
 
 private:
 	TestCmd* m_cmdRunner;
-	SsdDriver* ssdDriver = nullptr;
 };
 
 class ReadRunner : public CommandSetRunnerInterface
@@ -95,7 +95,6 @@ public:
 
 private:
 	TestCmd* m_cmdRunner;
-	SsdDriver* ssdDriver = nullptr;
 
 	std::ostringstream test_out_stream;
 	StdBufUtil std_buf_util;
@@ -126,7 +125,6 @@ public:
 
 private:
 	TestCmd* m_cmdRunner;
-	SsdDriver* ssdDriver = nullptr;
 };
 
 class FullReadRunner: public CommandSetRunnerInterface
@@ -175,7 +173,6 @@ public:
 
 private:
 	TestCmd* m_cmdRunner;
-	SsdDriver* ssdDriver = nullptr;
 
 	std::ostringstream test_out_stream;
 	StdBufUtil std_buf_util;

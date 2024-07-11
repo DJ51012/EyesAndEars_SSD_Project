@@ -4,6 +4,7 @@ bool ScenarioRunner::runScenario(vector<CommandSet> cmdList)
 {
 	for (auto cmdSet : cmdList)
 	{
+		cout << "RUN Scenario !!!" << endl;
 		if (!runCommandSet(cmdSet))
 			return false;
 	}
