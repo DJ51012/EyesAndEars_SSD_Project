@@ -1,3 +1,4 @@
+#pragma once
 #include "SsdDriver.h"
 #include <cstdlib>
 #include <stdexcept>

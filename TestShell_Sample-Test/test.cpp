@@ -8,6 +8,8 @@
 #include "MockFileIo.h"
 #include "../TestShell/SsdDriver.h"
 #include "../TestShell/testshell.cpp"
+#include "../TestShell/ScenarioRunner.cpp"
+#include "../ScenarioLibrary/ScenarioLibrary.cpp"
 #include "../TestShell/RealSsdDriver.cpp"
 #include "../TestShell/RealFileIo.cpp"
 
