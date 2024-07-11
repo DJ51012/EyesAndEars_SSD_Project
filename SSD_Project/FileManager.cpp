@@ -53,9 +53,78 @@ void FileManager::writeBuffer(string command) {
     cmdBufferWrite.close();
 }
 
+cmd_t FileManager::makeCmd(string &cmdstr) {
+    cmd_t command = { '\0', 0, 0, "" };
+
+    size_t pos1 = cmdstr.find(' ');
+    size_t pos2 = cmdstr.find(' ', pos1 + 1);
+
+    // command
+    if (pos1 != std::string::npos) {
+        command.cmd = cmdstr[0];
+    }
+    else {
+        throw std::invalid_argument("Invalid command format");
+    }
+
+    if (cmdstr[0] == 'W') {
+        // line
+        if (pos1 != std::string::npos && pos2 != std::string::npos) {
+            std::string line_str = cmdstr.substr(pos1 + 1, pos2 - pos1 - 1);
+            try {
+                command.index1 = std::stoi(line_str);
+            }
+            catch (const std::invalid_argument&) {
+                throw std::invalid_argument("Invalid line number");
+            }
+        }
+        else {
+            throw std::invalid_argument("Invalid command format");
+        }
+
+        // data
+        if (pos2 != std::string::npos) {
+            command.data = cmdstr.substr(pos2 + 1);
+        }
+        else {
+            throw std::invalid_argument("Invalid command format");
+        }
+    }
+    else if (cmdstr[0] == 'E') {
+        std::string rest = cmdstr.substr(2);
+
+        // index1
+        size_t first_space = rest.find(' ');
+        if (first_space == std::string::npos) {
+            throw std::invalid_argument("Invalid command format");
+        }
+        command.index1 = std::stoi(rest.substr(0, first_space));
+
+        // index2
+        size_t second_space = rest.find(' ', first_space);
+        if (second_space == std::string::npos) {
+            throw std::invalid_argument("Invalid command format");
+        }
+        command.index2 = std::stoi(rest.substr(first_space + 1, second_space - first_space - 1));
+
+        // data
+        command.data = rest.substr(second_space + 1);
+    }
+    return command;
+}
+
 void FileManager::flush(vector<string>& commands) {
-    // Execute All commands
-    // And clear commands
+    for (std::string cmdstr : commands) {
+        cmd_t cmd = makeCmd(cmdstr);
+        if (cmd.cmd == 'W') {
+            writeNand(cmd.index1, cmd.data);
+        }
+        else if (cmd.cmd == 'E') {
+            for (int i = cmd.index1; i < cmd.index2; i++) {
+                writeNand(i, DEFAULT_WRITE_VALUE);
+            }
+        }
+    }
     commands.clear();
 }
 

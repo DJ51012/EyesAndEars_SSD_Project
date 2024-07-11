@@ -6,6 +6,13 @@
 #include <vector>
 
 using namespace std;
+struct cmd_type {
+    char cmd;
+    int index1;
+    int index2;
+    string data;
+};
+typedef struct cmd_type cmd_t;
 
 class FileManager {
 public:
@@ -20,6 +27,7 @@ public:
     virtual void readNand(unsigned int line);
 
     virtual void writeBuffer(string command);
+    cmd_t makeCmd(string& cmdstr);
     virtual vector<string> readBuffer();
     virtual void flush(vector<string> &commands);
 private:

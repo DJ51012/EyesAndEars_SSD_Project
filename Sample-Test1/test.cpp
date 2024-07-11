@@ -566,3 +566,52 @@ TEST_F(FileMangerFixture, WriteAndReadCommandBuffer) {
 	fileManager.writeBuffer(cmd);
 	EXPECT_THAT(fileManager.readBuffer(), Contains(cmd));
 }
+
+TEST_F(FileMangerFixture, TestFlushOnlyWrite) {
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	fileManager.writeBuffer("W 0 0x00000000");
+	fileManager.writeBuffer("W 1 0x00000001");
+	fileManager.writeBuffer("W 2 0x00000002");
+	fileManager.writeBuffer("W 3 0x00000003");
+	fileManager.writeBuffer("W 4 0x00000004");
+	fileManager.writeBuffer("W 5 0x00000005");
+	fileManager.writeBuffer("W 6 0x00000006");
+	fileManager.writeBuffer("W 7 0x00000007");
+	fileManager.writeBuffer("W 8 0x00000008");
+	fileManager.writeBuffer("W 9 0x00000009");
+	fileManager.writeBuffer("W 10 0x00000010");
+
+	fileManager.readNand(1);
+	EXPECT_THAT(getResultValue(), StrEq("0x00000001"));
+	fileManager.readNand(10);
+	EXPECT_THAT(getResultValue(), StrEq("0x00000000"));
+}
+
+TEST_F(FileMangerFixture, TestFlushWriteAndErase) {
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	fileManager.writeBuffer("W 0 0x00000000");
+	fileManager.writeBuffer("W 1 0x00000001");
+	fileManager.writeBuffer("W 2 0x00000002");
+	fileManager.writeBuffer("E 1 3");	//erase 1,2
+	fileManager.writeBuffer("W 1 0x00000004");
+
+	fileManager.writeBuffer("W 10 0x00000010");
+	fileManager.writeBuffer("W 11 0x00000011");
+	fileManager.writeBuffer("E 10 12");	//erase 10, 11
+	fileManager.writeBuffer("W 10 0x00000020");
+	fileManager.writeBuffer("W 12 0x00000012");
+	fileManager.writeBuffer("W 99 0x00000099");
+
+	fileManager.readNand(1);
+	EXPECT_THAT(getResultValue(), StrEq("0x00000004"));
+	fileManager.readNand(2);
+	EXPECT_THAT(getResultValue(), StrEq("0x00000000"));
+
+	fileManager.readNand(10);
+	EXPECT_THAT(getResultValue(), StrEq("0x00000020"));
+	fileManager.readNand(11);
+	EXPECT_THAT(getResultValue(), StrEq("0x00000000"));
+
+	fileManager.readNand(99);
+	EXPECT_THAT(getResultValue(), StrEq("0x00000000"));
+}
