@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="CommandManager.h" />
     <ClInclude Include="SsdDriver.h" />
+    <ClInclude Include="util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileManager.h" />
