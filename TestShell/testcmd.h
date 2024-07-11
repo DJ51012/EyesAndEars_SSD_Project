@@ -3,9 +3,11 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 #include "SsdDriver.h"
 #include "FileIoInterface.h"
 #include "util.h"
+#include "../Logger/Logger.h"
 
 using namespace std;
 
@@ -16,6 +18,10 @@ namespace TEST_CMD {
 	const string HELP = "help";
 	const string FULLWRITE = "fullwrite";
 	const string FULLREAD = "fullread";
+	const string TESTAPP1 = "testapp1";
+	const string TESTAPP2 = "testapp2";
+	const string ERASE = "erase";
+	const string ERASERANGE = "erase_range";
 }
 
 interface TestCmd {
@@ -40,7 +46,9 @@ public:
 		else {
 			char buf[MAX_BUF_SIZE];
 			memset(buf, 0, MAX_BUF_SIZE);
-			fio->Read((int)fd, buf, ONE_LINE_SIZE);
+			fio->Read(_fileno(fd), buf, ONE_LINE_SIZE);
+			buf[ONE_LINE_SIZE] = 0;
+			fclose(fd);
 			std::cout << buf;
 		}
 	}
@@ -90,16 +98,141 @@ public:
 			else {
 				char buf[MAX_BUF_SIZE];
 				memset(buf, 0, MAX_BUF_SIZE);
-
-				int result = fio->Read((int)fd, buf, ONE_LINE_SIZE);
+				auto result = fio->Read(_fileno(fd), buf, ONE_LINE_SIZE);
+				buf[ONE_LINE_SIZE] = 0;
+				fclose(fd);
 				if (result == 0) return;
 				std::cout << buf;
-				if (fd) fclose(fd);
 			}
 		}
 
 	}
-	static const int ONE_LINE_SIZE = 10;
+	static const size_t ONE_LINE_SIZE = 10;
 	static const int MAX_LINE = 100;
 	static const int MAX_BUF_SIZE = ONE_LINE_SIZE * MAX_LINE;
+};
+
+class TestApp1TestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		FullreadTestCmd full_read{};
+		FullwriteTestCmd full_write{};
+
+		args.clear();
+		args.push_back("0x00000000");
+		full_write.run_cmd(ssd_driver, fio, args);
+
+		std::ostringstream test_out_stream;
+		StdBufUtil std_buf_util;
+		std_buf_util.change_stdout(&test_out_stream);
+
+		args.clear();
+		full_read.run_cmd(ssd_driver, fio, args);
+
+		std_buf_util.restore_stdout();
+
+		auto test_output = test_out_stream.str();
+		for (size_t i = 0; i < 100; ++i) {
+			if (test_output.substr(i * 10, 10) != "0x00000000") {
+				cout << test_output << endl;
+				throw std::runtime_error("TestApp1 failed.");
+			}
+		}
+	}
+};
+
+class TestApp2TestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		ReadTestCmd read{};
+		WriteTestCmd write{};
+
+		for (int lba_index = 0; lba_index < 6; lba_index++) {
+			args.clear();
+			args.push_back(to_string(lba_index));
+			args.push_back("0xAAAABBBB");
+			for (int write_iter = 0; write_iter < 30; write_iter++) {
+				write.run_cmd(ssd_driver, fio, args);
+			}
+		}
+		
+		for (int lba_index = 0; lba_index < 6; lba_index++) {
+			args.clear();
+			args.push_back(to_string(lba_index));
+			args.push_back("0x12345678");
+			write.run_cmd(ssd_driver, fio, args);
+		}
+
+		std::ostringstream test_out_stream;
+		StdBufUtil std_buf_util;
+		std_buf_util.change_stdout(&test_out_stream);
+
+		for (int lba_index = 0; lba_index < 6; lba_index++) {
+			args.clear();
+			args.push_back(to_string(lba_index));
+			read.run_cmd(ssd_driver, fio, args);
+		}
+		
+		std_buf_util.restore_stdout();
+
+		auto test_output = test_out_stream.str();
+		for (size_t i = 0; i < 6; ++i) {
+			if (test_output.substr(i * 10, 10) != "0x12345678") {
+				cout << test_output << endl;
+				throw std::runtime_error("TestApp2 failed.");
+			}
+		}
+	}
+};
+
+class EraseTestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		auto lba_index = stoi(args[0]);
+		auto remained_range_size = stoi(args[1]);
+
+		while (isErasableCondition(lba_index, remained_range_size))
+		{
+			auto range_size = adjust_range_size(remained_range_size, lba_index);
+
+			ssd_driver->erase(lba_index, range_size);
+
+			remained_range_size -= range_size;
+			lba_index += range_size;
+		}
+	}
+
+private:
+	bool isErasableCondition(int lba_index, int remained_range_size)
+	{
+		return lba_index < CONSTANTS::LBA_INDEX_MAX
+			&& remained_range_size > RANGE_SIZE_MIN;
+	}
+
+	int adjust_range_size(int remained_range_size, int lba_index)
+	{
+		int range_size = min(RANGE_SIZE_MAX, remained_range_size);
+		range_size = max(RANGE_SIZE_MIN, range_size);
+
+		if (range_size + lba_index >= CONSTANTS::LBA_INDEX_MAX) {
+			range_size = CONSTANTS::LBA_INDEX_MAX - lba_index;
+		}
+
+		return range_size;
+	}
+
+	const int RANGE_SIZE_MAX = 10;
+	const int RANGE_SIZE_MIN = 0;
+};
+
+class EraseRangeTestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		auto lba_start_index = stoi(args[0]);
+		auto lba_end_index = stoi(args[1]);
+		auto range_size = lba_end_index - lba_start_index;
+		vector<string> actual_args = { args[0], to_string(range_size) };		
+		
+		EraseTestCmd{}.run_cmd(ssd_driver, fio, actual_args);
+	}
 };

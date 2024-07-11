@@ -56,9 +56,6 @@
     <ClInclude Include="CommandSetRunner.h">
       <Filter>ShellLibray</Filter>
     </ClInclude>
-    <ClInclude Include="testshell.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="FileIoInterface.h">
       <Filter>소스 파일</Filter>
     </ClInclude>

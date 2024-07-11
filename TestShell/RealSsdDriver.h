@@ -2,6 +2,7 @@
 #include "SsdDriver.h"
 #include <cstdlib>
 #include <stdexcept>
+#include "../Logger/Logger.h"
 
 #define SSD_EXECUTABLE "ssd.exe"
 
@@ -19,6 +20,19 @@ public:
 		this->execute_cmd(read_cmd, "Failed to invoke ssd read command");
 	}
 
+	void erase(unsigned int lba_index, unsigned int size) override
+	{
+		string erase_cmd = string(SSD_EXECUTABLE) + " E " + to_string(lba_index) + " " + to_string(size);
+		this->execute_cmd(erase_cmd, "Failed to invoke ssd erase command");
+	}
+
+	void flush() override
+	{
+		string flush_cmd = string(SSD_EXECUTABLE) + " F";
+		this->execute_cmd(flush_cmd, "Failed to invoke ssd flush command");
+	}
+
+
 private:
 	void execute_cmd(string& execute_cmd, string error_msg)
 	{
@@ -26,5 +40,4 @@ private:
 			throw runtime_error(error_msg);
 		}
 	}
-
 };
