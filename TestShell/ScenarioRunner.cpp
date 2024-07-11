@@ -13,11 +13,19 @@ bool ScenarioRunner::runScenario(vector<CommandSet> cmdList)
 
 bool ScenarioRunner::runCommandSet(CommandSet cmd)
 {
+	bool ret = true;
 	CommandSetRunnerInterface* csr = getCommandRunner(cmd);
 	if (csr == nullptr)
 		return false;
+	try {
+		ret = csr->runCommandSet();
+	}
+	catch (exception& e) {
+		cout << "ERROR: " << e.what() << endl;
+		return false;
+	}
 
-	return csr->runCommandSet();
+	return ret;
 }
 
 CommandSetRunnerInterface* ScenarioRunner::getCommandRunner(CommandSet cmd)
