@@ -3,14 +3,16 @@
 
 void CommandManager::printCommandGuide()
 {
-	cout << "[Usage] <cmd> <addr> <data>" << endl;
+	cout << "[Usage] <cmd>" << endl;
 	cout << "  <cmd>" << endl;
 	cout << "    Read  - R <addr>" << endl;
 	cout << "    Write - W <addr> <data>" << endl;
+	cout << "    Erase - E <addr> <size>" << endl;
+	cout << "    Flush - F" << endl;
 	cout << "  <addr>" << endl;
 	cout << "    0 - 99" << endl;
 	cout << "  <data>" << endl;
-	cout << "    8 digits [0-9][A-Z]" << endl;
+	cout << "    8 digits [0-9][A-F]" << endl;
 }
 
 bool CommandManager::IsValidCommand(int argc, char* argv[])
@@ -42,6 +44,9 @@ bool CommandManager::IsValidCommandArguments(int argc, char* argv[])
 	case 'E':
 		if (!IsValidEraseCommand(argc, argv)) { return false; }
 		break;
+	case 'F':
+		if (!IsValidFlushCommand(argc, argv)) { return false; }	
+		break;
 	default:
 		break;
 	}
@@ -55,6 +60,7 @@ void CommandManager::executeSSDCommand(SsdDriver* ssd)
 	case 'W': ssd->write(m_nLba, m_strData); break;
 	case 'R': ssd->read(m_nLba); break;
 	case 'E': ssd->erase(m_nLba, m_rangeSize); break;
+	case 'F': ssd->flush(); break;
 	default: break;
 	}
 	m_cmd = '-';
@@ -80,7 +86,8 @@ bool CommandManager::IsArgumentExist(int argc)
 
 bool CommandManager::IsValidCommandCode(char* cmd)
 {
-	if (strcmp(cmd, "W") != 0 && strcmp(cmd, "R") != 0 && strcmp(cmd, "E") != 0) {
+	if (strcmp(cmd, "W") != 0 && strcmp(cmd, "R") != 0 
+		&& strcmp(cmd, "E") != 0 && strcmp(cmd, "F") != 0) {
 		throw::exception(ERROR_COMMAND_CODE);
 		return false;
 	}
@@ -110,6 +117,13 @@ bool CommandManager::IsValidEraseCommand(int argc, char* argv[])
 	if (!IsValidNumberOfArguments(argc, NR_ERASE_ARGC)) return false;
 	if (!IsValidAddr(argv[2])) return false;
 	if (!isValidRangeSize(argv[3])) return false;
+
+	return true;
+}
+
+bool CommandManager::IsValidFlushCommand(int argc, char* argv[])
+{
+	if (!IsValidNumberOfArguments(argc, NR_FLUSH_ARGC)) return false;
 
 	return true;
 }

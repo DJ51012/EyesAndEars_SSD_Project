@@ -19,6 +19,7 @@ public:
 	MOCK_METHOD(void, write, (unsigned int lba_index, string value), (override));
 	MOCK_METHOD(void, read, (unsigned int lba_index), (override));
 	MOCK_METHOD(void, erase, (unsigned int lba_index, unsigned int size), (override));
+	MOCK_METHOD(void, flush, (), (override));
 };
 
 class CommandManagerFixture : public testing::Test
@@ -264,6 +265,19 @@ TEST_F(CommandManagerFixture, Execute_Erase)
 	char* argv[] = { "ssd", "E", "0", "10"};
 	bool expected = true;
 	EXPECT_CALL(mock, erase(0, 10));
+
+	// Act
+	if (cm.IsValidCommand(argc, argv))
+		cm.executeSSDCommand(&mock);
+}
+
+TEST_F(CommandManagerFixture, Execute_Flush)
+{
+	// Arrange
+	int argc = 2;
+	char* argv[] = { "ssd", "F"};
+	bool expected = true;
+	EXPECT_CALL(mock, flush);
 
 	// Act
 	if (cm.IsValidCommand(argc, argv))
