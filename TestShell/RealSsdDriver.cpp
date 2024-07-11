@@ -34,7 +34,9 @@ void RealSsdDriver::execute_cmd(string& execute_cmd, string error_msg)
 	if (isRedirection) {
 		execute_cmd.append(" 2>nul");
 	}
+	PRINT_LOG(("Execute Cmd: " + execute_cmd));
 	if (system(execute_cmd.c_str()) != 0) {
+		PRINT_LOG(error_msg);
 		throw runtime_error(error_msg);
 	}
 }
