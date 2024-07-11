@@ -9,9 +9,10 @@
 #include <vector>
 #include <string>
 #include "../TestShell/CommandSet.h"
-//#include "ScenarioBuilder.h"
 
 #define interface struct
+
+using namespace std;
 
 interface ScenarioBuilder
 {
@@ -61,6 +62,7 @@ private:
 	const int NR_DATA = 1;
 	string m_Data[1] = { "0x12345678" };
 };
+
 
 class TestApp2 : public ScenarioBuilder
 {
@@ -115,26 +117,11 @@ private:
 	string m_Data[2] = { "0xAAAABBBB", "0x12345678" };
 };
 
-
-using namespace std;
-
-
-
-
-
-
-
-
-
-
-
-//====================
-
-
 namespace SCENARIO_NAME {
 	const string TESTAPP1 = "testapp1";
 	const string TESTAPP2 = "testapp2";
 };
+
 
 class ScenarioCaller
 {
