@@ -253,7 +253,7 @@ TEST_F(TestShellFixture, FullReadCmd) {
 
 	restore_std_inout();
 }
-
+/*
 TEST_F(TestShellFixture, TestApp1Cmd) {
 	for (int index = 0; index < MAX_LBA_SIZE; index++) {
 		std::string content = "0x00000000";
@@ -286,7 +286,7 @@ TEST_F(TestShellFixture, TestApp2Cmd) {
 
 	ts.run_cmd();
 }
-
+*/
 
 TEST_F(TestShellFixture, SetUserInputString) {
 	TestShell ts{ "", {}, &mock_ssd, nullptr };

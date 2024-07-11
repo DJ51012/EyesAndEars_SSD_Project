@@ -113,7 +113,7 @@ private:
 	{
 		auto allowed_cmds = {
 			TEST_CMD::WRITE, TEST_CMD::READ, TEST_CMD::EXIT, TEST_CMD::HELP,
-			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD, TEST_CMD::TESTAPP1, TEST_CMD::TESTAPP2,
+			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD,
 			TEST_CMD::ERASE, TEST_CMD::ERASERANGE, TEST_CMD::FLUSH
 		};
 		for (auto& cmd : allowed_cmds) {
@@ -131,8 +131,6 @@ private:
 		if (cmd == TEST_CMD::FULLREAD && args.size() == 0) return;
 		if (cmd == TEST_CMD::EXIT) return;
 		if (cmd == TEST_CMD::HELP) return;
-		if (cmd == TEST_CMD::TESTAPP1) return;
-		if (cmd == TEST_CMD::TESTAPP2) return;
 		if (cmd == TEST_CMD::ERASE && args.size() >= 2 && isValidLbaIndex(args[0])) {
 			if (std::all_of(args[1].begin(), args[1].end(), [](unsigned char c) {
 				return std::isdigit(c);
@@ -184,8 +182,6 @@ private:
 		if (cmd == TEST_CMD::HELP) return new HelpTestCmd();
 		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
 		if (cmd == TEST_CMD::FULLREAD) return new FullreadTestCmd();
-		if (cmd == TEST_CMD::TESTAPP1) return new TestApp1TestCmd();
-		if (cmd == TEST_CMD::TESTAPP2) return new TestApp2TestCmd();
 		if (cmd == TEST_CMD::ERASE) return new EraseTestCmd();
 		if (cmd == TEST_CMD::ERASERANGE) return new EraseRangeTestCmd();
 		if (cmd == TEST_CMD::FLUSH) return new FlushTestCmd();
