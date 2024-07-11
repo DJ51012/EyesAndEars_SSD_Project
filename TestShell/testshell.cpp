@@ -132,16 +132,19 @@ private:
 		if (cmd == TEST_CMD::FULLREAD && args.size() == 0) return;
 		if (cmd == TEST_CMD::EXIT) return;
 		if (cmd == TEST_CMD::HELP) return;
-		if (cmd == TEST_CMD::ERASE && args.size() >= 2 && isValidLbaIndex(args[0])) {
-			if (std::all_of(args[1].begin(), args[1].end(), [](unsigned char c) {
-				return std::isdigit(c);
-				})) return;
-		}
-		if (cmd == TEST_CMD::ERASERANGE && args.size() >= 2 && isValidEraseRangeArgs()) return;
+		if (cmd == TEST_CMD::ERASE && args.size() >= 2 && isValidLbaIndex(args[0]) && isDecimalOnly(args[1])) return;
+		if (cmd == TEST_CMD::ERASERANGE && args.size() >= 2 && isValidEraseRangeArgs(args[0], args[1])) return;
 		if (cmd == TEST_CMD::FLUSH && args.size() == 0) return;
 
-
 		throw invalid_argument("WRONG ARGUMENT");
+	}
+
+	bool isDecimalOnly(string& value)
+	{
+		return std::all_of(value.begin(), value.end(), 
+							[](unsigned char c) {
+								return std::isdigit(c);
+							});
 	}
 
 	bool isValidLbaIndex(string& lba_index) {
@@ -164,10 +167,10 @@ private:
 		return false;
 	}
 
-	bool isValidEraseRangeArgs() {
-		if (!isValidLbaIndex(args[0])) return false;
-		if (!isValidLbaEndRangeMax(args[1])) return false;
-		if (stoi(args[0]) > stoi(args[1])) return false;
+	bool isValidEraseRangeArgs(string& lba_start_index, string& lba_end_index) {
+		if (!isValidLbaIndex(lba_start_index)) return false;
+		if (!isValidLbaEndRangeMax(lba_end_index)) return false;
+		if (stoi(lba_start_index) > stoi(lba_end_index)) return false;
 		return true;
 	}
 
