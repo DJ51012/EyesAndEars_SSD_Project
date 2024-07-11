@@ -1,4 +1,5 @@
 #include "FileManager.h"
+#include "../Logger/Logger.h"
 
 FileManager::FileManager() {
 

@@ -121,7 +121,7 @@ void Logger::checkFileExistence() {
 void Logger::createLogFile() {
 	ofstream logfile(LATEST_LOG_FILE_NAME);
 	if (logfile.is_open() == false)
-		PRINT("Create Log File Failed!");
+		cout << "Create Log File Failed!" << endl;
 	logfile.close();
 }
 
@@ -133,7 +133,7 @@ int Logger::getLogFileSize()
 
 	struct stat statBuffer;
 	if (stat(LATEST_LOG_FILE_NAME.c_str(), &statBuffer) != 0) {
-		PRINT("Get Log File Size Failed!");
+		cout << "Get Log File Size Failed!" << endl;
 		return -1;
 	}
 	cout << "file size: " << statBuffer.st_size << endl;

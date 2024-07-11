@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#define PRINT(logMsg) (Logger::getInstance().print(logMsg, __FUNCTION__))
+#define PRINT_LOG(logMsg) (Logger::getInstance().print(logMsg, __FUNCTION__))
 
 class Logger {
 public:

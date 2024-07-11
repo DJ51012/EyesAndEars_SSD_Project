@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include "RealSsdDriver.h"
+#include "../Logger/Logger.h"
 
 #define SSD_EXECUTABLE "SSD.exe"
 
