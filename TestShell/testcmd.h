@@ -209,3 +209,15 @@ private:
 	const int RANGE_SIZE_MAX = 10;
 	const int RANGE_SIZE_MIN = 0;
 };
+
+class EraseRangeTestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		auto lba_start_index = stoi(args[0]);
+		auto lba_end_index = stoi(args[1]);
+		auto range_size = lba_end_index - lba_start_index;
+		vector<string> actual_args = { args[0], to_string(range_size) };		
+		
+		EraseTestCmd{}.run_cmd(ssd_driver, fio, actual_args);
+	}
+};

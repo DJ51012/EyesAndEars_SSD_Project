@@ -23,6 +23,7 @@ namespace TEST_CMD {
 	const string TESTAPP1 = "testapp1";
 	const string TESTAPP2 = "testapp2";
 	const string ERASE = "erase";
+	const string ERASERANGE = "erase_range";
 }
 
 class TestShell {
@@ -103,7 +104,7 @@ private:
 		auto allowed_cmds = {
 			TEST_CMD::WRITE, TEST_CMD::READ, TEST_CMD::EXIT, TEST_CMD::HELP,
 			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD, TEST_CMD::TESTAPP1, TEST_CMD::TESTAPP2,
-			TEST_CMD::ERASE
+			TEST_CMD::ERASE, TEST_CMD::ERASERANGE
 		};
 		for (auto& cmd : allowed_cmds) {
 			if (this->cmd == cmd) return;
@@ -127,13 +128,30 @@ private:
 				return std::isdigit(c);
 				})) return;
 		}
+		if (cmd == TEST_CMD::ERASERANGE && args.size() >= 2 && isValidLbaIndex(args[0]) && isValidLbaEndRangeMax(args[1]) &&
+			stoi(args[0]) <= stoi(args[1])) return;
 			
 		throw invalid_argument("WRONG ARGUMENT");
 	}
 
 	bool isValidLbaIndex(string& lba_index) {
-		auto lba_num = stoi(lba_index);
-		return (lba_num < CONSTANTS::LBA_INDEX_MAX && lba_num >= CONSTANTS::LBA_INDEX_MIN);
+		try {
+			auto lba_num = stoi(lba_index);
+			return (lba_num < CONSTANTS::LBA_INDEX_MAX && lba_num >= CONSTANTS::LBA_INDEX_MIN);
+		}
+		catch (...) {}
+
+		return false;
+	}
+	
+	bool isValidLbaEndRangeMax(string& lba_index) {
+		try {
+			auto lba_num = stoi(lba_index);
+			return (lba_num <= CONSTANTS::LBA_INDEX_MAX && lba_num >= CONSTANTS::LBA_INDEX_MIN);
+		}
+		catch (...) {}
+
+		return false;
 	}
 
 	bool isValidWriteValue(string& write_value) {
@@ -151,6 +169,7 @@ private:
 		if (cmd == TEST_CMD::TESTAPP1) return new TestApp1TestCmd();
 		if (cmd == TEST_CMD::TESTAPP2) return new TestApp2TestCmd();
 		if (cmd == TEST_CMD::ERASE) return new EraseTestCmd();
+		if (cmd == TEST_CMD::ERASERANGE) return new EraseRangeTestCmd();
 		return nullptr;
 	}
 
