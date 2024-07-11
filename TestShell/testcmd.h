@@ -7,6 +7,7 @@
 #include "SsdDriver.h"
 #include "FileIoInterface.h"
 #include "util.h"
+#include "../Logger/Logger.h"
 
 using namespace std;
 

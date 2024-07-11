@@ -1,5 +1,5 @@
 #include "CommandManager.h"
-
+#include "../Logger/Logger.h"
 
 void CommandManager::printCommandGuide()
 {

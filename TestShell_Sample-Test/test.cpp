@@ -10,6 +10,7 @@
 #include "../TestShell/testshell.cpp"
 #include "../TestShell/RealSsdDriver.cpp"
 #include "../TestShell/RealFileIo.cpp"
+#include "../Logger/Logger.cpp"
 
 using namespace std;
 using namespace testing;
@@ -35,7 +36,7 @@ public:
 		EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
 			.WillRepeatedly(Return(nand_txt_fd));
 
-		EXPECT_CALL(mfio, Read((int)nand_txt_fd, _, _))
+		EXPECT_CALL(mfio, Read(_, _, _))
 			.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
 			memcpy(buf, result_txt.c_str(), count);
 			return count;
