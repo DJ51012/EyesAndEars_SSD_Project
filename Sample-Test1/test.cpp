@@ -282,7 +282,7 @@ TEST_F(CommandManagerFixture, Execute_Nothing)
 	cm.executeSSDCommand(&mock);
 }
 
-//DriverFixture
+// DriverFixture
 class FileManagerMock : public FileManager {
 public:
 	MOCK_METHOD(void, writeNand, (unsigned int, string), ());
@@ -345,7 +345,6 @@ TEST_F(ssdDriverFixture, read_non_zero_and_check_result_file_OK) {
 	ssd.read(line);
 }
 
-
 // File Manager
 class FileNotExistException : public exception {
 
@@ -363,6 +362,7 @@ public:
 	const string DEFAULT_WRITE_VALUE = "0x00000000";
 	const string RESULT_FILE = "result.txt";
 	const string NAND_FILE = "nand.txt";
+	const string COMMAND_BUFFER = "buffer.txt";
 
 	string getResultValue() {
 		ifstream resultFile = getResultFile();
@@ -373,13 +373,26 @@ public:
 	}
 
 	string getWriteNandValue(int lba) {
-		fstream resultFile = getNandFile();
+		ifstream resultFile = getNandFile();
 		string result = "";
 		for (int lbaIdx = 0; lbaIdx <= lba; lbaIdx++) {
 			getline(resultFile, result);
 		}
 		resultFile.close();
 		return result;
+	}
+
+	string getWriteCommandBuffer(string cmd) {
+		ifstream commandBuffer = getCommandBuffer();
+		string readCmd = "";
+		while (getline(commandBuffer, readCmd)) {
+			if (cmd == readCmd) {
+				commandBuffer.close();
+				return cmd;
+			}
+		}
+		commandBuffer.close();
+		return "";
 	}
 
 	ifstream getResultFile() {
@@ -390,14 +403,23 @@ public:
 		return resultFile;
 	}
 
-	fstream getNandFile() {
+	ifstream getNandFile() {
 		ifstream nandFileForCheck(NAND_FILE);
 		if (nandFileForCheck.is_open() == false) {
 			throw FileNotExistException();
 		}
 		nandFileForCheck.close();
-		fstream nandfile(NAND_FILE);
-		return nandfile;
+		ifstream nandFile(NAND_FILE);
+		return nandFile;
+	}
+
+	ifstream getCommandBuffer() {
+		ifstream cmdBufferForCheck(COMMAND_BUFFER);
+		if (cmdBufferForCheck.is_open() == false) {
+			throw FileNotExistException();
+		}
+		ifstream commandBuffer(COMMAND_BUFFER);
+		return commandBuffer;
 	}
 };
 
@@ -498,3 +520,49 @@ TEST_F(FileMangerFixture, WriteReadTestConsecutiveWrite) {
 	EXPECT_THAT(getResultValue(), StrEq(DATA2));
 }
 
+TEST_F(FileMangerFixture, CommandBufferNotExist) {
+	const string cmd = "W 20 0x1234ABCD";
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	EXPECT_THROW(getWriteCommandBuffer(cmd), FileNotExistException);
+}
+
+TEST_F(FileMangerFixture, WriteCommandBuffer) {
+	const string cmd = "W 20 0x1234ABCD";
+
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	fileManager.writeBuffer(cmd);
+	EXPECT_THAT(getWriteCommandBuffer(cmd), StrEq(cmd));
+}
+
+TEST_F(FileMangerFixture, WriteCommandBufferMoreThanOneCommand) {
+	const string cmd1 = "W 20 0x1234ABCD";
+	const string cmd2 = "W 21 0x1234ABCD";
+
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	fileManager.writeBuffer(cmd1);
+	fileManager.writeBuffer(cmd2);
+	EXPECT_THAT(getWriteCommandBuffer(cmd1), StrEq(cmd1));
+	EXPECT_THAT(getWriteCommandBuffer(cmd2), StrEq(cmd2));
+}
+
+TEST_F(FileMangerFixture, WriteCommandBufferMoreThanTenCommands) {
+	const string cmd1 = "W 10 0x1234AB01";
+	const string cmd2 = "W 10 0x1234AB02";
+
+
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	for(int i = 0 ; i<10 ; i++)
+		fileManager.writeBuffer(cmd1);
+	fileManager.writeBuffer(cmd2);
+	
+	EXPECT_THAT(getWriteCommandBuffer(cmd1), StrEq(""));
+	EXPECT_THAT(getWriteCommandBuffer(cmd2), StrEq(cmd2));
+}
+
+
+TEST_F(FileMangerFixture, WriteAndReadCommandBuffer) {
+	const string cmd = "W 20 0x1234ABCD";
+	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
+	fileManager.writeBuffer(cmd);
+	EXPECT_THAT(fileManager.readBuffer(), Contains(cmd));
+}
