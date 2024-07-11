@@ -12,10 +12,15 @@ public:
 	void recordLogOnFile(const string logMsg, const string fileNameWithTime);
 private:
 	fstream getLogFile();
-	void checkFileExistence();
+	bool checkExceedFileSize(const string log, int logFileSize);
+	bool IsLatestLogFileExist();
 	void createLogFile();
 	int getLogFileSize();
 	void changePrevFile(const string fileNameWithTime);
-	string findPrevLogFile();
+	bool IsExistPrevLogFile(const string prevLogFile);
 	string changeExtension(const string previousLogFile);
+	void changeFileName(const string src, const string dest);
+	string findPrevLogFile();
+	bool IsCorrectDirectory(const filesystem::path& currentPath);
+	bool IsPrevLogFile(const filesystem::directory_entry& file);
 };
