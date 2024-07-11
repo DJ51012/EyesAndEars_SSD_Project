@@ -4,9 +4,9 @@ bool ScenarioRunner::runScenario(vector<CommandSet> cmdList)
 {
 	for (auto cmdSet : cmdList)
 	{
-		cout << "RUN Scenario !!!" << endl;
-		if (!runCommandSet(cmdSet))
+		if (!runCommandSet(cmdSet)) {
 			return false;
+		}
 	}
 	return true;
 }
@@ -22,6 +22,10 @@ bool ScenarioRunner::runCommandSet(CommandSet cmd)
 	}
 	catch (exception& e) {
 		cout << "ERROR: " << e.what() << endl;
+		return false;
+	}
+	catch (...) {
+		cout << "EXCEPTION !" << endl;
 		return false;
 	}
 

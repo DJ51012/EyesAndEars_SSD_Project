@@ -145,10 +145,6 @@ public:
 		m_scenarioList.push_back(SCENARIO_NAME::TESTAPP1);
 		m_scenarioList.push_back(SCENARIO_NAME::TESTAPP2);
 	}
-	void test1()
-	{
-		cout << "ScenarioCaller" << endl;
-	};
 
 	bool isValidScenario(string scenarioName, vector<string> args)
 	{

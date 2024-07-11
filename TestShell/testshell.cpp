@@ -68,12 +68,16 @@ public:
 		this->set_user_input(cmd);
 
 		ScenarioCaller* sc = getScenarioCaller();
-		sc->test1();
 
 		if (sc->isValidScenario(this->cmd, this->args))
 		{
 			ScenarioRunner* sr = new ScenarioRunner;
-			return sr->runScenario(sc->callScenario(this->cmd, this->args));
+			bool ret = sr->runScenario(sc->callScenario(this->cmd, this->args));
+			if (ret)
+				cout << "SCENARIO PASS" << endl;
+			else
+				cout << "SCENARIO FAIL" << endl;
+			return ret;
 		}
 
 		try {
