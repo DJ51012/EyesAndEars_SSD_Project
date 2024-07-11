@@ -128,11 +128,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="LogFileManager.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TimeManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LogFileManager.h" />
     <ClInclude Include="LoggerConst.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="TimeManager.h" />

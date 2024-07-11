@@ -1,8 +1,11 @@
-#include "../Logger/Logger.cpp"
 #include "RealSsdDriver.h"
 #include "RealFileIo.h"
 #include "testshell.cpp"
 #include "Runner.cpp"
+
+#include "../Logger/TimeManager.cpp"
+#include "../Logger/LogFileManager.cpp"
+#include "../Logger/Logger.cpp"
 
 int main(int argc, char* argv[]) {
 	RealSsdDriver rsd;

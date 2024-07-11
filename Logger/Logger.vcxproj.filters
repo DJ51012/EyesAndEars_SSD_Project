@@ -24,6 +24,9 @@
     <ClCompile Include="TimeManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="LogFileManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Logger.h">
@@ -33,6 +36,9 @@
       <Filter>소스 파일</Filter>
     </ClInclude>
     <ClInclude Include="LoggerConst.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LogFileManager.h">
       <Filter>소스 파일</Filter>
     </ClInclude>
   </ItemGroup>

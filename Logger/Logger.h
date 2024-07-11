@@ -1,13 +1,12 @@
 #pragma once
 #include <iostream>
 #include <string>
-#include <fstream>
-#include <filesystem>
 #include "TimeManager.h"
+#include "LogFileManager.h"
 
 using namespace std;
 
-#define PRINT_LOG(logMsg) (Logger::getInstance().print(logMsg, __FUNCTION__))
+#define PRINT_LOG(logMsg) (Logger::getInstance().printLog(logMsg, __FUNCTION__))
 
 class Logger {
 public:
@@ -15,22 +14,17 @@ public:
 		static Logger instance;
 		return instance;
 	}
-	void print(string logMsg, const char functionName[]);
+	void printLog(string logMsg, const char functionName[]);
 
 private:
 	Logger(){}
 	Logger& operator=(const Logger& otherInstance) = delete;
 	Logger(const Logger& otherInstance) = delete;
+
+	string getLogEntry(string logMsg, const char functionName[]);
 	string getOrganizedFunctionName(const char functionName[]);
 
-	fstream getLogFile();
-	void checkFileExistence();
-	void createLogFile();
-	int getLogFileSize();
-	void changePrevFile();
-	string findPrevLogFile();
-	string changeExtension(const string previousLogFile);
-
 	TimeManager timeManager;
+	LogFileManager logFileManager;
 };
 
