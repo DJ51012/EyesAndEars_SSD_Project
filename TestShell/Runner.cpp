@@ -22,8 +22,9 @@ public:
                 command[len - 1] = '\0';
             }
             ts->setDriverRedirection(true);
-
-            run_scenario(ts, command);
+            if(run_scenario(ts, command) != 0){
+                break;
+            }
         }
         set_oringin_std_inout();
         fclose(file);
@@ -38,7 +39,6 @@ public:
         }
         else {
             LOG("FAIL!\n");
-            set_oringin_std_inout();
             return -1;
         }
     }
