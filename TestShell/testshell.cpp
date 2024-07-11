@@ -1,43 +1,26 @@
-#include <string>
-#include <vector>
-#include <stdexcept>
-#include <sstream>
-#include <iostream>
-#include "testcmd.h"
-#include "SsdDriver.h"
-#include "../TestShell/FileIOInterface.h"
+#include "testshell.h"
 
-using namespace std;
-
-namespace TEST_CMD {
-	const string WRITE = "write";
-	const string READ = "read";
-	const string EXIT = "exit";
-	const string HELP = "help";
-	const string FULLWRITE = "fullwrite";
-	const string FULLREAD = "fullread";
-}
-
-class TestShell {
-public:
-	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver, FileIoInterface*  fio_interface)
-		: cmd(cmd), args(args), ssd_driver(ssd_driver), fio(fio_interface){
-
+	TestShell::TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver, FileIoInterface*  fio_interface)
+		: cmd(cmd), args(args), ssd_Driver(ssd_driver), fio(fio_interface){
+	
 	}
-	void setDriver(SsdDriver* driver)  {
-		this->ssd_driver = driver;
+
+	void TestShell::setDriver(SsdDriver* driver)  {
+		this->ssd_Driver = driver;
 	}
-	void setFileIo(FileIoInterface* fio) {
+
+	void TestShell::setFileIo(FileIoInterface* fio) {
 		this->fio = fio;
 	}
 
-	bool run_cmd() {
+	bool TestShell::run_cmd() {
+
 		AssertWrongCmd();
 		AssertWrongArguments();
 
 		auto cmd_runner = get_test_cmd_runner();
 		if (cmd_runner != nullptr) {
-			cmd_runner->run_cmd(ssd_driver, fio, args);
+			cmd_runner->run_cmd(ssd_Driver, fio, args);
 			delete cmd_runner;
 			return true;
 		}
@@ -45,6 +28,8 @@ public:
 		return false;
 	}
 
+
+	/*
 	void set_user_input(const string& user_input) {
 		istringstream user_input_stream{ user_input };
 		string arg;
@@ -64,15 +49,55 @@ public:
 			}
 		}
 	}
+	*/
 
-	void start_shell() {
+	void TestShell::set_user_input(const string& user_input) {
+
+		clearUserData();
+
+		ParsedCommand pCmd = parseUserInput(user_input);
+		cmd = pCmd.m_cmd;
+		args = pCmd.m_args;
+	}
+
+	ParsedCommand TestShell::parseUserInput(string user_input)
+	{
+		ParsedCommand pCmd = {};
+		istringstream user_input_stream{ user_input };
+		string arg;
+		bool isFirstArg = true;
+
+		while (getline(user_input_stream, arg, ' ')) {
+			if (arg.empty()) continue;
+
+			if (isFirstArg) {
+				pCmd.m_cmd = arg;
+				isFirstArg = false;
+			}
+			else {
+				pCmd.m_args.push_back(arg);
+			}
+		}
+		return pCmd;
+	}
+
+	void TestShell::start_shell() {
 		while (1) {
-			cout << "TestShell> ";
+			ScenarioCaller* sc = getScenarioCaller();
+			sc->test1();
 
+			cout << "TestShell> ";
 			string user_input;
 
 			getline(std::cin, user_input);
 			this->set_user_input(user_input);
+
+			if (sc->isValidScenario(this->cmd, this->args))
+			{
+				ScenarioRunner* sr = new ScenarioRunner;
+				sr->runScenario(sc->callScenario(this->cmd, this->args));
+				break;
+			}
 
 			try {
 				this->run_cmd();
@@ -86,8 +111,7 @@ public:
 		}
 	}
 
-private:
-	void AssertWrongCmd()
+	void TestShell::AssertWrongCmd()
 	{
 		auto allowed_cmds = {
 			TEST_CMD::WRITE, TEST_CMD::READ, TEST_CMD::EXIT, TEST_CMD::HELP,
@@ -100,7 +124,7 @@ private:
 		throw invalid_argument("INVALID COMMAND");
 	}
 
-	void AssertWrongArguments()
+	void TestShell::AssertWrongArguments()
 	{
 		if (cmd == TEST_CMD::WRITE && args.size() >= 2 && isValidLbaIndex(args[0]) && isValidWriteValue(args[1])) return;
 		if (cmd == TEST_CMD::READ && args.size() >= 1 && isValidLbaIndex(args[0])) return;
@@ -112,15 +136,15 @@ private:
 		throw invalid_argument("WRONG ARGUMENT");
 	}
 
-	bool isValidLbaIndex(string& lba_index) {
+	bool TestShell::isValidLbaIndex(string& lba_index) {
 		return stoi(lba_index) < 100;
 	}
 
-	bool isValidWriteValue(string& write_value) {
+	bool TestShell::isValidWriteValue(string& write_value) {
 		return write_value.length() == 10 && write_value.substr(0, 2) == "0x";
 	}
 
-	TestCmd* get_test_cmd_runner() {
+	TestCmd* TestShell::get_test_cmd_runner() {
 		if (cmd == TEST_CMD::WRITE) return new WriteTestCmd();
 		if (cmd == TEST_CMD::READ) return new ReadTestCmd();
 		if (cmd == TEST_CMD::EXIT) return new ExitTestCmd();
@@ -130,14 +154,8 @@ private:
 		return nullptr;
 	}
 
-	void clearUserData()
+	void TestShell::clearUserData()
 	{
 		this->cmd = "";
 		this->args.clear();
 	}
-
-	string cmd;
-	FileIoInterface* fio;
-	vector<string> args;
-	SsdDriver* ssd_driver = nullptr;
-};

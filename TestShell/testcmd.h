@@ -5,8 +5,18 @@
 #include <iostream>
 #include "SsdDriver.h"
 #include "FileIoInterface.h"
+#include "util.h"
 
 using namespace std;
+
+namespace TEST_CMD {
+	const string WRITE = "write";
+	const string READ = "read";
+	const string EXIT = "exit";
+	const string HELP = "help";
+	const string FULLWRITE = "fullwrite";
+	const string FULLREAD = "fullread";
+}
 
 interface TestCmd {
 	virtual void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) = 0;
@@ -73,12 +83,14 @@ public:
 		for(int index =0; index < MAX_LINE; index++){
 			ssd_driver->read(index);
 			FILE* fd = fio->Open(FILE_NAME_RESULT, "r");
+
 			if (fd == nullptr) {
 				throw std::runtime_error("File Open Error");
 			}
 			else {
 				char buf[MAX_BUF_SIZE];
 				memset(buf, 0, MAX_BUF_SIZE);
+
 				int result = fio->Read((int)fd, buf, ONE_LINE_SIZE);
 				if (result == 0) return;
 				std::cout << buf;

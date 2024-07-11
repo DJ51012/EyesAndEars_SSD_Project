@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ShellLibray">
+      <UniqueIdentifier>{56fd4831-4849-4b79-96ca-30a1b2d13ce7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -30,6 +33,12 @@
     <ClCompile Include="RealFileIo.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ScenarioRunner.cpp">
+      <Filter>ShellLibray</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandSetRunner.cpp">
+      <Filter>ShellLibray</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="testcmd.h">
@@ -39,6 +48,24 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="RealFileIo.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ScenarioRunner.h">
+      <Filter>ShellLibray</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandSetRunner.h">
+      <Filter>ShellLibray</Filter>
+    </ClInclude>
+    <ClInclude Include="testshell.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FileIoInterface.h">
+      <Filter>소스 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandSet.h">
+      <Filter>ShellLibray</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
