@@ -17,7 +17,7 @@ void LogFileManager::changePrevFile(const string fileNameWithTime) {
 	string previousLogFile = findPrevLogFile();
 
 	if (IsExistPrevLogFile(previousLogFile)) {
-		changeFileName(previousLogFile, changeExtension(previousLogFile));
+		changeFileName(previousLogFile, getChangedExtension(previousLogFile));
 	}
 	changeFileName(LoggerConst::LATEST_LOG_FILE_NAME, fileNameWithTime);
 }
@@ -26,13 +26,13 @@ bool LogFileManager::IsExistPrevLogFile(const string prevLogFile) {
 	return (prevLogFile.length() && prevLogFile.rfind(LoggerConst::LOG_EXTENSION) != string::npos);
 }
 
-string LogFileManager::changeExtension(const string previousLogFile) {
+string LogFileManager::getChangedExtension(const string previousLogFile) {
 	return previousLogFile.substr(0, previousLogFile.find_last_of('.')) + LoggerConst::ZIP_EXTENSION;
 }
 
 void LogFileManager::changeFileName(const string src, const string dest) {
 	if (rename(src.c_str(), dest.c_str()) != 0) {
-		cout << "Chanege File Name failed src: " << src << "dest: " << dest << endl;
+		throw exception(("Chanege File Name failed src: " + src + " dest: " + dest).c_str());
 	}
 }
 
@@ -56,7 +56,7 @@ bool LogFileManager::IsLatestLogFileExist() {
 void LogFileManager::createLogFile() {
 	ofstream logfile(LoggerConst::LATEST_LOG_FILE_NAME);
 	if (logfile.is_open() == false) {
-		cout << "Create Log File Failed!" << endl;
+		throw exception("Create Log File Failed!");
 		return;
 	}
 	logfile.close();
@@ -68,7 +68,7 @@ int LogFileManager::getLogFileSize() {
 
 	struct stat statBuffer;
 	if (stat(LoggerConst::LATEST_LOG_FILE_NAME.c_str(), &statBuffer) != 0) {
-		cout << "Get Log File Size Failed!" << endl;
+		throw exception("Get Log File Size Failed!");
 		return -1;
 	}
 	// cout << "file size: " << statBuffer.st_size << endl;
@@ -78,11 +78,11 @@ int LogFileManager::getLogFileSize() {
 string LogFileManager::findPrevLogFile() {
 	filesystem::path currentPath = filesystem::current_path();
 	if (IsCorrectDirectory(currentPath) == false) {
-		cout << "Invalid file path" << endl;
+		throw exception("Invalid file path");
 		return "";
 	}
 	for (const auto& file : filesystem::directory_iterator(currentPath)) {
-		if (IsPrevLogFile(file))
+		if (IsPrevLogFileExist(file))
 			return file.path().filename().string();
 	}
 	return "";
@@ -92,7 +92,7 @@ bool LogFileManager::IsCorrectDirectory(const filesystem::path& currentPath) {
 	return (filesystem::exists(currentPath) && filesystem::is_directory(currentPath));
 }
 
-bool LogFileManager::IsPrevLogFile(const filesystem::directory_entry& file) {
+bool LogFileManager::IsPrevLogFileExist(const filesystem::directory_entry& file) {
 	if (file.is_regular_file() == false)
 		return false;
 	if (file.path().extension().string().compare(LoggerConst::LOG_EXTENSION) != 0)

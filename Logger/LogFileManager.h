@@ -18,9 +18,9 @@ private:
 	int getLogFileSize();
 	void changePrevFile(const string fileNameWithTime);
 	bool IsExistPrevLogFile(const string prevLogFile);
-	string changeExtension(const string previousLogFile);
+	string getChangedExtension(const string previousLogFile);
 	void changeFileName(const string src, const string dest);
 	string findPrevLogFile();
 	bool IsCorrectDirectory(const filesystem::path& currentPath);
-	bool IsPrevLogFile(const filesystem::directory_entry& file);
+	bool IsPrevLogFileExist(const filesystem::directory_entry& file);
 };

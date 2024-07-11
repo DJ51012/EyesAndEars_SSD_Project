@@ -4,7 +4,12 @@
 void Logger::printLog(string logMsg, const char functionName[]) {
 	string logEntry = getLogEntry(logMsg, functionName);
 	cout << logEntry;
-	logFileManager.recordLogOnFile(logEntry, timeManager.getFileNameForStore());
+	try {
+		logFileManager.recordLogOnFile(logEntry, timeManager.getFileNameForStore());
+	}
+	catch (std::exception& e) {
+		cout << e.what() << endl;
+	}
 }
 
 string Logger::getLogEntry(string logMsg, const char functionName[]) {
