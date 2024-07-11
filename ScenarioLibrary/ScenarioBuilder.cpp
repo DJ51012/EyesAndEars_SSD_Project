@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 vector<CommandSet> TestApp1::getCommandSetList()
 {
 	vector<CommandSet> cmdSetList = {};
@@ -34,9 +33,6 @@ void TestApp1::setData(vector<string> args)
 			m_Data[i] = args[i];
 		}
 }
-
-
-
 
 vector<CommandSet> TestApp2::getCommandSetList()
 {
