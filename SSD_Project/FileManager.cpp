@@ -21,14 +21,17 @@ void FileManager::writeNand(unsigned int line, string value) {
 
 void FileManager::readNand(unsigned int line) {
     ifstream nandFile = getNandFile();
-    ofstream resultFile = getResultFile();
 
-    if (nandFile.is_open() == false || resultFile.is_open() == false)
+    if (nandFile.is_open() == false)
         return;
 
-    resultFile << getData(nandFile, line) << endl;
-
+    writeResult(getData(nandFile, line));
     nandFile.close();
+}
+
+void FileManager::writeResult(string value) {
+    ofstream resultFile = getResultFile();
+    resultFile << value << endl;
     resultFile.close();
 }
 
@@ -43,8 +46,8 @@ vector<string> FileManager::readBuffer() {
 void FileManager::writeBuffer(string command) {
     vector<string> commands = readBuffer();
     if (commands.size() >= 10) {
-        flush(commands);
-        //commands.clear();
+        flushBuffer();
+        commands.clear();
     }
     commands.push_back(command);
     
@@ -53,10 +56,11 @@ void FileManager::writeBuffer(string command) {
     cmdBufferWrite.close();
 }
 
-void FileManager::flush(vector<string>& commands) {
-    // Execute All commands
-    // And clear commands
-    commands.clear();
+void FileManager::flushBuffer() {
+    vector<string> initCommands;
+    ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
+    setAllData(cmdBufferWrite, initCommands);
+    cmdBufferWrite.close();
 }
 
 void FileManager::createFile(string fileName) {

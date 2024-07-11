@@ -19,6 +19,7 @@ public:
 	MOCK_METHOD(void, write, (unsigned int lba_index, string value), (override));
 	MOCK_METHOD(void, read, (unsigned int lba_index), (override));
 	MOCK_METHOD(void, erase, (unsigned int lba_index, unsigned int size), (override));
+	MOCK_METHOD(void, flush, (), (override));
 };
 
 class CommandManagerFixture : public testing::Test
@@ -270,6 +271,19 @@ TEST_F(CommandManagerFixture, Execute_Erase)
 		cm.executeSSDCommand(&mock);
 }
 
+TEST_F(CommandManagerFixture, Execute_Flush)
+{
+	// Arrange
+	int argc = 2;
+	char* argv[] = { "ssd", "F"};
+	bool expected = true;
+	EXPECT_CALL(mock, flush);
+
+	// Act
+	if (cm.IsValidCommand(argc, argv))
+		cm.executeSSDCommand(&mock);
+}
+
 TEST_F(CommandManagerFixture, Execute_Nothing)
 {
 	// Arrange
@@ -282,80 +296,21 @@ TEST_F(CommandManagerFixture, Execute_Nothing)
 	cm.executeSSDCommand(&mock);
 }
 
-// DriverFixture
-class FileManagerMock : public FileManager {
-public:
-	MOCK_METHOD(void, writeNand, (unsigned int, string), ());
-	MOCK_METHOD(void, readNand, (unsigned int), ());
-};
-
-class ssdDriverFixture : public testing::Test {
-public:
-	const int RESULT_READ_LINE = 0;
-	const string DEFAULT_WRITE_VALUE = "0x00000000";
-	FileManagerMock FMMock;
-	Ssd ssd;
-};
-
-// invalid input 은 필터됐다고 가정
-TEST_F(ssdDriverFixture, write_zero_and_check_nand_file_OK) {
-	// Arrange
-	unsigned int line = 10;
-	string writeValue = DEFAULT_WRITE_VALUE;
-	
-	ssd.setFileManager(&FMMock);
-	EXPECT_CALL(FMMock, writeNand(_,_)).Times(1);
-
-	// Act
-	ssd.write(line, writeValue);
-}
-
-TEST_F(ssdDriverFixture, write_non_zero_and_check_nand_file_OK) {
-	// Arrange
-	unsigned int line = 98;
-	string writeValue = "0x12345678";
-
-	ssd.setFileManager(&FMMock);
-	EXPECT_CALL(FMMock, writeNand(_, _)).Times(1);
-	
-	// Act
-	ssd.write(line, writeValue);
-}
-
-TEST_F(ssdDriverFixture, read_zero_and_check_result_file_OK) {
-	// Arrange
-	unsigned int line = 97;
-
-	ssd.setFileManager(&FMMock);
-	EXPECT_CALL(FMMock, readNand(_)).Times(1);
-		
-	// Act
-	ssd.read(line);
-}
-
-TEST_F(ssdDriverFixture, read_non_zero_and_check_result_file_OK) {
-	// Arrange
-	unsigned int line = 98;
-	string expected = "0x12345678";
-
-	ssd.setFileManager(&FMMock);
-	EXPECT_CALL(FMMock, readNand(_)).Times(1);
-	
-	// Act
-	ssd.read(line);
-}
 
 // File Manager
 class FileNotExistException : public exception {
 
 };
 
-class FileMangerFixture : public testing::Test {
+class FileManagerFixture : public testing::Test {
 protected:
 	void SetUp() override {
 		remove(NAND_FILE.c_str());	// delete "nand.txt"
+		remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
 	}
 public:
+	Ssd ssd;
+
 	FileManager& fileManager = FileManager::getInstance();
 	const string DATA1 = "0x00001004";
 	const string DATA2 = "0x00C0FFEE";
@@ -382,17 +337,17 @@ public:
 		return result;
 	}
 
-	string getWriteCommandBuffer(string cmd) {
+	bool isInCommandBuffer(string cmd) {
 		ifstream commandBuffer = getCommandBuffer();
 		string readCmd = "";
 		while (getline(commandBuffer, readCmd)) {
 			if (cmd == readCmd) {
 				commandBuffer.close();
-				return cmd;
+				return true;
 			}
 		}
 		commandBuffer.close();
-		return "";
+		return false;
 	}
 
 	ifstream getResultFile() {
@@ -423,40 +378,40 @@ public:
 	}
 };
 
-TEST_F(FileMangerFixture, ResultFileNotExist) {
+TEST_F(FileManagerFixture, ResultFileNotExist) {
 	remove(RESULT_FILE.c_str());	// delete "result.txt"
 	EXPECT_THROW(getResultValue(), FileNotExistException);
 }
 
-TEST_F(FileMangerFixture, NandFileNotExist) {
+TEST_F(FileManagerFixture, NandFileNotExist) {
 	EXPECT_THROW(getWriteNandValue(0), FileNotExistException);
 }
 
-TEST_F(FileMangerFixture, ReadTestInitLba0) {
+TEST_F(FileManagerFixture, ReadTestInitLba0) {
 	const int LBA = 0;
 	fileManager.readNand(LBA);
 	EXPECT_THAT(getResultValue(), StrEq(DEFAULT_WRITE_VALUE));
 }
 
-TEST_F(FileMangerFixture, ReadTestInitLba99) {
+TEST_F(FileManagerFixture, ReadTestInitLba99) {
 	const int LBA = 99;
 	fileManager.readNand(LBA);
 	EXPECT_THAT(getResultValue(), StrEq(DEFAULT_WRITE_VALUE));
 }
 
-TEST_F(FileMangerFixture, WriteTestInitLba1) {
+TEST_F(FileManagerFixture, WriteTestInitLba1) {
 	const int LBA = 1;
 	fileManager.writeNand(LBA, DATA1);
 	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
 }
 
-TEST_F(FileMangerFixture, WriteTestInitLba98) {
+TEST_F(FileManagerFixture, WriteTestInitLba98) {
 	const int LBA = 98;
 	fileManager.writeNand(LBA, DATA1);
 	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
 }
 
-TEST_F(FileMangerFixture, WriteReadTestLba0) {
+TEST_F(FileManagerFixture, WriteReadTestLba0) {
 	const int LBA = 0;
 	fileManager.writeNand(LBA, DATA1);
 	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
@@ -465,7 +420,7 @@ TEST_F(FileMangerFixture, WriteReadTestLba0) {
 	EXPECT_THAT(getResultValue(), StrEq(DATA1));
 }
 
-TEST_F(FileMangerFixture, WriteReadTestLba99) {
+TEST_F(FileManagerFixture, WriteReadTestLba99) {
 	const int LBA = 99;
 	fileManager.writeNand(LBA, DATA1);
 	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
@@ -474,7 +429,7 @@ TEST_F(FileMangerFixture, WriteReadTestLba99) {
 	EXPECT_THAT(getResultValue(), StrEq(DATA1));
 }
 
-TEST_F(FileMangerFixture, WriteReadTestOverWrite) {
+TEST_F(FileManagerFixture, WriteReadTestOverWrite) {
 	const int LBA = 10;
 	fileManager.writeNand(LBA, DATA1);
 	EXPECT_THAT(getWriteNandValue(LBA), StrEq(DATA1));
@@ -486,7 +441,7 @@ TEST_F(FileMangerFixture, WriteReadTestOverWrite) {
 	EXPECT_THAT(getResultValue(), StrEq(DATA2));
 }
 
-TEST_F(FileMangerFixture, WriteReadTestCleanLba) {
+TEST_F(FileManagerFixture, WriteReadTestCleanLba) {
 	const int WRITE_LBA = 15;
 	const int READ_LBA = 20;
 	fileManager.writeNand(WRITE_LBA, DATA1);
@@ -496,7 +451,7 @@ TEST_F(FileMangerFixture, WriteReadTestCleanLba) {
 	EXPECT_THAT(getResultValue(), StrEq(DEFAULT_WRITE_VALUE));
 }
 
-TEST_F(FileMangerFixture, WriteReadTestConsecutiveWrite) {
+TEST_F(FileManagerFixture, WriteReadTestConsecutiveWrite) {
 	const int LBA1 = 40;
 	const int LBA2 = 30;
 	const int LBA3 = 99;
@@ -520,49 +475,185 @@ TEST_F(FileMangerFixture, WriteReadTestConsecutiveWrite) {
 	EXPECT_THAT(getResultValue(), StrEq(DATA2));
 }
 
-TEST_F(FileMangerFixture, CommandBufferNotExist) {
+TEST_F(FileManagerFixture, CommandBufferNotExist) {
 	const string cmd = "W 20 0x1234ABCD";
-	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
-	EXPECT_THROW(getWriteCommandBuffer(cmd), FileNotExistException);
+	EXPECT_THROW(isInCommandBuffer(cmd), FileNotExistException);
 }
 
-TEST_F(FileMangerFixture, WriteCommandBuffer) {
+TEST_F(FileManagerFixture, WriteCommandBufferFile) {
 	const string cmd = "W 20 0x1234ABCD";
 
-	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
 	fileManager.writeBuffer(cmd);
-	EXPECT_THAT(getWriteCommandBuffer(cmd), StrEq(cmd));
+
+	bool expected = true;
+	bool actual = isInCommandBuffer(cmd);
+
+	EXPECT_EQ(expected, actual);
 }
 
-TEST_F(FileMangerFixture, WriteCommandBufferMoreThanOneCommand) {
+TEST_F(FileManagerFixture, WriteCommandBufferFileMoreThanOneCommand) {
 	const string cmd1 = "W 20 0x1234ABCD";
 	const string cmd2 = "W 21 0x1234ABCD";
 
-	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
 	fileManager.writeBuffer(cmd1);
 	fileManager.writeBuffer(cmd2);
-	EXPECT_THAT(getWriteCommandBuffer(cmd1), StrEq(cmd1));
-	EXPECT_THAT(getWriteCommandBuffer(cmd2), StrEq(cmd2));
+
+	bool expected = true;
+	bool actual1 = isInCommandBuffer(cmd1);
+	bool actual2 = isInCommandBuffer(cmd2);
+
+	EXPECT_EQ(expected, actual1);
+	EXPECT_EQ(expected, actual2);
 }
 
-TEST_F(FileMangerFixture, WriteCommandBufferMoreThanTenCommands) {
+TEST_F(FileManagerFixture, WriteCommandBufferFileMoreThanTenCommands) {
 	const string cmd1 = "W 10 0x1234AB01";
 	const string cmd2 = "W 10 0x1234AB02";
 
-
-	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
 	for(int i = 0 ; i<10 ; i++)
 		fileManager.writeBuffer(cmd1);
 	fileManager.writeBuffer(cmd2);
-	
-	EXPECT_THAT(getWriteCommandBuffer(cmd1), StrEq(""));
-	EXPECT_THAT(getWriteCommandBuffer(cmd2), StrEq(cmd2));
+
+	bool expected1 = false;
+	bool actual1 = isInCommandBuffer(cmd1);
+	bool expected2 = true;
+	bool actual2 = isInCommandBuffer(cmd2);
+
+	EXPECT_EQ(expected1, actual1);
+	EXPECT_EQ(expected2, actual2);
 }
 
 
-TEST_F(FileMangerFixture, WriteAndReadCommandBuffer) {
+TEST_F(FileManagerFixture, WriteAndReadCommandBufferFile) {
 	const string cmd = "W 20 0x1234ABCD";
-	remove(COMMAND_BUFFER.c_str());	// delete "buffer.txt"
 	fileManager.writeBuffer(cmd);
 	EXPECT_THAT(fileManager.readBuffer(), Contains(cmd));
 }
+
+TEST_F(FileManagerFixture, writeToCommandBuffer) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+	const string cmd = "W " + to_string(line) + " " + writeValue;
+	// Act
+	ssd.write(line, writeValue);
+	bool expected = true;
+	bool actual = isInCommandBuffer(cmd);
+	
+	// Assert
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, WriteCommandBuferAndReadFromCommandBuffer) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+	const string cmd = "W " + to_string(line) + " " + writeValue;
+
+	// Act
+	fileManager.writeBuffer(cmd);
+	ssd.read(line);
+
+	string expected = writeValue;
+	string actual = getResultValue();
+
+	// Assert
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, WriteCommandBuferTwiceAndReadFromCommandBuffer) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+	const string cmd = "W " + to_string(line) + " " + writeValue;
+	unsigned int line2 = 9;
+	string writeValue2 = "0x1234ABCD";
+	const string cmd2 = "W " + to_string(line2) + " " + writeValue2;
+
+	// Act
+	fileManager.writeBuffer(cmd);
+	fileManager.writeBuffer(cmd2);
+	ssd.read(line);
+
+	string expected = writeValue;
+	string actual = getResultValue();
+
+	// Assert
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, ReadFromNandFile) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+
+	// Act
+	fileManager.writeNand(line, writeValue);
+	ssd.read(line);
+
+	string expected = writeValue;
+	string actual = getResultValue();
+
+	// Assert
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, FlushThenClearCommandBuffer) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+	const string cmd = "W " + to_string(line) + " " + writeValue;
+
+	// Act
+	ssd.write(line, writeValue);
+	ssd.flush();
+
+	bool expected = false;
+	bool actual = isInCommandBuffer(cmd);
+
+	// Assert
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, FlushThenExecuteCommandsInCommandBuffer) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+
+	// Act
+	ssd.write(line, writeValue);
+	ssd.flush();
+
+	string expected = writeValue;
+	string actual = getWriteNandValue(line);
+
+	// Assert
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, WriteElevenTimesThenFlushAndExecute) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+	const string cmd = "W " + to_string(line) + " " + writeValue;
+
+	unsigned int line2 = 97;
+	string writeValue2 = "0x1234ABCD";
+	const string cmd2 = "W " + to_string(line2) + " " + writeValue2;
+
+	// Act
+	for (int i = 0; i < 10; i++)
+		ssd.write(line, writeValue);
+	ssd.write(line2, writeValue2);
+
+	bool expected1 = false;
+	bool actual1 = isInCommandBuffer(cmd);
+
+	bool expected2 = true;
+	bool actual2 = isInCommandBuffer(cmd2);
+
+	// Assert
+	EXPECT_EQ(expected1, actual1);
+	EXPECT_EQ(expected2, actual2);
+}
+

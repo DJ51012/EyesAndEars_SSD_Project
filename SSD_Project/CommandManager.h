@@ -31,6 +31,7 @@ private:
 	const int NR_WRITE_ARGC = 4;
 	const int NR_READ_ARGC = 3;
 	const int NR_ERASE_ARGC = 4;
+	const int NR_FLUSH_ARGC = 2;
 	const int RANGE_SIZE_MAX = 10;
 
 	void printCommandGuide();
@@ -41,6 +42,7 @@ private:
 	bool IsValidReadCommand(int argc, char* argv[]);
 	bool IsValidWriteCommand(int argc, char* argv[]);
 	bool IsValidEraseCommand(int argc, char* argv[]);
+	bool IsValidFlushCommand(int argc, char* argv[]);
 	bool isValidRangeSize(string strRangeSize);
 	bool IsValidNumberOfArguments(int argc, int nrCommandArguement);
 	bool IsValidAddr(string strLba);

@@ -12,4 +12,5 @@ public:
     virtual void write(unsigned int lba_index, string value) = 0;
     virtual void read(unsigned int lba_index) = 0;
     virtual void erase(unsigned int lba_index, unsigned int size) = 0;
+    virtual void flush() = 0;
 };

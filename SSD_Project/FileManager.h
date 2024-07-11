@@ -18,10 +18,11 @@ public:
     }
     virtual void writeNand(unsigned int line, string value);
     virtual void readNand(unsigned int line);
+    virtual void writeResult(string value);
 
     virtual void writeBuffer(string command);
     virtual vector<string> readBuffer();
-    virtual void flush(vector<string> &commands);
+    virtual void flushBuffer();
 private:
 #ifndef __TEST__
     FileManager();
