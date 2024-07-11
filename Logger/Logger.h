@@ -21,7 +21,7 @@ private:
 	Logger& operator=(const Logger& otherInstance) = delete;
 	Logger(const Logger& otherInstance) = delete;
 	string getOrganizedFunctionName(const char functionName[]);
-	time_t getNow();
+	tm getLocalTime();
 	string toStringWithZeroPadding(int number);
 	string getDateTimeForLog();
 	string getFileNameForStore();
@@ -33,16 +33,17 @@ private:
 	string getSecond(tm* tmTime);
 
 	fstream getLogFile();
+	void checkFileExistence();
 	void createLogFile();
 	int getLogFileSize();
 	void changePrevFile();
 	string findPrevLogFile();
+	string changeExtension(const string previousLogFile);
 
 	const int MAX_LOG_FILE_SIZE = 10 * 1024;
 	const string LATEST_LOG_FILE_NAME = "latest.log";
 	const string LOG_EXTENSION = ".log";
 	const string ZIP_EXTENSION = ".zip";
-
-	//string previousLogFile = "";
+	const string PREFIX_PREV_FILE = "until_";
 };
 
