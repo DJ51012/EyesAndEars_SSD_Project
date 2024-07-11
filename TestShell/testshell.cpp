@@ -38,9 +38,10 @@ public:
 		this->ssd_driver = driver;
 	}
 
-	void setDriverRedirection(bool isReDirection) {
-		ssd_driver->setRedirection(isReDirection);
+	SsdDriver* getDriver() {
+		return ssd_driver;
 	}
+
 	void setFileIo(FileIoInterface* fio) {
 		this->fio = fio;
 	}
