@@ -36,6 +36,10 @@ public:
 	void setDriver(SsdDriver* driver)  {
 		this->ssd_driver = driver;
 	}
+
+	void setDriverRedirection(bool isReDirection) {
+		ssd_driver->setRedirection(isReDirection);
+	}
 	void setFileIo(FileIoInterface* fio) {
 		this->fio = fio;
 	}
@@ -82,9 +86,11 @@ public:
 		}
 		catch (std::invalid_argument& e) {
 			cout << e.what() << endl;
+			return -1;
 		}
 		catch (std::runtime_error& e) {
 			cout << e.what() << endl;
+			return -1;
 		}
 		return 0;
 	}
