@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <filesystem>
+#include "TimeManager.h"
 
 using namespace std;
 
@@ -21,16 +22,6 @@ private:
 	Logger& operator=(const Logger& otherInstance) = delete;
 	Logger(const Logger& otherInstance) = delete;
 	string getOrganizedFunctionName(const char functionName[]);
-	tm getLocalTime();
-	string toStringWithZeroPadding(int number);
-	string getDateTimeForLog();
-	string getFileNameForStore();
-	string getYear(tm* tmTime);
-	string getMonth(tm* tmTime);
-	string getDay(tm* tmTime);
-	string getHour(tm* tmTime);
-	string getMinute(tm* tmTime);
-	string getSecond(tm* tmTime);
 
 	fstream getLogFile();
 	void checkFileExistence();
@@ -40,10 +31,6 @@ private:
 	string findPrevLogFile();
 	string changeExtension(const string previousLogFile);
 
-	const int MAX_LOG_FILE_SIZE = 10 * 1024;
-	const string LATEST_LOG_FILE_NAME = "latest.log";
-	const string LOG_EXTENSION = ".log";
-	const string ZIP_EXTENSION = ".zip";
-	const string PREFIX_PREV_FILE = "until_";
+	TimeManager timeManager;
 };
 
