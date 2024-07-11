@@ -25,6 +25,7 @@ namespace TEST_CMD {
 	const string TESTAPP2 = "testapp2";
 	const string ERASE = "erase";
 	const string ERASERANGE = "erase_range";
+	const string FLUSH = "flush";
 }
 
 class TestShell {
@@ -35,6 +36,10 @@ public:
 	}
 	void setDriver(SsdDriver* driver)  {
 		this->ssd_driver = driver;
+	}
+
+	void setDriverRedirection(bool isReDirection) {
+		ssd_driver->setRedirection(isReDirection);
 	}
 	void setFileIo(FileIoInterface* fio) {
 		this->fio = fio;
@@ -82,9 +87,11 @@ public:
 		}
 		catch (std::invalid_argument& e) {
 			cout << e.what() << endl;
+			return -1;
 		}
 		catch (std::runtime_error& e) {
 			cout << e.what() << endl;
+			return -1;
 		}
 		return 0;
 	}
@@ -105,7 +112,7 @@ private:
 		auto allowed_cmds = {
 			TEST_CMD::WRITE, TEST_CMD::READ, TEST_CMD::EXIT, TEST_CMD::HELP,
 			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD, TEST_CMD::TESTAPP1, TEST_CMD::TESTAPP2,
-			TEST_CMD::ERASE, TEST_CMD::ERASERANGE
+			TEST_CMD::ERASE, TEST_CMD::ERASERANGE, TEST_CMD::FLUSH
 		};
 		for (auto& cmd : allowed_cmds) {
 			if (this->cmd == cmd) return;
@@ -130,7 +137,8 @@ private:
 				})) return;
 		}
 		if (cmd == TEST_CMD::ERASERANGE && args.size() >= 2 && isValidEraseRangeArgs()) return;
-			
+		if (cmd == TEST_CMD::FLUSH && args.size() == 0) return;
+
 		throw invalid_argument("WRONG ARGUMENT");
 	}
 
@@ -177,6 +185,7 @@ private:
 		if (cmd == TEST_CMD::TESTAPP2) return new TestApp2TestCmd();
 		if (cmd == TEST_CMD::ERASE) return new EraseTestCmd();
 		if (cmd == TEST_CMD::ERASERANGE) return new EraseRangeTestCmd();
+		if (cmd == TEST_CMD::FLUSH) return new FlushTestCmd();
 		return nullptr;
 	}
 
