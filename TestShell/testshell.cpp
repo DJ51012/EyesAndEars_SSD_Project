@@ -25,6 +25,7 @@ namespace TEST_CMD {
 	const string TESTAPP2 = "testapp2";
 	const string ERASE = "erase";
 	const string ERASERANGE = "erase_range";
+	const string FLUSH = "flush";
 }
 
 class TestShell {
@@ -105,7 +106,7 @@ private:
 		auto allowed_cmds = {
 			TEST_CMD::WRITE, TEST_CMD::READ, TEST_CMD::EXIT, TEST_CMD::HELP,
 			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD, TEST_CMD::TESTAPP1, TEST_CMD::TESTAPP2,
-			TEST_CMD::ERASE, TEST_CMD::ERASERANGE
+			TEST_CMD::ERASE, TEST_CMD::ERASERANGE, TEST_CMD::FLUSH
 		};
 		for (auto& cmd : allowed_cmds) {
 			if (this->cmd == cmd) return;
@@ -130,7 +131,8 @@ private:
 				})) return;
 		}
 		if (cmd == TEST_CMD::ERASERANGE && args.size() >= 2 && isValidEraseRangeArgs()) return;
-			
+		if (cmd == TEST_CMD::FLUSH && args.size() == 0) return;
+
 		throw invalid_argument("WRONG ARGUMENT");
 	}
 
@@ -177,6 +179,7 @@ private:
 		if (cmd == TEST_CMD::TESTAPP2) return new TestApp2TestCmd();
 		if (cmd == TEST_CMD::ERASE) return new EraseTestCmd();
 		if (cmd == TEST_CMD::ERASERANGE) return new EraseRangeTestCmd();
+		if (cmd == TEST_CMD::FLUSH) return new FlushTestCmd();
 		return nullptr;
 	}
 

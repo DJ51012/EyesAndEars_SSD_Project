@@ -222,3 +222,10 @@ public:
 		EraseTestCmd{}.run_cmd(ssd_driver, fio, actual_args);
 	}
 };
+
+class FlushTestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		ssd_driver->flush();
+	}
+};
