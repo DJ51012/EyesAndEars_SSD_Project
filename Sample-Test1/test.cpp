@@ -689,17 +689,17 @@ TEST_F(FileManagerFixture, FlushThenExecuteCommandsInCommandBuffer) {
 
 TEST_F(FileManagerFixture, WriteElevenTimesThenFlushAndExecute) {
 	// Arrange
-	unsigned int line = 98;
+	unsigned int line = 9;
 	string writeValue = "0x12345678";
 	const string cmd = "W " + to_string(line) + " " + writeValue;
 
-	unsigned int line2 = 97;
+	unsigned int line2 = 30;
 	string writeValue2 = "0x1234ABCD";
 	const string cmd2 = "W " + to_string(line2) + " " + writeValue2;
 
 	// Act
 	for (int i = 0; i < 10; i++)
-		ssd.write(line, writeValue);
+		ssd.write(line+i, writeValue);
 	ssd.write(line2, writeValue2);
 
 	bool expected1 = false;
@@ -713,3 +713,37 @@ TEST_F(FileManagerFixture, WriteElevenTimesThenFlushAndExecute) {
 	EXPECT_EQ(expected2, actual2);
 }
 
+TEST_F(FileManagerFixture, avoidDuplicateWriteToCommandBuffer) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+	const string cmd = "W " + to_string(line) + " " + writeValue;
+
+	// Act
+	ssd.write(line, writeValue);
+	ssd.write(line, writeValue);
+	vector<string> cmdStrings = fileManager.readBuffer();
+	
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 1);
+	EXPECT_EQ(cmdStrings[0], cmd);
+}
+
+TEST_F(FileManagerFixture, updateWriteToCommandBufferWithNewValue) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+
+	string writeValue2 = "0x1234ABCD";
+	const string cmd2 = "W " + to_string(line) + " " + writeValue2;
+
+	// Act
+	ssd.write(line, writeValue);
+	ssd.write(line, writeValue2);
+	vector<string> cmdStrings = fileManager.readBuffer();
+	
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 1);
+	EXPECT_EQ(cmdStrings[0], cmd2);
+
+}

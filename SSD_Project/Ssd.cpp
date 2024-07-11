@@ -30,6 +30,14 @@ public:
 
     void write(unsigned int line, string value) override {
         vector<string> cmdStrings = fileManager->readBuffer();
+        for (auto cmdString : cmdStrings) {
+            if (cmdString == writeCommand(line, value)) 
+                return;
+            Command cmd = cmdFormat.parseCommand(cmdString);
+            if (cmd.type == 'W' && cmd.lba == line) {
+                fileManager->removeBuffer(writeCommand(cmd.lba, cmd.value));
+            }
+        }
         if (cmdStrings.size() >= MAX_COMMAND_NUM_IN_BUFFER)
             flush();
         fileManager->writeBuffer(writeCommand(line, value));
