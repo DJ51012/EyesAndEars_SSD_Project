@@ -11,7 +11,6 @@ void Logger::print(string logMsg, const char functionName[]) {
 	fstream logFile = getLogFile();
 	logFile << log;
 	logFile.close();
-	//cout << "Log Size: " << sizeof(log) << endl;
 }
 
 string Logger::getOrganizedFunctionName(const char functionName[]) {
@@ -27,49 +26,54 @@ void Logger::changePrevFile() {
 		//PRINT("findPrevLogFile Failed");
 
 	if (previousLogFile.length() && previousLogFile.rfind(LOG_EXTENSION) != string::npos) {
-		zipFileName = previousLogFile.substr(0, previousLogFile.length() - LOG_EXTENSION.length());
-		zipFileName += ZIP_EXTENSION;
+		zipFileName = changeExtension(previousLogFile);
+
 		if (rename(previousLogFile.c_str(), zipFileName.c_str()) != 0) {
-			//cerr << "Error: " << strerror(errno) << endl;
 			cout << "No previous Log File" << endl;
 		}
 	}
 
 	previousLogFile = getFileNameForStore();
 	if (rename(LATEST_LOG_FILE_NAME.c_str(), previousLogFile.c_str()) != 0) {
-		cerr << "Error: " << strerror(errno) << endl;
+		cerr << "changePrevFile Failed" << endl;
 	}
 }
 
+string Logger::changeExtension(const string previousLogFile) {
+	//return previousLogFile.substr(0, previousLogFile.length() - LOG_EXTENSION.length()) + ZIP_EXTENSION;
+	return previousLogFile.substr(0, previousLogFile.find_last_of('.')) + ZIP_EXTENSION;
+}
+
 string Logger::getDateTimeForLog() {
-	time_t tm_t = getNow();
-	tm* tmTime = localtime(&tm_t);
+	tm tmTime = getLocalTime();
 	string ret = "[";
-	ret += getYear(tmTime) + ".";
-	ret += getMonth(tmTime) + ".";
-	ret += getDay(tmTime) + " ";
-	ret += getHour(tmTime) + ":";
-	ret += getMinute(tmTime) + ":";
-	ret += getSecond(tmTime) + "] ";
+	ret += getYear(&tmTime) + ".";
+	ret += getMonth(&tmTime) + ".";
+	ret += getDay(&tmTime) + " ";
+	ret += getHour(&tmTime) + ":";
+	ret += getMinute(&tmTime) + ":";
+	ret += getSecond(&tmTime) + "] ";
 	return ret;
 }
 
 string Logger::getFileNameForStore() {
-	time_t tm_t = getNow();
-	tm* tmTime = localtime(&tm_t);
-	string ret = "until_";
-	ret += getYear(tmTime);
-	ret += getMonth(tmTime);
-	ret += getDay(tmTime) + "_";
-	ret += getHour(tmTime) + "h_";
-	ret += getMinute(tmTime) + "m_";
-	ret += getSecond(tmTime) + "s";
-	ret += ".log";
+	tm tmTime = getLocalTime();
+	string ret = PREFIX_PREV_FILE;
+	ret += getYear(&tmTime);
+	ret += getMonth(&tmTime);
+	ret += getDay(&tmTime) + "_";
+	ret += getHour(&tmTime) + "h_";
+	ret += getMinute(&tmTime) + "m_";
+	ret += getSecond(&tmTime) + "s";
+	ret += LOG_EXTENSION;
 	return ret;
 }
 
-time_t Logger::getNow() {
-	return time(nullptr);
+tm Logger::getLocalTime() {
+	time_t tm_t = time(nullptr);
+	tm tmTime;
+	localtime_s(&tmTime, &tm_t);
+	return tmTime;
 }
 
 string Logger::toStringWithZeroPadding(int number)
@@ -100,12 +104,18 @@ string Logger::getSecond(tm* tmTime) {
 }
 
 fstream Logger::getLogFile() {
+	checkFileExistence();
+	fstream logFile(LATEST_LOG_FILE_NAME, ios::app);
+	return logFile;
+}
+
+void Logger::checkFileExistence() {
 	ifstream logFileForCheck(LATEST_LOG_FILE_NAME);
 	if (logFileForCheck.is_open() == false) {
 		createLogFile();
+		return;
 	}
-	fstream logFile(LATEST_LOG_FILE_NAME, ios::app);
-	return logFile;
+	logFileForCheck.close();
 }
 
 void Logger::createLogFile() {
@@ -136,9 +146,8 @@ string Logger::findPrevLogFile() {
 		for (const auto& file : std::filesystem::directory_iterator(currentPath)) {
 			if (file.is_regular_file() && file.path().extension() == LOG_EXTENSION) {
 				string strFileName = file.path().filename().string();
-				if (strFileName.substr(0, 6).compare("until_") == 0) {
-					cout << "find Log File " << file.path().filename().string() << endl;
-					//file.path().replace_extension(ZIP_EXTENSION);
+				if (strFileName.substr(0, PREFIX_PREV_FILE.length()).compare(PREFIX_PREV_FILE) == 0) {
+					cout << "Found Log File: " << strFileName << endl;
 					return strFileName;
 				}
 			}
@@ -146,7 +155,7 @@ string Logger::findPrevLogFile() {
 	}
 	else
 	{
-		//PRINT("File Path Failed!");
+		cout << "Invalid file path" << endl;
 	}
 	return "";
 }
