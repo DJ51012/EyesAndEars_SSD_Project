@@ -3,9 +3,11 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
+#include <algorithm>
 #include "SsdDriver.h"
 #include "FileIoInterface.h"
 #include "util.h"
+#include "../Logger/Logger.h"
 
 using namespace std;
 
@@ -166,5 +168,57 @@ public:
 				throw std::runtime_error("TestApp2 failed.");
 			}
 		}
+	}
+};
+
+class EraseTestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		auto lba_index = stoi(args[0]);
+		auto remained_range_size = stoi(args[1]);
+
+		while (isErasableCondition(lba_index, remained_range_size))
+		{
+			auto range_size = adjust_range_size(remained_range_size, lba_index);
+
+			ssd_driver->erase(lba_index, range_size);
+
+			remained_range_size -= range_size;
+			lba_index += range_size;
+		}
+	}
+
+private:
+	bool isErasableCondition(int lba_index, int remained_range_size)
+	{
+		return lba_index < CONSTANTS::LBA_INDEX_MAX
+			&& remained_range_size > RANGE_SIZE_MIN;
+	}
+
+	int adjust_range_size(int remained_range_size, int lba_index)
+	{
+		int range_size = min(RANGE_SIZE_MAX, remained_range_size);
+		range_size = max(RANGE_SIZE_MIN, range_size);
+
+		if (range_size + lba_index >= CONSTANTS::LBA_INDEX_MAX) {
+			range_size = CONSTANTS::LBA_INDEX_MAX - lba_index;
+		}
+
+		return range_size;
+	}
+
+	const int RANGE_SIZE_MAX = 10;
+	const int RANGE_SIZE_MIN = 0;
+};
+
+class EraseRangeTestCmd : public TestCmd {
+public:
+	void run_cmd(SsdDriver* ssd_driver, FileIoInterface* fio, vector<string>& args) override {
+		auto lba_start_index = stoi(args[0]);
+		auto lba_end_index = stoi(args[1]);
+		auto range_size = lba_end_index - lba_start_index;
+		vector<string> actual_args = { args[0], to_string(range_size) };		
+		
+		EraseTestCmd{}.run_cmd(ssd_driver, fio, actual_args);
 	}
 };
