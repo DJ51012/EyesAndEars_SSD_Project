@@ -128,8 +128,7 @@ private:
 				return std::isdigit(c);
 				})) return;
 		}
-		if (cmd == TEST_CMD::ERASERANGE && args.size() >= 2 && isValidLbaIndex(args[0]) && isValidLbaEndRangeMax(args[1]) &&
-			stoi(args[0]) <= stoi(args[1])) return;
+		if (cmd == TEST_CMD::ERASERANGE && args.size() >= 2 && isValidEraseRangeArgs()) return;
 			
 		throw invalid_argument("WRONG ARGUMENT");
 	}
@@ -152,6 +151,13 @@ private:
 		catch (...) {}
 
 		return false;
+	}
+
+	bool isValidEraseRangeArgs() {
+		if (!isValidLbaIndex(args[0])) return false;
+		if (!isValidLbaEndRangeMax(args[1])) return false;
+		if (stoi(args[0]) > stoi(args[1])) return false;
+		return true;
 	}
 
 	bool isValidWriteValue(string& write_value) {
