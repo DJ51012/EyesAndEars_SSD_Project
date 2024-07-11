@@ -926,3 +926,17 @@ TEST_F(FileManagerFixture, WriteSameCommandTwice) {
 	EXPECT_EQ(cmdStrings.size(), 1);
 	EXPECT_EQ(cmdStrings[0], cmd);
 }
+
+TEST_F(FileManagerFixture, ReadFromEase) {
+	// Arrange
+	string writeValue = "0xABCDABCD";
+	for (int i = 0; i < 8; i++) {
+		fileManager.writeNand(i, writeValue);
+	}
+	// Act
+	ssd.erase(0, 8);
+	ssd.read(0);
+
+	// Assert
+	EXPECT_EQ(getResultValue(), DEFAULT_WRITE_VALUE);
+}

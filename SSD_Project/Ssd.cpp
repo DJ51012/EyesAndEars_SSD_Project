@@ -58,6 +58,12 @@ public:
                 fileManager->writeResult(cmd.value);
                 return;
             }
+            else if (cmd.type == 'E') {
+                if (line >= cmd.lba && line < cmd.lba + cmd.size) {
+                    fileManager->writeResult(DEFAULT_VALUE);
+                    return;
+                }
+            }
         }
         fileManager->readNand(line);
     }
