@@ -188,9 +188,6 @@ TEST_F(TestShellFixture, ReadCmdTestShellSuccess) {
 }
 
 TEST_F(TestShellFixture, ReadCmdTestShellOpenReturnFail) {
-	FILE* test_file;
-	tmpfile_s(&test_file);
-
 	EXPECT_CALL(mfio, Open(_, _))
 		.WillRepeatedly(Return(nullptr));
 	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
@@ -234,26 +231,12 @@ TEST_F(TestShellFixture, FullWriteCmd) {
 }
 
 TEST_F(TestShellFixture, FullReadCmd) {
-	FILE* test_file = tmpfile();
 	makeFullContents(&nand_txt);
 	std::string expected_str = nand_txt;
 	int expected_call = nand_txt.size() / ONE_LINE_SIZE;
 
 	setup_ssd(expected_call);
 	setup_fio();
-
-	//EXPECT_CALL(mfio, Open(_, _))
-	//	.WillRepeatedly(Return(nullptr));
-	//EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
-	//	.WillRepeatedly(Return(test_file));
-
-
-	//EXPECT_CALL(mfio, Read(_, _, _))
-	//	.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
-	//		memset(buf, 0, count);
-	//		memcpy(buf, result_txt.c_str(), count);
-	//		return count;
-	//	}));
 
 	TestShell ts{ TEST_CMD::FULLREAD, { }, &mock_ssd, &mfio };
 
@@ -270,35 +253,15 @@ TEST_F(TestShellFixture, FullReadCmd) {
 }
 
 TEST_F(TestShellFixture, TestApp1Cmd) {
-	FILE* test_file;
-	tmpfile_s(&test_file);
-	std::string fileNandContent = "";
 	for (int index = 0; index < MAX_LBA_SIZE; index++) {
 		std::string content = "0x00000000";
-		fileNandContent.append(content);
+		nand_txt.append(content);
 	}
-	std::string expected_str = fileNandContent;
-	int expected_call = fileNandContent.size() / ONE_LINE_SIZE;
-	std::string result;
-	EXPECT_CALL(mock_ssd, read(_))
-		.Times(expected_call)
-		.WillRepeatedly(::testing::Invoke([&](unsigned int lba_index) {
-		int position = lba_index * ONE_LINE_SIZE;
-		result = fileNandContent.substr(position, 10);
-			}));
+	std::string expected_str = nand_txt;
+	int expected_call = nand_txt.size() / ONE_LINE_SIZE;
 
-	EXPECT_CALL(mfio, Open(_, _))
-		.WillRepeatedly(Return(nullptr));
-	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
-		.WillRepeatedly(Return(test_file));
-
-
-	EXPECT_CALL(mfio, Read(_, _, _))
-		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
-		memset(buf, 0, count);
-		memcpy(buf, result.c_str(), count);
-		return count;
-			}));
+	setup_ssd(expected_call);
+	setup_fio();
 
 	TestShell ts{ TEST_CMD::TESTAPP1, { }, &mock_ssd, &mfio };
 	set_expected_write_times(100);
@@ -307,35 +270,14 @@ TEST_F(TestShellFixture, TestApp1Cmd) {
 }
 
 TEST_F(TestShellFixture, TestApp2Cmd) {
-	FILE* test_file;
-	tmpfile_s(&test_file);
-	std::string fileNandContent = "";
 	for (int index = 0; index < 6; index++) {
 		std::string content = "0x12345678";
-		fileNandContent.append(content);
+		nand_txt.append(content);
 	}
-	std::string expected_str = fileNandContent;
-	size_t expected_call = fileNandContent.size() / ONE_LINE_SIZE;
-	std::string result;
-	EXPECT_CALL(mock_ssd, read(_))
-		.Times((int)expected_call)
-		.WillRepeatedly(::testing::Invoke([&](unsigned int lba_index) {
-		int position = lba_index * ONE_LINE_SIZE;
-		result = fileNandContent.substr(position, 10);
-			}));
-
-	EXPECT_CALL(mfio, Open(_, _))
-		.WillRepeatedly(Return(nullptr));
-	EXPECT_CALL(mfio, Open(testing::StrEq(FILE_NAME_RESULT), _))
-		.WillRepeatedly(Return(test_file));
-
-
-	EXPECT_CALL(mfio, Read(_, _, _))
-		.WillRepeatedly(::testing::Invoke([&](int fd, void* buf, size_t count) {
-		memset(buf, 0, count);
-		memcpy(buf, result.c_str(), count);
-		return count;
-			}));
+	std::string expected_str = nand_txt;
+	size_t expected_call = nand_txt.size() / ONE_LINE_SIZE;
+	setup_ssd(expected_call);
+	setup_fio();
 
 	TestShell ts{ TEST_CMD::TESTAPP2, { }, &mock_ssd, &mfio };
 	set_expected_write_times(186);
