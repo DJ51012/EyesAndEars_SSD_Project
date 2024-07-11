@@ -24,9 +24,13 @@ public:
         return "W " + to_string(line) + " " + value;
     }
 
+    string eraseCommand(unsigned int line, unsigned int size) {
+        return "E " + to_string(line) + " " + to_string(size);
+    }
+
     void write(unsigned int line, string value) override {
         vector<string> cmdStrings = fileManager->readBuffer();
-        if (cmdStrings.size() >= 10)
+        if (cmdStrings.size() >= MAX_COMMAND_NUM_IN_BUFFER)
             flush();
         fileManager->writeBuffer(writeCommand(line, value));
     }
@@ -44,20 +48,33 @@ public:
         fileManager->readNand(line);
     }
 
+    void erase(unsigned int line, unsigned int size) override {
+        vector<string> cmdStrings = fileManager->readBuffer();
+        for (auto cmdString : cmdStrings) {
+            Command cmd = cmdFormat.parseCommand(cmdString);
+            if (cmd.type == 'W') {
+                if (cmd.lba >= line && cmd.lba < line + size) {
+                    fileManager->removeBuffer(writeCommand(cmd.lba, cmd.value));
+                }
+            }
+        }
+        if (fileManager->readBuffer().size() >= MAX_COMMAND_NUM_IN_BUFFER)
+            flush();
+        fileManager->writeBuffer(eraseCommand(line, size));
+    }
+
     void flush() {
         vector<string> cmdStrings = fileManager->readBuffer();
         for (auto cmdString : cmdStrings) {
             Command cmd = cmdFormat.parseCommand(cmdString);
             switch (cmd.type) {
-            case 'R' :
+            case 'R':
                 fileManager->readNand(cmd.lba);
                 break;
             case 'W':
                 fileManager->writeNand(cmd.lba, cmd.value);
                 break;
             case 'E':
-                // erase 함수가 command buffer를 타게 수정될 수 있으므로 
-                // erase 함수 호출하지 않고 erase 함수 내용 그대로 수행
                 for (unsigned int offset = 0; offset < cmd.size; offset++) {
                     fileManager->writeNand((cmd.lba + offset), DEFAULT_VALUE);
                 }
@@ -68,16 +85,10 @@ public:
         }
         fileManager->flushBuffer();
     }
-
-    void erase(unsigned int line, unsigned int size) override {
-        for (unsigned int offset = 0; offset < size; offset++) {
-            fileManager->writeNand((line + offset), DEFAULT_VALUE);
-        }
-    }
-
     FileManager* fileManager;
     CommandFormat cmdFormat;
 
 private:
     const string DEFAULT_VALUE = "0x00000000";
+    const int MAX_COMMAND_NUM_IN_BUFFER = 10;
 };

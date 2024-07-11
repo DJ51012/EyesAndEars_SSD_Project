@@ -21,6 +21,7 @@ public:
     virtual void writeResult(string value);
 
     virtual void writeBuffer(string command);
+    virtual void removeBuffer(string command);
     virtual vector<string> readBuffer();
     virtual void flushBuffer();
 private:
@@ -40,6 +41,7 @@ private:
 
     const int MAX_LINE_NUM = 99;
     const int MIN_LINE_NUM = 0;
+    const int MAX_COMMAND_NUM_IN_BUFFER = 10;
     const string NAND_FILE_NAME = "nand.txt";
     const string RESULT_FILE_NAME = "result.txt";
     const string COMMAND_BUFFER_NAME = "buffer.txt";
