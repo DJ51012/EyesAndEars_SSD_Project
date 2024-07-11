@@ -1,10 +1,4 @@
-#pragma once
 #include "SsdDriver.h"
-#include <cstdlib>
-#include <stdexcept>
-#include "../Logger/Logger.h"
-
-#define SSD_EXECUTABLE "ssd.exe"
 
 class RealSsdDriver : public SsdDriver {
 public:
