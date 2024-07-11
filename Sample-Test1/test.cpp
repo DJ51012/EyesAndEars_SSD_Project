@@ -747,3 +747,94 @@ TEST_F(FileManagerFixture, updateWriteToCommandBufferWithNewValue) {
 	EXPECT_EQ(cmdStrings[0], cmd2);
 
 }
+
+TEST_F(FileManagerFixture, mergeTwoErasesToOneErase) {
+	// Arrange
+	unsigned int line = 8;
+	const string cmd = "E " + to_string(line) + " 2";
+
+	// Act
+	ssd.erase(line, 1);
+	ssd.erase(line + 1, 1);
+	vector<string> cmdStrings = fileManager.readBuffer();
+
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 1);
+	EXPECT_EQ(cmdStrings[0], cmd);
+}
+
+TEST_F(FileManagerFixture, mergeTwoErasesToOneEraseDifferentOrder) {
+	// Arrange
+	unsigned int line = 8;
+	const string cmd = "E " + to_string(line) + " 2";
+
+	// Act
+	ssd.erase(line + 1, 1);
+	ssd.erase(line, 1);
+	vector<string> cmdStrings = fileManager.readBuffer();
+
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 1);
+	EXPECT_EQ(cmdStrings[0], cmd);
+}
+
+TEST_F(FileManagerFixture, mergeErasesComplexCase) {
+	// Arrange
+	unsigned int line = 8;
+
+	// Act
+	ssd.erase(line + 5, 1);		// E 13 1
+	ssd.erase(line, 1);			// E 8 1
+	ssd.erase(line + 1, 1);		// E 9 1
+	ssd.erase(line - 1, 1);		// E 7 1
+	ssd.erase(line + 7, 1);		// E 15 1
+
+	const string cmd = "E 13 1";
+	const string cmd2 = "E 7 3";
+	const string cmd3 = "E 15 1";
+
+	vector<string> cmdStrings = fileManager.readBuffer();
+
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 3);
+	EXPECT_EQ(cmdStrings[0], cmd);
+	EXPECT_EQ(cmdStrings[1], cmd2);
+	EXPECT_EQ(cmdStrings[2], cmd3);
+}
+
+TEST_F(FileManagerFixture, erasePPTCondition) {
+	// Arrange
+	unsigned int line = 8;
+
+	// Act
+	ssd.write(20, "0xABCDABCD");
+	ssd.erase(10, 2);	
+	ssd.erase(12, 3);
+
+	const string cmd = "W 20 0xABCDABCD";
+	const string cmd2 = "E 10 5";
+
+	vector<string> cmdStrings = fileManager.readBuffer();
+
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 2);
+	EXPECT_EQ(cmdStrings[0], cmd);
+	EXPECT_EQ(cmdStrings[1], cmd2);
+}
+
+
+TEST_F(FileManagerFixture, eraseSizeBiggerThan10) {
+	// Arrange
+	unsigned int line = 8;
+	unsigned int size = 12;
+	// Act
+	ssd.erase(line, size);			// E 8 12
+
+	const string cmd = "E 8 10";
+
+	vector<string> cmdStrings = fileManager.readBuffer();
+
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 1);
+	EXPECT_EQ(cmdStrings[0], cmd);
+}
