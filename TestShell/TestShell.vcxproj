@@ -131,7 +131,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RealFileIo.cpp" />
     <ClCompile Include="RealSsdDriver.cpp" />
-    <ClCompile Include="RealSsdDriver.h" />
     <ClCompile Include="testshell.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +138,7 @@
     <ClInclude Include="SsdDriver.h" />
     <ClInclude Include="testcmd.h" />
     <ClInclude Include="util.h" />
+    <ClInclude Include="RealSsdDriver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
