@@ -17,7 +17,6 @@ public:
 		this->original_cout_buf = std::cout.rdbuf();
 		std::cout.rdbuf(target_cout_buf->rdbuf());
 	}
-	
 	void restore_stdout() {
 		std::cout.rdbuf(original_cout_buf);
 		original_cout_buf = nullptr;
