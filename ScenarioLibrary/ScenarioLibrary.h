@@ -24,9 +24,6 @@ public:
 
 class TestApp1 : public ScenarioBuilder
 {
-	//vector<CommandSet> getCommandSetList() override;
-	//void setData(vector<string> args) override;
-
 	vector<CommandSet> getCommandSetList() override
 	{
 		vector<CommandSet> cmdSetList = {};
