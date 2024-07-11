@@ -71,7 +71,9 @@ int LogFileManager::getLogFileSize() {
 		throw exception("Get Log File Size Failed!");
 		return -1;
 	}
-	// cout << "file size: " << statBuffer.st_size << endl;
+#ifdef __TEST__
+	cout << "file size: " << statBuffer.st_size << endl;
+#endif
 	return statBuffer.st_size;
 }
 
@@ -100,7 +102,8 @@ bool LogFileManager::IsPrevLogFileExist(const filesystem::directory_entry& file)
 	string strFileName = file.path().filename().string();
 	if (strFileName.substr(0, LoggerConst::PREFIX_PREV_FILE.length()).compare(LoggerConst::PREFIX_PREV_FILE) != 0)
 		return false;
-
-	// cout << "Found Log File: " << strFileName << endl;
+#ifdef __TEST__
+	cout << "Found Log File: " << strFileName << endl;
+#endif
 	return true;
 }
