@@ -5,7 +5,7 @@
 
 #define interface struct
 
-interface ScenarioBuilder
+interface ScenarioInterface
 {
 public:
 	virtual vector<CommandSet> getCommandSetList() = 0;
@@ -18,7 +18,7 @@ namespace SCENARIO_NAME {
 	const string WRRDCMP50 = "WriteReadCompareLoop50";
 };
 
-class TestApp1 : public ScenarioBuilder
+class TestApp1 : public ScenarioInterface
 {
 	vector<CommandSet> getCommandSetList() override;
 	void setData(vector<string> args) override;
@@ -28,7 +28,7 @@ private:
 	string m_Data[1] = { "0x12345678" };
 };
 
-class TestApp2 : public ScenarioBuilder
+class TestApp2 : public ScenarioInterface
 {
 	vector<CommandSet> getCommandSetList() override;
 	void setData(vector<string> args) override;
@@ -38,7 +38,7 @@ private:
 	string m_Data[2] = { "0xAAAABBBB", "0x12345678" };
 };
 
-class WriteReadCompareLoop50 : public ScenarioBuilder
+class WriteReadCompareLoop50 : public ScenarioInterface
 {
 	vector<CommandSet> getCommandSetList() override;
 	void setData(vector<string> args) override;

@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ScenarioBuilder.h"
+#include "Scenario.h"
 
 using namespace std;
 

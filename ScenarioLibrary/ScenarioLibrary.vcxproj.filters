@@ -24,7 +24,7 @@
     <ClInclude Include="ScenarioLibrary.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ScenarioBuilder.h">
+    <ClInclude Include="Scenario.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ScenarioCaller.h">
@@ -41,7 +41,7 @@
     <ClCompile Include="ScenarioLibrary.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ScenarioBuilder.cpp">
+    <ClCompile Include="Scenario.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ScenarioCaller.cpp">

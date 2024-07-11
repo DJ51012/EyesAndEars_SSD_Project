@@ -1,6 +1,6 @@
 #pragma once
 #include "../TestShell/CommandSet.h"
-#include "ScenarioBuilder.h"
+#include "Scenario.h"
 
 class ScenarioCaller
 {
@@ -10,6 +10,6 @@ public:
 	vector<CommandSet> callScenario(string scenarioName, vector<string> args);
 
 private:
-	ScenarioBuilder* getScenario(string scenarioName);
+	ScenarioInterface* getScenario(string scenarioName);
 	vector<string> m_scenarioList;
 };
