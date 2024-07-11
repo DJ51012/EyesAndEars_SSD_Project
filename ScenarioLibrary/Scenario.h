@@ -44,6 +44,7 @@ class WriteReadCompareLoop50 : public ScenarioInterface
 	void setData(vector<string> args) override;
 
 private:
-	const int NR_DATA = 2;
-	string m_Data[2] = { "0xA5A5A5A5", "0x0F0F0F0F" };
+	const int NR_LOOP = 50;
+	string m_Data[50] = { "0xA5A5A5A5", "0x0F0F0F0F" };
+	int m_nrData = 2;
 };

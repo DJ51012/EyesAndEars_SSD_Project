@@ -85,14 +85,14 @@ vector<CommandSet> WriteReadCompareLoop50::getCommandSetList()
 {
 	vector<CommandSet> cmdSetList = {};
 
-	for (int i = 0; i < 50; i++) {
+	for (int i = 0; i < NR_LOOP; i++) {
 		cmdSetList.push_back(
 			CommandSet::CommandSetBuilder()
 			.setCommand("write")
 			.setStartLba(0)
 			.setLastLba(5)
 			.setIteration(1)
-			.setData(m_Data[i % NR_DATA])
+			.setData(m_Data[i % m_nrData])
 			.returnCommandSet()
 		);
 
@@ -101,7 +101,7 @@ vector<CommandSet> WriteReadCompareLoop50::getCommandSetList()
 			.setCommand("read")
 			.setStartLba(0)
 			.setLastLba(5)
-			.setData(m_Data[i % NR_DATA])
+			.setData(m_Data[i % m_nrData])
 			.setExpectData(true)
 			.returnCommandSet()
 		);
@@ -112,7 +112,9 @@ vector<CommandSet> WriteReadCompareLoop50::getCommandSetList()
 
 void WriteReadCompareLoop50::setData(vector<string> args)
 {
-	if (args.size() <= NR_DATA) {
+	int m_nrData = args.size() < 2 ? 2 : (args.size() < NR_LOOP ? args.size() : NR_LOOP);
+
+	if (args.size() <= NR_LOOP) {
 		for (int i = 0; i < args.size(); i++)
 		{
 			m_Data[i] = args[i];
