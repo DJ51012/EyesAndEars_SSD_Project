@@ -12,6 +12,8 @@
 #include "../ScenarioLibrary/ScenarioLibrary.cpp"
 #include "../TestShell/RealSsdDriver.cpp"
 #include "../TestShell/RealFileIo.cpp"
+#include "../Logger/TimeManager.cpp"
+#include "../Logger/LogFileManager.cpp"
 #include "../Logger/Logger.cpp"
 
 using namespace std;

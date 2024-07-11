@@ -2,6 +2,8 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #define __TEST__
+#include "../Logger/TimeManager.cpp"
+#include "../Logger/LogFileManager.cpp"
 #include "../Logger/Logger.cpp"
 #include "../SSD_Project/Ssd.cpp"
 #include "../SSD_Project/CommandManager.cpp"

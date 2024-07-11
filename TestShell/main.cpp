@@ -1,8 +1,11 @@
-#include "../Logger/Logger.cpp"
 #include "RealSsdDriver.h"
 #include "RealFileIo.h"
 #include "testshell.cpp"
 #include "Runner.cpp"
+
+#include "../Logger/TimeManager.cpp"
+#include "../Logger/LogFileManager.cpp"
+#include "../Logger/Logger.cpp"
 
 #include "../ScenarioLibrary/ScenarioLibrary.h"
 #pragma comment(lib, "../x64/Debug/ScenarioLibrary.lib")
