@@ -15,7 +15,7 @@ void CommandManager::printCommandGuide()
 
 bool CommandManager::IsValidCommand(int argc, char* argv[])
 {
-
+	Logger::getInstance().print("IsValidCommand", __FUNCTION__);
 	if (!IsArgumentExist(argc)) { 
 		return false; 
 	}

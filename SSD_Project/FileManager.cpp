@@ -1,10 +1,13 @@
 #include "FileManager.h"
+#include "../Logger/Logger.h"
 
 FileManager::FileManager() {
 
 }
 
 void FileManager::writeNand(unsigned int line, string value) {
+    PRINT("writeNand");
+    //Logger::getInstance().print("writeNand", __FUNCTION__);
     vector<string> readLines;
 
     if (checkValidLineNum(line) == false || getAllData(readLines) == false)
@@ -16,6 +19,8 @@ void FileManager::writeNand(unsigned int line, string value) {
 }
 
 void FileManager::readNand(unsigned int line) {
+    PRINT("readNand");
+    //Logger::getInstance().print("readNand", __FUNCTION__);
     fstream nandFile = getNandFile();
     ofstream resultFile = getResultFile();
 
@@ -29,10 +34,14 @@ void FileManager::readNand(unsigned int line) {
 }
 
 void FileManager::createFile() {
+    PRINT("createFile");
+    //Logger::getInstance().print("createFile", __FUNCTION__);
     ofstream nandfile(NAND_FILE_NAME);
     for (int idx = 0; idx <= MAX_LINE_NUM; idx++) {
         nandfile << DEFAULT_WRITE_VALUE << endl;
     }
+    if(nandfile.is_open() == false)
+        PRINT("createFile Failed!");
     nandfile.close();
 }
 
@@ -47,6 +56,8 @@ fstream FileManager::getNandFile() {
 
 ofstream FileManager::getResultFile() {
     ofstream resultFile(RESULT_FILE_NAME);
+    if (resultFile.is_open() == false)
+        PRINT("resultFile Failed!");
     return resultFile;
 }
 
