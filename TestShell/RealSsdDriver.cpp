@@ -23,6 +23,12 @@ void RealSsdDriver::erase(unsigned int lba_index, unsigned int size)
 	this->execute_cmd(erase_cmd, "Failed to invoke ssd erase command");
 }
 
+void RealSsdDriver::flush()
+{
+	string flush_cmd = string(SSD_EXECUTABLE) + " F";
+	this->execute_cmd(flush_cmd, "Failed to invoke ssd flush command");
+}
+
 void RealSsdDriver::execute_cmd(string& execute_cmd, string error_msg)
 {
 	if (system(execute_cmd.c_str()) != 0) {
