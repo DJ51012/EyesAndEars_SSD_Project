@@ -18,6 +18,8 @@ void FileManager::writeNand(unsigned int line, string value) {
     
     nandFileRead.close();
     nandFileWrite.close();
+
+    PRINT_LOG("Write Nand Success");
 }
 
 void FileManager::readNand(unsigned int line) {
@@ -34,6 +36,8 @@ void FileManager::writeResult(string value) {
     ofstream resultFile = getResultFile();
     resultFile << value << endl;
     resultFile.close();
+
+    PRINT_LOG("Read Nand Success");
 }
 
 vector<string> FileManager::readBuffer() {
@@ -41,6 +45,8 @@ vector<string> FileManager::readBuffer() {
     ifstream cmdBuffreRead(COMMAND_BUFFER_NAME);
     if (cmdBuffreRead.is_open())
         getAllData(cmdBuffreRead, readLines);
+
+    PRINT_LOG("Read Buffer Success");
     return readLines;
 }
 
@@ -55,6 +61,8 @@ void FileManager::writeBuffer(string command) {
     ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
     setAllData(cmdBufferWrite, commands);
     cmdBufferWrite.close();
+
+    PRINT_LOG("Write Buffer Success");
 }
 
 void FileManager::removeBuffer(string command) {

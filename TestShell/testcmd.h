@@ -36,7 +36,7 @@ public:
 			fio->Read(_fileno(fd), buf, ONE_LINE_SIZE);
 			buf[ONE_LINE_SIZE] = 0;
 			fclose(fd);
-			std::cout << buf;
+			std::cout << buf << std::endl;
 		}
 	}
 	static const int ONE_LINE_SIZE = 10;
@@ -88,7 +88,7 @@ public:
 				buf[ONE_LINE_SIZE] = 0;
 				fclose(fd);
 				if (result == 0) return;
-				std::cout << buf;
+				std::cout << buf << std::endl;
 			}
 		}
 
