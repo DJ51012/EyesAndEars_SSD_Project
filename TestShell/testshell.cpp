@@ -17,20 +17,6 @@
 
 using namespace std;
 
-namespace TEST_CMD {
-	const string WRITE = "write";
-	const string READ = "read";
-	const string EXIT = "exit";
-	const string HELP = "help";
-	const string FULLWRITE = "fullwrite";
-	const string FULLREAD = "fullread";
-	const string TESTAPP1 = "testapp1";
-	const string TESTAPP2 = "testapp2";
-	const string ERASE = "erase";
-	const string ERASERANGE = "erase_range";
-	const string FLUSH = "flush";
-}
-
 class TestShell {
 public:
 	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver, FileIoInterface* fio_interface)

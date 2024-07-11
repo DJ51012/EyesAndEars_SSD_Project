@@ -22,6 +22,7 @@ namespace TEST_CMD {
 	const string TESTAPP2 = "testapp2";
 	const string ERASE = "erase";
 	const string ERASERANGE = "erase_range";
+	const string FLUSH = "flush";
 }
 
 interface TestCmd {
