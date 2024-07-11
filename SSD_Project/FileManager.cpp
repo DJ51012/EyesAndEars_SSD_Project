@@ -46,7 +46,7 @@ vector<string> FileManager::readBuffer() {
 
 void FileManager::writeBuffer(string command) {
     vector<string> commands = readBuffer();
-    if (commands.size() >= 10) {
+    if (commands.size() >= MAX_COMMAND_NUM_IN_BUFFER) {
         flushBuffer();
         commands.clear();
     }
@@ -54,6 +54,16 @@ void FileManager::writeBuffer(string command) {
     
     ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
     setAllData(cmdBufferWrite, commands);
+    cmdBufferWrite.close();
+}
+
+void FileManager::removeBuffer(string command) {
+    vector<string> cmdStrings = readBuffer();
+    cmdStrings.erase(remove(cmdStrings.begin(), 
+        cmdStrings.end(), command), cmdStrings.end());
+
+    ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
+    setAllData(cmdBufferWrite, cmdStrings);
     cmdBufferWrite.close();
 }
 

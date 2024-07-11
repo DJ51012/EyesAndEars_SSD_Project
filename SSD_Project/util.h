@@ -16,8 +16,6 @@ public:
         vector<string> splitCmd;
         std::string temp;
         
-        Command command;
-
         for (char ch : commandString) {
             if (ch == ' ') {
                 if (!temp.empty()) {
@@ -34,11 +32,13 @@ public:
             splitCmd.push_back(temp);
         }
 
+        Command command;
         command.type = splitCmd[0][0];
         command.lba = stoi(splitCmd[1]);
-        command.value = splitCmd[2];
+        if (command.type == 'W')
+            command.value = splitCmd[2];
+        else if (command.type == 'E')
+            command.size = stoi(splitCmd[2]);
         return command;
     }
-
-
 };
