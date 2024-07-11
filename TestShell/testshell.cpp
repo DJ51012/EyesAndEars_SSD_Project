@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <vector>
 #include <stdexcept>
@@ -16,6 +17,8 @@ namespace TEST_CMD {
 	const string HELP = "help";
 	const string FULLWRITE = "fullwrite";
 	const string FULLREAD = "fullread";
+	const string TESTAPP1 = "testapp1";
+	const string TESTAPP2 = "testapp2";
 }
 
 class TestShell {
@@ -65,24 +68,28 @@ public:
 		}
 	}
 
+	int run_shell(string cmd) {
+		this->set_user_input(cmd);
+
+		try {
+			this->run_cmd();
+		}
+		catch (std::invalid_argument& e) {
+			cout << e.what() << endl;
+		}
+		catch (std::runtime_error& e) {
+			cout << e.what() << endl;
+		}
+		return 0;
+	}
+
 	void start_shell() {
 		while (1) {
 			cout << "TestShell> ";
-
 			string user_input;
-
 			getline(std::cin, user_input);
-			this->set_user_input(user_input);
 
-			try {
-				this->run_cmd();
-			}
-			catch (std::invalid_argument& e) {
-				cout << e.what() << endl;
-			}
-			catch (std::runtime_error& e) {
-				cout << e.what() << endl;
-			}
+			run_shell(user_input);
 		}
 	}
 
@@ -91,7 +98,7 @@ private:
 	{
 		auto allowed_cmds = {
 			TEST_CMD::WRITE, TEST_CMD::READ, TEST_CMD::EXIT, TEST_CMD::HELP,
-			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD
+			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD, TEST_CMD::TESTAPP1, TEST_CMD::TESTAPP2
 		};
 		for (auto& cmd : allowed_cmds) {
 			if (this->cmd == cmd) return;
@@ -108,6 +115,8 @@ private:
 		if (cmd == TEST_CMD::FULLREAD && args.size() == 0 ) return;
 		if (cmd == TEST_CMD::EXIT) return;
 		if (cmd == TEST_CMD::HELP) return;
+		if (cmd == TEST_CMD::TESTAPP1) return;
+		if (cmd == TEST_CMD::TESTAPP2) return;
 			
 		throw invalid_argument("WRONG ARGUMENT");
 	}
@@ -127,6 +136,8 @@ private:
 		if (cmd == TEST_CMD::HELP) return new HelpTestCmd();
 		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
 		if (cmd == TEST_CMD::FULLREAD) return new FullreadTestCmd();
+		if (cmd == TEST_CMD::TESTAPP1) return new TestApp1TestCmd();
+		if (cmd == TEST_CMD::TESTAPP2) return new TestApp2TestCmd();
 		return nullptr;
 	}
 

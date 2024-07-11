@@ -9,7 +9,9 @@ using namespace std;
 
 class FileManager {
 public:
+#ifdef __TEST__
     FileManager();
+#endif
     static FileManager& getInstance() {
         static FileManager instance;
         return instance;
@@ -22,6 +24,9 @@ public:
     virtual vector<string> readBuffer();
     virtual void flushBuffer();
 private:
+#ifndef __TEST__
+    FileManager();
+#endif
     FileManager& operator=(const FileManager& otherInstance) = delete;
     FileManager(const FileManager& otherInstance) = delete;
     void createFile(string fileName);

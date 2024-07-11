@@ -1,6 +1,7 @@
 #pragma once
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
+#define __TEST__
 #include "../SSD_Project/Ssd.cpp"
 #include "../SSD_Project/CommandManager.cpp"
 #include "../SSD_Project/FileManager.cpp"
@@ -17,6 +18,7 @@ class SsdDriverMock : public SsdDriver
 public:
 	MOCK_METHOD(void, write, (unsigned int lba_index, string value), (override));
 	MOCK_METHOD(void, read, (unsigned int lba_index), (override));
+	MOCK_METHOD(void, erase, (unsigned int lba_index, unsigned int size), (override));
 };
 
 class CommandManagerFixture : public testing::Test
@@ -58,6 +60,20 @@ TEST_F(CommandManagerFixture, No_Address_Write)
 {
 	int argc = 2;
 	char* argv[] = { "ssd", "W" };
+
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid number of arguments for this command"));
+	}
+}
+
+TEST_F(CommandManagerFixture, No_Address_Erase)
+{
+	int argc = 2;
+	char* argv[] = { "ssd", "E" };
 
 	try {
 		cm.IsValidCommand(argc, argv);
@@ -145,6 +161,21 @@ TEST_F(CommandManagerFixture, Invalid_Address001)
 		EXPECT_EQ(e.what(), string("Invalid address"));
 	}
 }
+
+TEST_F(CommandManagerFixture, Invalid_Address002)
+{
+	int argc = 4;
+	char* argv[] = { "ssd", "E", "100", "10"};
+
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid address"));
+	}
+}
+
 TEST_F(CommandManagerFixture, Invalid_Data000)
 {
 	int argc = 4;
@@ -173,6 +204,34 @@ TEST_F(CommandManagerFixture, Invalid_Data001)
 	}
 }
 
+TEST_F(CommandManagerFixture, Invalid_Range000)
+{
+	int argc = 4;
+	char* argv[] = { "ssd", "E", "0", "11!@$%" };
+
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid range size"));
+	}
+}
+
+TEST_F(CommandManagerFixture, Invalid_Range001)
+{
+	int argc = 4;
+	char* argv[] = { "ssd", "E", "0", "11" };
+
+	try {
+		cm.IsValidCommand(argc, argv);
+	}
+	catch (std::exception& e)
+	{
+		EXPECT_EQ(e.what(), string("Invalid range size"));
+	}
+}
+
 TEST_F(CommandManagerFixture, Execute_Write)
 {
 	// Arrange
@@ -192,6 +251,19 @@ TEST_F(CommandManagerFixture, Execute_Read)
 	char* argv[] = { "ssd", "R", "99" };
 	bool expected = true;
 	EXPECT_CALL(mock, read(99));
+
+	// Act
+	if (cm.IsValidCommand(argc, argv))
+		cm.executeSSDCommand(&mock);
+}
+
+TEST_F(CommandManagerFixture, Execute_Erase)
+{
+	// Arrange
+	int argc = 4;
+	char* argv[] = { "ssd", "E", "0", "10"};
+	bool expected = true;
+	EXPECT_CALL(mock, erase(0, 10));
 
 	// Act
 	if (cm.IsValidCommand(argc, argv))
