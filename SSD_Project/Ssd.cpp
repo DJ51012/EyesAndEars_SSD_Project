@@ -36,7 +36,7 @@ public:
         for (auto cmdString : cmdStrings) {
             Command cmd =  cmdFormat.parseCommand(cmdString);
             
-            if (cmd.RW == 'W' && cmd.lba == line) {
+            if (cmd.type == 'W' && cmd.lba == line) {
                 fileManager->writeResult(cmd.value);
                 return;
             }
@@ -48,11 +48,22 @@ public:
         vector<string> cmdStrings = fileManager->readBuffer();
         for (auto cmdString : cmdStrings) {
             Command cmd = cmdFormat.parseCommand(cmdString);
-            if (cmd.RW == 'R') {
+            switch (cmd.type) {
+            case 'R' :
                 fileManager->readNand(cmd.lba);
-            }
-            else if (cmd.RW == 'W') {
+                break;
+            case 'W':
                 fileManager->writeNand(cmd.lba, cmd.value);
+                break;
+            case 'E':
+                // erase 함수가 command buffer를 타게 수정될 수 있으므로 
+                // erase 함수 호출하지 않고 erase 함수 내용 그대로 수행
+                for (unsigned int offset = 0; offset < cmd.size; offset++) {
+                    fileManager->writeNand((cmd.lba + offset), DEFAULT_VALUE);
+                }
+                break;
+            default:
+                break;
             }
         }
         fileManager->flushBuffer();

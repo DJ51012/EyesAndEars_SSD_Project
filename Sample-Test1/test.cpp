@@ -642,3 +642,4 @@ TEST_F(FileManagerFixture, WriteElevenTimesThenFlushAndExecute) {
 	EXPECT_EQ(expected1, actual1);
 	EXPECT_EQ(expected2, actual2);
 }
+

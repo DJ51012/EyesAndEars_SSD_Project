@@ -4,8 +4,9 @@
 using namespace std;
 
 struct Command {
-    char RW;
+    char type;  // 'R', 'W', 'E', 'F'
     int lba;
+    int size;
     string value;
 };
 
@@ -33,7 +34,7 @@ public:
             splitCmd.push_back(temp);
         }
 
-        command.RW = splitCmd[0][0];
+        command.type = splitCmd[0][0];
         command.lba = stoi(splitCmd[1]);
         command.value = splitCmd[2];
         return command;
