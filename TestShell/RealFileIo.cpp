@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include <io.h>
 #include "RealFileIo.h"
+#include "../Logger/Logger.h"
 
 using namespace std;
 

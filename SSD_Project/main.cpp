@@ -1,3 +1,4 @@
+#include "../Logger/Logger.cpp"
 #include "CommandManager.h"
 #include "Ssd.cpp"
 

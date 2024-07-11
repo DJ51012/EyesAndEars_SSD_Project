@@ -10,6 +10,7 @@
 #include "SsdDriver.h"
 #include "util.h"
 #include "../TestShell/FileIOInterface.h"
+#include "../Logger/Logger.h"
 
 using namespace std;
 
