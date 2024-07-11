@@ -5,7 +5,7 @@ void Logger::print(string logMsg, const char functionName[]) {
 	string log = getDateTimeForLog() + getOrganizedFunctionName(functionName) + logMsg + "\n";
 	cout << log;
 	int logFileSize = getLogFileSize();
-	if (logFileSize != -1 && logFileSize + sizeof(log) > MAX_LOG_FILE_SIZE) {
+	if (logFileSize != -1 && logFileSize + log.size() + 1 > MAX_LOG_FILE_SIZE) {
 		changePrevFile();
 	}
 	fstream logFile = getLogFile();
