@@ -78,6 +78,8 @@ public:
                 }
             }
             else if (cmd.type == 'E') {
+                if (cmd.lba == line && cmd.size == size)
+                    return;
                 eraseCmds.push_back(cmd);
             }
         }

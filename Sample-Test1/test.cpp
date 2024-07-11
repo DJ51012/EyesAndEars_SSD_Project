@@ -896,3 +896,33 @@ TEST_F(FileManagerFixture, optimizeCommandBufferPPT3) {
 	EXPECT_THAT(getResultValue(), StrEq(writeValue));
 
 }
+
+
+TEST_F(FileManagerFixture, EraseSameCommandTwice) {
+	// Arrange
+	// Act
+	ssd.erase(10, 2);
+	ssd.erase(10, 2);
+
+	const string cmd = "E 10 2";
+	vector<string> cmdStrings = fileManager.readBuffer();
+
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 1);
+	EXPECT_EQ(cmdStrings[0], cmd);
+}
+
+TEST_F(FileManagerFixture, WriteSameCommandTwice) {
+	// Arrange
+	string writeValue = "0xABCDABCD";
+	// Act
+	ssd.write(10, writeValue);
+	ssd.write(10, writeValue);
+
+	const string cmd = "W 10 " + writeValue;
+	vector<string> cmdStrings = fileManager.readBuffer();
+
+	// Assert
+	EXPECT_EQ(cmdStrings.size(), 1);
+	EXPECT_EQ(cmdStrings[0], cmd);
+}
