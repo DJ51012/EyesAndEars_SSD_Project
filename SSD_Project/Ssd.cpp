@@ -1,6 +1,7 @@
 #pragma once
 #include "SsdDriver.h"
 #include "FileManager.h"
+#include "util.h"
 
 #include <iostream>
 #include <fstream>
@@ -24,28 +25,19 @@ public:
     }
 
     void write(unsigned int line, string value) override {
+        vector<string> cmdStrings = fileManager->readBuffer();
+        if (cmdStrings.size() >= 10)
+            flush();
         fileManager->writeBuffer(writeCommand(line, value));
     }
 
-    vector<string> splitCommand(string cmd) {
-        istringstream iss(cmd);
-        string token;
-        vector<string> tokens;
-        while (iss >> token) {
-            tokens.push_back(token);
-        }
-        return tokens;
-    }
-
     void read(unsigned int line) override {
-        commands = fileManager->readBuffer();
-        for (auto cmd : commands) {
-            vector<string> splitCmd = splitCommand(cmd); 
-            char rw = splitCmd[0][0];
-            unsigned int lineNum = stoi(splitCmd[1]);
-            string value = splitCmd[2];
-            if (rw == 'W' && lineNum == line) {
-                fileManager->writeResult(value);
+        vector<string> cmdStrings = fileManager->readBuffer();
+        for (auto cmdString : cmdStrings) {
+            Comamnd cmd =  cmdFormat.parseCommand(cmdString);
+            
+            if (cmd.RW == 'W' && cmd.lba == line) {
+                fileManager->writeResult(cmd.value);
                 return;
             }
         }
@@ -53,14 +45,17 @@ public:
     }
 
     void flush() {
-        commands = fileManager->readBuffer();
-        //for (const auto &cmd : commands) {
-        //    //parse command
-        //    // if read
-        //    read(line);
-        //    //if write
-        //    write(line)
-        //}
+        vector<string> cmdStrings = fileManager->readBuffer();
+        for (auto cmdString : cmdStrings) {
+            Comamnd cmd = cmdFormat.parseCommand(cmdString);
+            if (cmd.RW == 'R') {
+                fileManager->readNand(cmd.lba);
+            }
+            else if (cmd.RW == 'W') {
+                fileManager->writeNand(cmd.lba, cmd.value);
+            }
+        }
+        fileManager->flushBuffer();
     }
 
     void erase(unsigned int line, unsigned int size) override {
@@ -69,14 +64,8 @@ public:
         }
     }
 
-
-
-    void readCmdBuffer() {
-        commands = fileManager->readBuffer();
-    }
-
-    vector<string> commands;
     FileManager* fileManager;
+    CommandFormat cmdFormat;
 
 private:
     const string DEFAULT_VALUE = "0x00000000";

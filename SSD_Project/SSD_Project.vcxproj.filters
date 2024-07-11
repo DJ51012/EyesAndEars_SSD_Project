@@ -10,5 +10,6 @@
     <ClInclude Include="CommandManager.h" />
     <ClInclude Include="SsdDriver.h" />
     <ClInclude Include="FileManager.h" />
+    <ClInclude Include="util.h" />
   </ItemGroup>
 </Project>

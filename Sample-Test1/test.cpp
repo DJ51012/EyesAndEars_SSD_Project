@@ -530,7 +530,7 @@ TEST_F(FileManagerFixture, writeToCommandBuffer) {
 	EXPECT_EQ(expected, actual);
 }
 
-TEST_F(FileManagerFixture, ReadFromCommandBuffer) {
+TEST_F(FileManagerFixture, WriteCommandBuferAndReadFromCommandBuffer) {
 	// Arrange
 	unsigned int line = 98;
 	string writeValue = "0x12345678";
@@ -538,6 +538,27 @@ TEST_F(FileManagerFixture, ReadFromCommandBuffer) {
 
 	// Act
 	fileManager.writeBuffer(cmd);
+	ssd.read(line);
+
+	string expected = writeValue;
+	string actual = getResultValue();
+
+	// Assert
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, WriteCommandBuferTwiceAndReadFromCommandBuffer) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+	const string cmd = "W " + to_string(line) + " " + writeValue;
+	unsigned int line2 = 9;
+	string writeValue2 = "0x1234ABCD";
+	const string cmd2 = "W " + to_string(line2) + " " + writeValue2;
+
+	// Act
+	fileManager.writeBuffer(cmd);
+	fileManager.writeBuffer(cmd2);
 	ssd.read(line);
 
 	string expected = writeValue;
@@ -561,4 +582,63 @@ TEST_F(FileManagerFixture, ReadFromNandFile) {
 
 	// Assert
 	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, FlushThenClearCommandBuffer) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+	const string cmd = "W " + to_string(line) + " " + writeValue;
+
+	// Act
+	ssd.write(line, writeValue);
+	ssd.flush();
+
+	bool expected = false;
+	bool actual = isInCommandBuffer(cmd);
+
+	// Assert
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, FlushThenExecuteCommandsInCommandBuffer) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+
+	// Act
+	ssd.write(line, writeValue);
+	ssd.flush();
+
+	string expected = writeValue;
+	string actual = getWriteNandValue(line);
+
+	// Assert
+	EXPECT_EQ(expected, actual);
+}
+
+TEST_F(FileManagerFixture, WriteElevenTimesThenFlushAndExecute) {
+	// Arrange
+	unsigned int line = 98;
+	string writeValue = "0x12345678";
+	const string cmd = "W " + to_string(line) + " " + writeValue;
+
+	unsigned int line2 = 97;
+	string writeValue2 = "0x1234ABCD";
+	const string cmd2 = "W " + to_string(line2) + " " + writeValue2;
+
+	// Act
+	for (int i = 0; i < 10; i++)
+		ssd.write(line, writeValue);
+	ssd.write(line2, writeValue2);
+
+	bool expected1 = false;
+	bool actual1 = isInCommandBuffer(cmd);
+
+	bool expected2 = true;
+	bool actual2 = isInCommandBuffer(cmd2);
+
+	// Assert
+	EXPECT_EQ(expected1, actual1);
+	EXPECT_EQ(expected2, actual2);
 }
