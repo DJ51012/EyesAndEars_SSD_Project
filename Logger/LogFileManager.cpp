@@ -10,7 +10,7 @@ void LogFileManager::recordLogOnFile(const string log, const string fileNameWith
 }
 
 bool LogFileManager::checkExceedFileSize(const string log, int logFileSize) {
-	return (logFileSize != -1 && logFileSize + log.size() + 1 > LoggerConst::MAX_LOG_FILE_SIZE);
+	return (logFileSize != LoggerConst::INVALID_FILE_SIZE && logFileSize + log.size() + 1 > LoggerConst::MAX_LOG_FILE_SIZE);
 }
 
 void LogFileManager::changePrevFile(const string fileNameWithTime) {
@@ -64,12 +64,12 @@ void LogFileManager::createLogFile() {
 
 int LogFileManager::getLogFileSize() {
 	if (IsLatestLogFileExist() == false)
-		return -1;
+		return LoggerConst::INVALID_FILE_SIZE;
 
 	struct stat statBuffer;
 	if (stat(LoggerConst::LATEST_LOG_FILE_NAME.c_str(), &statBuffer) != 0) {
 		throw exception("Get Log File Size Failed!");
-		return -1;
+		return LoggerConst::INVALID_FILE_SIZE;
 	}
 #ifdef __TEST__
 	cout << "file size: " << statBuffer.st_size << endl;
