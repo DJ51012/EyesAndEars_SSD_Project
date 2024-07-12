@@ -1,5 +1,4 @@
 #pragma once
-#include "FileManager.h"
 #include "util.h"
 #include <iostream>
 #include <fstream>
@@ -8,7 +7,7 @@
 
 using namespace std;
 
-class BufferManager : public FileManager {
+class BufferManager {
 public:
 #ifdef __TEST__
     BufferManager() ;
@@ -52,6 +51,8 @@ private:
     BufferManager& operator=(const BufferManager& otherInstance) = delete;
     BufferManager(const BufferManager& otherInstance) = delete;
     ifstream getCommandBuffer();
+    bool getAllData(ifstream& readFile, vector<string>& readLines);
+    void setAllData(ofstream& writeFile, vector<string>& readLines);
 
     const int MAX_COMMAND_NUM_IN_BUFFER = 10;
     const string COMMAND_BUFFER_NAME = "buffer.txt";

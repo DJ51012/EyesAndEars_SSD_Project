@@ -2,7 +2,6 @@
 #include "SsdDriver.h"
 #include "FileManager.h"
 #include "BufferManager.h"
-#include "util.h"
 #include "../Logger/Logger.h"
 
 #include <iostream>
@@ -25,13 +24,14 @@ public:
         vector<string> cmdStrings = bufferManager->readBuffer();
         vector<string> eraseCmds;
         for (auto cmdString : cmdStrings) {
+            char cmdType = bufferManager->getCmdType(cmdString);
+            int lba = bufferManager->getCmdLba(cmdString); 
             if (cmdString == writeCmdString)
                 return;
-            if (bufferManager->getCmdType(cmdString) == 'W' && 
-                bufferManager->getCmdLba(cmdString) == line) {
+            if (cmdType == 'W' && lba == line) {
                 bufferManager->removeBuffer(cmdString);
             }
-            else if (bufferManager->getCmdType(cmdString) == 'E') {
+            else if (cmdType == 'E') {
                 eraseCmds.push_back(cmdString);
             }
         }
@@ -44,14 +44,15 @@ public:
     void read(unsigned int line) override {
         vector<string> cmdStrings = bufferManager->readBuffer();
         for (auto cmdString : cmdStrings) {
-            if (bufferManager->getCmdType(cmdString) == 'W' && 
-                bufferManager->getCmdLba(cmdString) == line) {
-                fileManager->writeResult(bufferManager->getCmdValue(cmdString));
-                PRINT_LOG(("Buffer Hit Read succeeded / LBA: " + to_string(line) + " / Value: " + cmd.value));
+            char cmdType = bufferManager->getCmdType(cmdString);
+            int lba = bufferManager->getCmdLba(cmdString);
+            if (cmdType == 'W' && lba== line) {
+                string value = bufferManager->getCmdValue(cmdString);
+                fileManager->writeResult(value);
+                PRINT_LOG(("Buffer Hit Read succeeded / LBA: " + to_string(line) + " / Value: " + value));
                 return;
             }
-            else if (bufferManager->getCmdType(cmdString) == 'E') {
-                int lba = bufferManager->getCmdLba(cmdString);
+            else if (cmdType == 'E') {
                 int size = bufferManager->getCmdSize(cmdString);
                 if (line >= lba && line < lba + size) {
                     fileManager->writeResult(DEFAULT_VALUE);

@@ -1,6 +1,6 @@
 #pragma once
 #include<iostream>
-
+#include <string>
 using namespace std;
 
 struct Command {
@@ -14,7 +14,7 @@ class CommandFormat {
 public:
     Command parseCommand(string commandString) {
         vector<string> splitCmd;
-        std::string temp;
+        string temp;
         
         for (char ch : commandString) {
             if (ch == ' ') {

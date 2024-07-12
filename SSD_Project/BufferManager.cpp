@@ -48,7 +48,9 @@ void BufferManager::flushBuffer() {
 ifstream BufferManager::getCommandBuffer() {
     ifstream cmdBufferForCheck(COMMAND_BUFFER_NAME);
     if (cmdBufferForCheck.is_open() == false) {
-        createFile(COMMAND_BUFFER_NAME);
+        ofstream writeFile(COMMAND_BUFFER_NAME);
+        writeFile.close();
+
     }
     ifstream commandBuffer(COMMAND_BUFFER_NAME);
     return commandBuffer;
@@ -109,5 +111,23 @@ void BufferManager::updateErase(std::vector<string>& eraseCmdStrings) {
                 }
             }
         }
+    }
+}
+
+
+bool BufferManager::getAllData(ifstream& readFile, vector<string>& readLines)
+{
+    string strLine = "";
+
+    while (getline(readFile, strLine)) {
+        readLines.push_back(strLine);
+    }
+    return true;
+}
+
+void BufferManager::setAllData(ofstream& writeFile, vector<string>& readLines)
+{
+    for (const auto& lineData : readLines) {
+        writeFile << lineData << endl;
     }
 }

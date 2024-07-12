@@ -19,11 +19,6 @@ public:
     virtual void writeNand(unsigned int line, string value);
     virtual void readNand(unsigned int line);
     virtual void writeResult(string value);
-   
-protected:
-    bool getAllData(ifstream& readFile, vector<string>& readLines);
-    void setAllData(ofstream& writeFile, vector<string>& readLines);
-    void createFile(string fileName);
 
 private:
 #ifndef __TEST__
@@ -34,7 +29,10 @@ private:
     ifstream getNandFile();
     ofstream getResultFile();
     bool checkValidLineNum(int line);
-  
+    bool getAllData(ifstream& readFile, vector<string>& readLines);
+    void setAllData(ofstream& writeFile, vector<string>& readLines);
+    void createFile(string fileName);
+
     string getData(ifstream& nandFile, unsigned int line);
 
     const int MAX_LINE_NUM = 99;
