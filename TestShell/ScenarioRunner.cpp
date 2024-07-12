@@ -38,6 +38,9 @@ CommandSetRunnerInterface* ScenarioRunner::getCommandRunner(CommandSet cmd)
 	if (cmd.strCmd == TEST_CMD::READ) return  new ReadRunner(cmd);
 	if (cmd.strCmd == TEST_CMD::FULLWRITE) return  new FullWriteRunner(cmd);
 	if (cmd.strCmd == TEST_CMD::FULLREAD) return  new FullReadRunner(cmd);
+	if (cmd.strCmd == TEST_CMD::ERASE) return  new EraseRunner(cmd);
+	if (cmd.strCmd == TEST_CMD::ERASERANGE) return  new EraseRangeRunner(cmd);
+	if (cmd.strCmd == TEST_CMD::FLUSH) return  new FlushRunner(cmd);
 
 	return nullptr;
 }

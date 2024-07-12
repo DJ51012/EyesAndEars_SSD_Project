@@ -74,10 +74,11 @@ public:
 
 		ScenarioCaller* sc = getScenarioCaller();
 
-		if (sc->isValidScenario(this->cmd, this->args))
+		if (isValidScenario(sc, this->cmd, this->args))
 		{
 			ScenarioRunner* sr = new ScenarioRunner;
-			bool ret = sr->runScenario(sc->callScenario(this->cmd, this->args));
+			//bool ret = sr->runScenario(sc->callScenario(this->cmd, this->args));
+			bool ret = sr->runScenario(callScenario(sc, this->cmd, this->args));
 			if (ret)
 				cout << "SCENARIO PASS" << endl;
 			else

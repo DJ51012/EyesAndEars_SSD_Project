@@ -138,7 +138,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CommandSetRunner.cpp" />
     <ClCompile Include="ScenarioRunner.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="RealFileIo.cpp" />

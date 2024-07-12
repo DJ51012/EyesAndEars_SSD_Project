@@ -9,12 +9,14 @@
 #include "../TestShell/SsdDriver.h"
 #include "../TestShell/testshell.cpp"
 #include "../TestShell/ScenarioRunner.cpp"
-#include "../ScenarioLibrary/ScenarioLibrary.cpp"
+#include "../ScenarioLibrary/ScenarioLibrary.h"
 #include "../TestShell/RealSsdDriver.cpp"
 #include "../TestShell/RealFileIo.cpp"
 #include "../Logger/TimeManager.cpp"
 #include "../Logger/LogFileManager.cpp"
 #include "../Logger/Logger.cpp"
+
+#pragma comment(lib, "../x64/Debug/ScenarioLibrary.lib")
 
 using namespace std;
 using namespace testing;
