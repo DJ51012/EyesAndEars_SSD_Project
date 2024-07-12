@@ -1,7 +1,6 @@
 #pragma once
 #include<iostream>
-#include <string>
-#include <vector>
+
 using namespace std;
 
 struct Command {
@@ -15,7 +14,7 @@ class CommandFormat {
 public:
     Command parseCommand(string commandString) {
         vector<string> splitCmd;
-        string temp;
+        std::string temp;
         
         for (char ch : commandString) {
             if (ch == ' ') {
@@ -41,9 +40,5 @@ public:
         else if (command.type == 'E')
             command.size = stoi(splitCmd[2]);
         return command;
-    }
-
-    static bool compareByLba(const Command& a, const Command& b) {
-        return a.lba < b.lba;
     }
 };

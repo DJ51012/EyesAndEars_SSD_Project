@@ -40,6 +40,46 @@ void FileManager::writeResult(string value) {
     resultFile.close();
 }
 
+vector<string> FileManager::readBuffer() {
+    vector<string> readLines;
+    ifstream cmdBuffreRead(COMMAND_BUFFER_NAME);
+    if (cmdBuffreRead.is_open())
+        getAllData(cmdBuffreRead, readLines);
+    return readLines;
+}
+
+void FileManager::writeBuffer(string command) {
+    vector<string> commands = readBuffer();
+    if (commands.size() >= MAX_COMMAND_NUM_IN_BUFFER) {
+        flushBuffer();
+        commands.clear();
+    }
+    commands.push_back(command);
+    
+    ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
+    setAllData(cmdBufferWrite, commands);
+    cmdBufferWrite.close();
+
+    PRINT_LOG(("Write Buffer succeeded / Command: " + command));
+}
+
+void FileManager::removeBuffer(string command) {
+    vector<string> cmdStrings = readBuffer();
+    cmdStrings.erase(remove(cmdStrings.begin(), 
+        cmdStrings.end(), command), cmdStrings.end());
+
+    ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
+    setAllData(cmdBufferWrite, cmdStrings);
+    cmdBufferWrite.close();
+}
+
+void FileManager::flushBuffer() {
+    vector<string> initCommands;
+    ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
+    setAllData(cmdBufferWrite, initCommands);
+    cmdBufferWrite.close();
+}
+
 void FileManager::createFile(string fileName) {
     ofstream writeFile(fileName);
     if (fileName == NAND_FILE_NAME) {
@@ -65,6 +105,14 @@ ofstream FileManager::getResultFile() {
     return resultFile;
 }
 
+ifstream FileManager::getCommandBuffer() {
+    ifstream cmdBufferForCheck(COMMAND_BUFFER_NAME);
+    if (cmdBufferForCheck.is_open() == false) {
+        createFile(COMMAND_BUFFER_NAME);
+    }
+    ifstream commandBuffer(COMMAND_BUFFER_NAME);
+    return commandBuffer;
+}
 
 bool FileManager::checkValidLineNum(int line) {
     if (line < MIN_LINE_NUM || line > MAX_LINE_NUM) {

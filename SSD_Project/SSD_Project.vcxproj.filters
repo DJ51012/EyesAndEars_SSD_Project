@@ -5,13 +5,11 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Ssd.cpp" />
     <ClCompile Include="CommandManager.cpp" />
-    <ClCompile Include="BufferManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommandManager.h" />
     <ClInclude Include="SsdDriver.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="util.h" />
-    <ClInclude Include="BufferManager.h" />
   </ItemGroup>
 </Project>
