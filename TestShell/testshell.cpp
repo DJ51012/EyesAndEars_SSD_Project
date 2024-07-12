@@ -11,36 +11,26 @@
 #include "util.h"
 #include "../TestShell/FileIOInterface.h"
 #include "../Logger/Logger.h"
+#include "../ScenarioLibrary/ScenarioLibrary.h"
+#include "CommandSet.h"
+#include "ScenarioRunner.h"
 
 using namespace std;
 
-namespace TEST_CMD {
-	const string WRITE = "write";
-	const string READ = "read";
-	const string EXIT = "exit";
-	const string HELP = "help";
-	const string FULLWRITE = "fullwrite";
-	const string FULLREAD = "fullread";
-	const string TESTAPP1 = "testapp1";
-	const string TESTAPP2 = "testapp2";
-	const string ERASE = "erase";
-	const string ERASERANGE = "erase_range";
-	const string FLUSH = "flush";
-}
-
 class TestShell {
 public:
-	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver, FileIoInterface*  fio_interface)
-		: cmd(cmd), args(args), ssd_driver(ssd_driver), fio(fio_interface){
+	TestShell(string cmd, vector<string> args, SsdDriver* ssd_driver, FileIoInterface* fio_interface)
+		: cmd(cmd), args(args), ssd_driver(ssd_driver), fio(fio_interface) {
 
 	}
-	void setDriver(SsdDriver* driver)  {
+	void setDriver(SsdDriver* driver) {
 		this->ssd_driver = driver;
 	}
 
-	void setDriverRedirection(bool isReDirection) {
-		ssd_driver->setRedirection(isReDirection);
+	SsdDriver* getDriver() {
+		return ssd_driver;
 	}
+
 	void setFileIo(FileIoInterface* fio) {
 		this->fio = fio;
 	}
@@ -82,6 +72,20 @@ public:
 	int run_shell(string cmd) {
 		this->set_user_input(cmd);
 
+		ScenarioCaller* sc = getScenarioCaller();
+
+		if (isValidScenario(sc, this->cmd, this->args))
+		{
+			ScenarioRunner* sr = new ScenarioRunner;
+			//bool ret = sr->runScenario(sc->callScenario(this->cmd, this->args));
+			bool ret = sr->runScenario(callScenario(sc, this->cmd, this->args));
+			if (ret)
+				cout << "SCENARIO PASS" << endl;
+			else
+				cout << "SCENARIO FAIL" << endl;
+			return ret;
+		}
+
 		try {
 			this->run_cmd();
 		}
@@ -111,7 +115,7 @@ private:
 	{
 		auto allowed_cmds = {
 			TEST_CMD::WRITE, TEST_CMD::READ, TEST_CMD::EXIT, TEST_CMD::HELP,
-			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD, TEST_CMD::TESTAPP1, TEST_CMD::TESTAPP2,
+			TEST_CMD::FULLWRITE, TEST_CMD::FULLREAD,
 			TEST_CMD::ERASE, TEST_CMD::ERASERANGE, TEST_CMD::FLUSH
 		};
 		for (auto& cmd : allowed_cmds) {
@@ -126,20 +130,22 @@ private:
 		if (cmd == TEST_CMD::WRITE && args.size() >= 2 && isValidLbaIndex(args[0]) && isValidWriteValue(args[1])) return;
 		if (cmd == TEST_CMD::READ && args.size() >= 1 && isValidLbaIndex(args[0])) return;
 		if (cmd == TEST_CMD::FULLWRITE && args.size() >= 1 && isValidWriteValue(args[0])) return;
-		if (cmd == TEST_CMD::FULLREAD && args.size() == 0 ) return;
+		if (cmd == TEST_CMD::FULLREAD && args.size() == 0) return;
 		if (cmd == TEST_CMD::EXIT) return;
 		if (cmd == TEST_CMD::HELP) return;
-		if (cmd == TEST_CMD::TESTAPP1) return;
-		if (cmd == TEST_CMD::TESTAPP2) return;
-		if (cmd == TEST_CMD::ERASE && args.size() >= 2 && isValidLbaIndex(args[0])) {
-			if (std::all_of(args[1].begin(), args[1].end(), [](unsigned char c) {
-				return std::isdigit(c);
-				})) return;
-		}
-		if (cmd == TEST_CMD::ERASERANGE && args.size() >= 2 && isValidEraseRangeArgs()) return;
+		if (cmd == TEST_CMD::ERASE && args.size() >= 2 && isValidLbaIndex(args[0]) && isDecimalOnly(args[1])) return;
+		if (cmd == TEST_CMD::ERASERANGE && args.size() >= 2 && isValidEraseRangeArgs(args[0], args[1])) return;
 		if (cmd == TEST_CMD::FLUSH && args.size() == 0) return;
 
 		throw invalid_argument("WRONG ARGUMENT");
+	}
+
+	bool isDecimalOnly(string& value)
+	{
+		return std::all_of(value.begin(), value.end(), 
+							[](unsigned char c) {
+								return std::isdigit(c);
+							});
 	}
 
 	bool isValidLbaIndex(string& lba_index) {
@@ -151,7 +157,7 @@ private:
 
 		return false;
 	}
-	
+
 	bool isValidLbaEndRangeMax(string& lba_index) {
 		try {
 			auto lba_num = stoi(lba_index);
@@ -162,16 +168,16 @@ private:
 		return false;
 	}
 
-	bool isValidEraseRangeArgs() {
-		if (!isValidLbaIndex(args[0])) return false;
-		if (!isValidLbaEndRangeMax(args[1])) return false;
-		if (stoi(args[0]) > stoi(args[1])) return false;
+	bool isValidEraseRangeArgs(string& lba_start_index, string& lba_end_index) {
+		if (!isValidLbaIndex(lba_start_index)) return false;
+		if (!isValidLbaEndRangeMax(lba_end_index)) return false;
+		if (stoi(lba_start_index) > stoi(lba_end_index)) return false;
 		return true;
 	}
 
 	bool isValidWriteValue(string& write_value) {
-		return (write_value.length() == CONSTANTS::VALID_VALUE_SIZE && 
-				write_value.substr(0, 2) == CONSTANTS::VALID_VALUE_PREFIX);
+		return (write_value.length() == CONSTANTS::VALID_VALUE_SIZE &&
+			write_value.substr(0, 2) == CONSTANTS::VALID_VALUE_PREFIX);
 	}
 
 	TestCmd* get_test_cmd_runner() {
@@ -181,8 +187,6 @@ private:
 		if (cmd == TEST_CMD::HELP) return new HelpTestCmd();
 		if (cmd == TEST_CMD::FULLWRITE) return new FullwriteTestCmd();
 		if (cmd == TEST_CMD::FULLREAD) return new FullreadTestCmd();
-		if (cmd == TEST_CMD::TESTAPP1) return new TestApp1TestCmd();
-		if (cmd == TEST_CMD::TESTAPP2) return new TestApp2TestCmd();
 		if (cmd == TEST_CMD::ERASE) return new EraseTestCmd();
 		if (cmd == TEST_CMD::ERASERANGE) return new EraseRangeTestCmd();
 		if (cmd == TEST_CMD::FLUSH) return new FlushTestCmd();

@@ -3,6 +3,7 @@
 #include "FileManager.h"
 #include "BufferManager.h"
 #include "util.h"
+#include "../Logger/Logger.h"
 
 #include <iostream>
 #include <fstream>
@@ -46,6 +47,7 @@ public:
             if (bufferManager->getCmdType(cmdString) == 'W' && 
                 bufferManager->getCmdLba(cmdString) == line) {
                 fileManager->writeResult(bufferManager->getCmdValue(cmdString));
+                PRINT_LOG(("Buffer Hit Read succeeded / LBA: " + to_string(line) + " / Value: " + cmd.value));
                 return;
             }
             else if (bufferManager->getCmdType(cmdString) == 'E') {
@@ -88,6 +90,7 @@ public:
     }
 
     void flush() {
+        PRINT_LOG(("Flush Start"));
         vector<string> cmdStrings = bufferManager->readBuffer();
         for (auto cmdString : cmdStrings) {
             int lba = bufferManager->getCmdLba(cmdString);
@@ -112,6 +115,7 @@ public:
             }
         }
         bufferManager->flushBuffer();
+        PRINT_LOG(("Flush Finished"));
     }
     FileManager* fileManager;
     BufferManager* bufferManager;

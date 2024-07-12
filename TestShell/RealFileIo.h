@@ -1,5 +1,4 @@
 #pragma once
-
 #include "FileIoInterface.h"
 
 class RealFileIo : public FileIoInterface {

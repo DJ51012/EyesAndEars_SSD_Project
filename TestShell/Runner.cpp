@@ -21,7 +21,7 @@ public:
             if (len > 0 && command[len - 1] == '\n') {
                 command[len - 1] = '\0';
             }
-            ts->setDriverRedirection(true);
+            setDriverRedirection(ts->getDriver(), true);
             if(run_scenario(ts, command) != 0){
                 break;
             }
@@ -44,6 +44,15 @@ public:
     }
 
 private:
+    void setDriverRedirection(SsdDriver* driver, bool isReDirection) {
+        RealSsdDriver* realDriver = dynamic_cast<RealSsdDriver*>(driver);
+        if (realDriver != nullptr) {
+            realDriver->setRedirection(isReDirection);
+        }
+        else {
+            std::cout << "The driver is not a RealSsdDriver" << std::endl;
+        }
+    }
     void LOG(string str) {
         set_oringin_std_inout();
         std::cout << str;

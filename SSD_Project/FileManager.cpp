@@ -18,6 +18,8 @@ void FileManager::writeNand(unsigned int line, string value) {
     
     nandFileRead.close();
     nandFileWrite.close();
+
+    PRINT_LOG(("Write Nand succeeded / LBA: " + to_string(line) + " / Value: " + value));
 }
 
 void FileManager::readNand(unsigned int line) {
@@ -28,6 +30,8 @@ void FileManager::readNand(unsigned int line) {
 
     writeResult(getData(nandFile, line));
     nandFile.close();
+
+    PRINT_LOG(("Read Nand succeeded / LBA: " + to_string(line)));
 }
 
 void FileManager::writeResult(string value) {
@@ -35,7 +39,6 @@ void FileManager::writeResult(string value) {
     resultFile << value << endl;
     resultFile.close();
 }
-
 
 void FileManager::createFile(string fileName) {
     ofstream writeFile(fileName);
@@ -45,6 +48,7 @@ void FileManager::createFile(string fileName) {
         }
     }
     writeFile.close();
+    PRINT_LOG(("Create File: " + fileName));
 }
 
 ifstream FileManager::getNandFile() {

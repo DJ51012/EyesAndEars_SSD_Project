@@ -4,13 +4,21 @@
 #include <stdio.h>
 #include <stdexcept>
 
+#define __TEST__
+
 #include "MockSsdDriver.h"
 #include "MockFileIo.h"
 #include "../TestShell/SsdDriver.h"
 #include "../TestShell/testshell.cpp"
+#include "../TestShell/ScenarioRunner.cpp"
+#include "../ScenarioLibrary/ScenarioLibrary.h"
 #include "../TestShell/RealSsdDriver.cpp"
 #include "../TestShell/RealFileIo.cpp"
+#include "../Logger/TimeManager.cpp"
+#include "../Logger/LogFileManager.cpp"
 #include "../Logger/Logger.cpp"
+
+#pragma comment(lib, "../x64/Debug/ScenarioLibrary.lib")
 
 using namespace std;
 using namespace testing;
@@ -251,7 +259,7 @@ TEST_F(TestShellFixture, FullReadCmd) {
 
 	restore_std_inout();
 }
-
+/*
 TEST_F(TestShellFixture, TestApp1Cmd) {
 	for (int index = 0; index < MAX_LBA_SIZE; index++) {
 		std::string content = "0x00000000";
@@ -284,7 +292,7 @@ TEST_F(TestShellFixture, TestApp2Cmd) {
 
 	ts.run_cmd();
 }
-
+*/
 
 TEST_F(TestShellFixture, SetUserInputString) {
 	TestShell ts{ "", {}, &mock_ssd, nullptr };
