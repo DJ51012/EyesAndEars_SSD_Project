@@ -9,24 +9,31 @@ using namespace std;
 
 class FileManager {
 public:
+#ifdef __TEST__
     FileManager();
+#endif
     static FileManager& getInstance() {
         static FileManager instance;
         return instance;
     }
     virtual void writeNand(unsigned int line, string value);
     virtual void readNand(unsigned int line);
+    virtual void writeResult(string value);
 
 private:
+#ifndef __TEST__
+    FileManager();
+#endif
     FileManager& operator=(const FileManager& otherInstance) = delete;
     FileManager(const FileManager& otherInstance) = delete;
-    void createFile();
-    fstream getNandFile();
+    ifstream getNandFile();
     ofstream getResultFile();
     bool checkValidLineNum(int line);
-    bool getAllData(vector<string>& readLines);
-    void setAllData(vector<string>& readLines);
-    string getData(fstream& nandFile, unsigned int line);
+    bool getAllData(ifstream& readFile, vector<string>& readLines);
+    void setAllData(ofstream& writeFile, vector<string>& readLines);
+    void createFile(string fileName);
+
+    string getData(ifstream& nandFile, unsigned int line);
 
     const int MAX_LINE_NUM = 99;
     const int MIN_LINE_NUM = 0;

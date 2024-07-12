@@ -1,6 +1,10 @@
 #include "CommandManager.h"
 #include "Ssd.cpp"
 
+#include "../Logger/TimeManager.cpp"
+#include "../Logger/LogFileManager.cpp"
+#include "../Logger/Logger.cpp"
+
 int main(int argc, char* argv[]) {
     Ssd ssd;
     CommandManager cm;
