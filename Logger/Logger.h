@@ -7,9 +7,11 @@
 using namespace std;
 
 #ifdef __TEST__
-#define ENABLE_LOG	(0)
+#define ENABLE_LOG		(0)
+#define ENABLE_STDOUT	(0 & ENABLE_LOG)
 #else
-#define ENABLE_LOG	(1)
+#define ENABLE_LOG		(1)
+#define ENABLE_STDOUT	(0 & ENABLE_LOG)
 #endif
 
 #if (ENABLE_LOG)
