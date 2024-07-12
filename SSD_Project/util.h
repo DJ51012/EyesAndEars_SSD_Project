@@ -41,4 +41,8 @@ public:
             command.size = stoi(splitCmd[2]);
         return command;
     }
+
+    static bool compareByLba(const Command& a, const Command& b) {
+        return a.lba < b.lba;
+    }
 };

@@ -6,6 +6,7 @@
 #include "../SSD_Project/Ssd.cpp"
 #include "../SSD_Project/CommandManager.cpp"
 #include "../SSD_Project/FileManager.cpp"
+#include "../SSD_Project/BufferManager.cpp"
 #include <string>
 #include <iostream>
 
@@ -311,8 +312,9 @@ protected:
 	}
 public:
 	Ssd ssd;
-
 	FileManager& fileManager = FileManager::getInstance();
+	BufferManager& bufferManager = BufferManager::getInstance();
+
 	const string DATA1 = "0x00001004";
 	const string DATA2 = "0x00C0FFEE";
 	const string DEFAULT_WRITE_VALUE = "0x00000000";
@@ -476,6 +478,7 @@ TEST_F(FileManagerFixture, WriteReadTestConsecutiveWrite) {
 	EXPECT_THAT(getResultValue(), StrEq(DATA2));
 }
 
+
 TEST_F(FileManagerFixture, CommandBufferNotExist) {
 	const string cmd = "W 20 0x1234ABCD";
 	EXPECT_THROW(isInCommandBuffer(cmd), FileNotExistException);
@@ -484,7 +487,7 @@ TEST_F(FileManagerFixture, CommandBufferNotExist) {
 TEST_F(FileManagerFixture, WriteCommandBufferFile) {
 	const string cmd = "W 20 0x1234ABCD";
 
-	fileManager.writeBuffer(cmd);
+	bufferManager.writeBuffer(cmd);
 
 	bool expected = true;
 	bool actual = isInCommandBuffer(cmd);
@@ -496,8 +499,8 @@ TEST_F(FileManagerFixture, WriteCommandBufferFileMoreThanOneCommand) {
 	const string cmd1 = "W 20 0x1234ABCD";
 	const string cmd2 = "W 21 0x1234ABCD";
 
-	fileManager.writeBuffer(cmd1);
-	fileManager.writeBuffer(cmd2);
+	bufferManager.writeBuffer(cmd1);
+	bufferManager.writeBuffer(cmd2);
 
 	bool expected = true;
 	bool actual1 = isInCommandBuffer(cmd1);
@@ -512,8 +515,8 @@ TEST_F(FileManagerFixture, WriteCommandBufferFileMoreThanTenCommands) {
 	const string cmd2 = "W 10 0x1234AB02";
 
 	for(int i = 0 ; i<10 ; i++)
-		fileManager.writeBuffer(cmd1);
-	fileManager.writeBuffer(cmd2);
+		bufferManager.writeBuffer(cmd1);
+	bufferManager.writeBuffer(cmd2);
 
 	bool expected1 = false;
 	bool actual1 = isInCommandBuffer(cmd1);
@@ -527,8 +530,8 @@ TEST_F(FileManagerFixture, WriteCommandBufferFileMoreThanTenCommands) {
 
 TEST_F(FileManagerFixture, WriteAndReadCommandBufferFile) {
 	const string cmd = "W 20 0x1234ABCD";
-	fileManager.writeBuffer(cmd);
-	EXPECT_THAT(fileManager.readBuffer(), Contains(cmd));
+	bufferManager.writeBuffer(cmd);
+	EXPECT_THAT(bufferManager.readBuffer(), Contains(cmd));
 }
 
 TEST_F(FileManagerFixture, writeToCommandBuffer) {
@@ -552,7 +555,7 @@ TEST_F(FileManagerFixture, WriteCommandBuferAndReadFromCommandBuffer) {
 	const string cmd = "W " + to_string(line) + " " + writeValue;
 
 	// Act
-	fileManager.writeBuffer(cmd);
+	bufferManager.writeBuffer(cmd);
 	ssd.read(line);
 
 	string expected = writeValue;
@@ -572,8 +575,8 @@ TEST_F(FileManagerFixture, WriteCommandBuferTwiceAndReadFromCommandBuffer) {
 	const string cmd2 = "W " + to_string(line2) + " " + writeValue2;
 
 	// Act
-	fileManager.writeBuffer(cmd);
-	fileManager.writeBuffer(cmd2);
+	bufferManager.writeBuffer(cmd);
+	bufferManager.writeBuffer(cmd2);
 	ssd.read(line);
 
 	string expected = writeValue;
@@ -606,7 +609,7 @@ TEST_F(FileManagerFixture, WriteCommandBufferAndErase) {
 	const string cmd = "W " + to_string(line) + " " + writeValue;
 
 	// Act
-	fileManager.writeBuffer(cmd);
+	bufferManager.writeBuffer(cmd);
 	ssd.erase(line, 1);
 
 	// Assert
@@ -623,8 +626,8 @@ TEST_F(FileManagerFixture, WriteCommandBufferMoreThanOnceAndErase) {
 	const string cmd2 = "W " + to_string(line2) + " " + writeValue2;
 
 	// Act
-	fileManager.writeBuffer(cmd);
-	fileManager.writeBuffer(cmd2);
+	bufferManager.writeBuffer(cmd);
+	bufferManager.writeBuffer(cmd2);
 	ssd.erase(line, 1);
 
 	// Assert
@@ -632,7 +635,7 @@ TEST_F(FileManagerFixture, WriteCommandBufferMoreThanOnceAndErase) {
 	EXPECT_TRUE(isInCommandBuffer(cmd2));
 
 	// Act
-	fileManager.writeBuffer(cmd);
+	bufferManager.writeBuffer(cmd);
 	ssd.erase(line, 2);
 
 	// Assert
@@ -647,7 +650,7 @@ TEST_F(FileManagerFixture, WriteCommandBufferTenTimesAndErase) {
 	const string cmd = "W " + to_string(line) + " " + writeValue;
 	// Act
 	for (int i = 0; i < 10; i++)
-		fileManager.writeBuffer(cmd);
+		bufferManager.writeBuffer(cmd);
 	ssd.erase(line, 1);
 
 	// Assert
@@ -722,7 +725,7 @@ TEST_F(FileManagerFixture, avoidDuplicateWriteToCommandBuffer) {
 	// Act
 	ssd.write(line, writeValue);
 	ssd.write(line, writeValue);
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 	
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 1);
@@ -740,7 +743,7 @@ TEST_F(FileManagerFixture, updateWriteToCommandBufferWithNewValue) {
 	// Act
 	ssd.write(line, writeValue);
 	ssd.write(line, writeValue2);
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 	
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 1);
@@ -756,7 +759,7 @@ TEST_F(FileManagerFixture, mergeTwoErasesToOneErase) {
 	// Act
 	ssd.erase(line, 1);
 	ssd.erase(line + 1, 1);
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 1);
@@ -771,7 +774,7 @@ TEST_F(FileManagerFixture, mergeTwoErasesToOneEraseDifferentOrder) {
 	// Act
 	ssd.erase(line + 1, 1);
 	ssd.erase(line, 1);
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 1);
@@ -793,7 +796,7 @@ TEST_F(FileManagerFixture, mergeErasesComplexCase) {
 	const string cmd2 = "E 7 3";
 	const string cmd3 = "E 15 1";
 
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 3);
@@ -814,7 +817,7 @@ TEST_F(FileManagerFixture, erasePPTCondition) {
 	const string cmd = "W 20 0xABCDABCD";
 	const string cmd2 = "E 10 5";
 
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 2);
@@ -833,7 +836,7 @@ TEST_F(FileManagerFixture, eraseSizeBiggerThan10) {
 
 	const string cmd = "E 8 10";
 
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 1);
@@ -855,7 +858,7 @@ TEST_F(FileManagerFixture, optimizeCommandBufferPPT) {
 	const string cmd = "E 10 2";
 
 	// Assert
-	EXPECT_THAT(fileManager.readBuffer(), Contains(cmd));
+	EXPECT_THAT(bufferManager.readBuffer(), Contains(cmd));
 }
 
 TEST_F(FileManagerFixture, optimizeCommandBufferPPT2) {
@@ -867,7 +870,7 @@ TEST_F(FileManagerFixture, optimizeCommandBufferPPT2) {
 	ssd.write(50, "0xABCD1234");
 	const string cmd = "E 40 5";
 	const string cmd2 = "W 50 0xABCD1234";
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 2);
@@ -885,7 +888,7 @@ TEST_F(FileManagerFixture, optimizeCommandBufferPPT3) {
 	ssd.erase(12, 3);
 	const string cmd = "W 10 " + writeValue;
 	const string cmd2 = "E 11 4";
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 	ssd.read(10);
 
 	// Assert
@@ -905,7 +908,7 @@ TEST_F(FileManagerFixture, EraseSameCommandTwice) {
 	ssd.erase(10, 2);
 
 	const string cmd = "E 10 2";
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 1);
@@ -920,7 +923,7 @@ TEST_F(FileManagerFixture, WriteSameCommandTwice) {
 	ssd.write(10, writeValue);
 
 	const string cmd = "W 10 " + writeValue;
-	vector<string> cmdStrings = fileManager.readBuffer();
+	vector<string> cmdStrings = bufferManager.readBuffer();
 
 	// Assert
 	EXPECT_EQ(cmdStrings.size(), 1);
