@@ -56,7 +56,7 @@ public:
 			std::stringstream ss;
 			ss << std::hex << std::setw(8) << std::setfill('0') << index;
 			std::string hexString = ss.str();
-			std::string content = "0x" + hexString;
+			std::string content = "0x" + hexString + "\n";
 			fileNandContent->append(content);
 		}
 	}
@@ -111,7 +111,7 @@ public:
 	FILE* nand_txt_fd;
 	static const int READ_FAIL = 0x00;
 	static const int READ_SUCCESS = 0x01;
-	static const int ONE_LINE_SIZE = 10;
+	static const int ONE_LINE_SIZE = 11;
 	static const int MAX_LBA_SIZE = 100;
 private:
 	std::streambuf* original_cin_buf;
@@ -177,9 +177,9 @@ TEST_F(TestShellFixture, ReadCmdTestShellSuccess) {
 	int expected_read_call = 1;
 	setup_ssd(expected_read_call);
 	setup_fio();
-	nand_txt = "0x000000000x000010040x00000000";
+	nand_txt = "0x00000000\n0x00001004\n0x00000000";
 	int read_index = 1;
-	std::string expect_result = "0x00001004";
+	std::string expect_result = "0x00001004\n";
 
 	TestShell ts{ "read", { std::to_string(read_index),}, &mock_ssd, &mfio };
 
