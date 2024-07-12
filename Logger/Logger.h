@@ -6,7 +6,11 @@
 
 using namespace std;
 
+#ifdef __TEST__
+#define ENABLE_LOG	(0)
+#else
 #define ENABLE_LOG	(1)
+#endif
 
 #if (ENABLE_LOG)
 #define PRINT_LOG(logMsg) (Logger::getInstance().printLog(logMsg, __FUNCTION__))
