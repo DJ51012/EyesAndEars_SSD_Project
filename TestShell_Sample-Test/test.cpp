@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdexcept>
 
+#define __TEST__
+
 #include "MockSsdDriver.h"
 #include "MockFileIo.h"
 #include "../TestShell/SsdDriver.h"

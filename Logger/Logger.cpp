@@ -3,7 +3,8 @@
 
 void Logger::printLog(string logMsg, const char functionName[]) {
 	string logEntry = getLogEntry(logMsg, functionName);
-	cout << logEntry;
+	// test scenario에서 cout 출력 buffer를 변경하므로 cout 대신 printf 사용
+	printf(logEntry.c_str());	// cout << logEntry;
 	try {
 		logFileManager.recordLogOnFile(logEntry, timeManager.getFileNameForStore());
 	}

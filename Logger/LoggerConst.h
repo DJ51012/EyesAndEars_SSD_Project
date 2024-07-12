@@ -1,7 +1,7 @@
 #pragma once
 
 namespace LoggerConst {
-	const int MAX_FUNCTION_NAME = 50;
+	const int MAX_FUNCTION_NAME = 40;
 	const int MAX_LOG_FILE_SIZE = 10 * 1024;
 	const int INVALID_FILE_SIZE = -1;
 	const std::string LATEST_LOG_FILE_NAME = "latest.log";

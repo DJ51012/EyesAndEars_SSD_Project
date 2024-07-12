@@ -2,6 +2,7 @@
 #include "SsdDriver.h"
 #include "FileManager.h"
 #include "util.h"
+#include "../Logger/Logger.h"
 
 #include <iostream>
 #include <fstream>
@@ -56,6 +57,7 @@ public:
 
             if (cmd.type == 'W' && cmd.lba == line) {
                 fileManager->writeResult(cmd.value);
+                PRINT_LOG(("Buffer Hit Read succeeded / LBA: " + to_string(line) + " / Value: " + cmd.value));
                 return;
             }
             else if (cmd.type == 'E') {
@@ -150,6 +152,7 @@ public:
 
 
     void flush() {
+        PRINT_LOG(("Flush Start"));
         vector<string> cmdStrings = fileManager->readBuffer();
         for (auto cmdString : cmdStrings) {
             Command cmd = cmdFormat.parseCommand(cmdString);
@@ -170,6 +173,7 @@ public:
             }
         }
         fileManager->flushBuffer();
+        PRINT_LOG(("Flush Finished"));
     }
     FileManager* fileManager;
     CommandFormat cmdFormat;
