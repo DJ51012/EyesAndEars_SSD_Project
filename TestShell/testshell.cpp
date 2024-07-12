@@ -69,7 +69,7 @@ public:
 		}
 	}
 
-	int run_shell(string cmd) {
+	bool run_shell(string cmd) {
 		this->set_user_input(cmd);
 
 		ScenarioCaller* sc = getScenarioCaller();
@@ -91,13 +91,13 @@ public:
 		}
 		catch (std::invalid_argument& e) {
 			cout << e.what() << endl;
-			return -1;
+			return false;
 		}
 		catch (std::runtime_error& e) {
 			cout << e.what() << endl;
-			return -1;
+			return false;
 		}
-		return 0;
+		return true;
 	}
 
 	void start_shell() {

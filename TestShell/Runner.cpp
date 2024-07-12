@@ -22,7 +22,7 @@ public:
                 command[len - 1] = '\0';
             }
             setDriverRedirection(ts->getDriver(), true);
-            if(run_scenario(ts, command) != 0){
+            if(!run_scenario(ts, command)){
                 break;
             }
         }
@@ -30,16 +30,16 @@ public:
         fclose(file);
     }
 
-    int run_scenario(TestShell* ts, char* cmd) {
+    bool run_scenario(TestShell* ts, char* cmd) {
         LOG(cmd);
         LOG(" --- Run...");
-        if (ts->run_shell(cmd) == 0) {
+        if (ts->run_shell(cmd)) {
             LOG("Pass\n");
-            return 0;
+            return true;
         }
         else {
             LOG("FAIL!\n");
-            return -1;
+            return false;
         }
     }
 
