@@ -24,6 +24,8 @@ void BufferManager::writeBuffer(string command) {
     ofstream cmdBufferWrite(COMMAND_BUFFER_NAME);
     setAllData(cmdBufferWrite, commands);
     cmdBufferWrite.close();
+
+    PRINT_LOG(("Write Buffer succeeded / Command: " + command));
 }
 
 void BufferManager::removeBuffer(string command) {
